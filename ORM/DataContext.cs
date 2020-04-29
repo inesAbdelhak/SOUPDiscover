@@ -2,6 +2,9 @@
 
 namespace testAngulardotnet.ORM
 {
+    /// <summary>
+    /// The context of the database
+    /// </summary>
     public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options)
