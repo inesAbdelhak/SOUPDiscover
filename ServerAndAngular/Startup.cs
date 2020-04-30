@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using testAngulardotnet.ORM;
+using SoupDiscover.ORM;
 
-namespace testAngulardotnet
+namespace SoupDiscover
 {
     public class Startup
     {
@@ -58,7 +58,7 @@ namespace testAngulardotnet
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                    pattern: "api/{controller}/{action=Index}/{id?}");
             });
 
             app.UseSpa(spa =>

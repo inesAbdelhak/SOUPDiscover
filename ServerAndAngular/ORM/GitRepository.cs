@@ -1,4 +1,4 @@
-﻿namespace testAngulardotnet.ORM
+﻿namespace SoupDiscover.ORM
 {
     public class GitRepository : Repository
     {
@@ -10,8 +10,8 @@
         /// <summary>
         /// The key to use, to clone repository if needed
         /// </summary>
-        public Sshkey SshKey { get; set; }
+        public Credential SshKey { get; set; }
 
-        public AuthentificationToken Token { get; set; }
+        public Credential Token { get; set; }
     }
 }

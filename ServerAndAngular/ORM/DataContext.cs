@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace testAngulardotnet.ORM
+namespace SoupDiscover.ORM
 {
     /// <summary>
     /// The context of the database
@@ -20,11 +20,9 @@ namespace testAngulardotnet.ORM
 
         public DbSet<GitRepository> Repositories { get; set; }
 
-        public DbSet<AuthentificationToken> AuthentificationTokens { get; set; }
+        public DbSet<Credential> Credentials { get; set; }
 
         public DbSet<Package> Packages { get; set; }
-        
-        public DbSet<Sshkey> Sshkeys { get; set; }
 
         public DbSet<Project> Projects { get; set; }
     }

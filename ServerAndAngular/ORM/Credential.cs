@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace testAngulardotnet.ORM
+namespace SoupDiscover.ORM
 {
     /// <summary>
     /// A token used to anthenticate from an api
     /// </summary>
-    public class AuthentificationToken
+    public class Credential : EntityObject
     {
         /// <summary>
-        /// The name given to the token
+        /// The name given to the credential
         /// </summary>
         [Key]
         public string NameID { get; set; }
@@ -16,6 +16,14 @@ namespace testAngulardotnet.ORM
         /// <summary>
         /// The token
         /// </summary>
-        public string Token { get; set; }
+        public string Key { get; set; }
+
+        public CredentialType CredentialType { get; set; }
+    }
+
+    public enum CredentialType
+    {
+        Token,
+        SshKey,
     }
 }

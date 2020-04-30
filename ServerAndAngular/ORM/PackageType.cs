@@ -1,4 +1,4 @@
-﻿namespace testAngulardotnet.ORM
+﻿namespace SoupDiscover.ORM
 {
     public enum PackageType
     {

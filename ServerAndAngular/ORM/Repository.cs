@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace testAngulardotnet.ORM
+namespace SoupDiscover.ORM
 {
     public class Repository : EntityObject
     {

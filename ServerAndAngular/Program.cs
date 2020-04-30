@@ -7,9 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using testAngulardotnet.ORM;
+using SoupDiscover.ORM;
 
-namespace testAngulardotnet
+namespace SoupDiscover
 {
     public class Program
     {

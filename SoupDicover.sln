@@ -1,9 +1,8 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoupDiscover", "SoupDiscover.csproj", "{B7343806-0E4A-40F8-BE87-4B7FCFE1185B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SoupDiscover", "ServerAndAngular\SoupDiscover.csproj", "{B7343806-0E4A-40F8-BE87-4B7FCFE1185B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,3 +22,15 @@ Global
 		SolutionGuid = {B7A608AC-2978-45B1-8605-64B3500FE8E8}
 	EndGlobalSection
 EndGlobal
+© 2020 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
