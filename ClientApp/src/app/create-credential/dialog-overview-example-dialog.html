@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Création d'un nouveau Credential</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Nom</mat-label>
+    <input matInput [(ngModel)]="data.name">
+  </mat-form-field><br/>
+  <mat-form-field>
+    <mat-label>Clé</mat-label>
+    <input matInput [(ngModel)]="data.token">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Annuler</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Créer</button>
+</div>
