@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CredentialService } from '../service/credential.service';
 
 export interface DialogData {
   name: string;
@@ -14,20 +15,22 @@ export interface DialogData {
 export class CreateCredentialComponent implements OnInit {
 
   name: string;
-  token: string;
+  key: string;
 
-  constructor(public dialog: MatDialog) { }
+  constructor(public dialog: MatDialog, public credentalService: CredentialService) { }
 
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogOverviewExampleDialog, {
       //width: '250px',
       //height: '400px',
-      data: { name: this.name, token: this.token}
+      data: { name: '', key: ''}
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.token = result;
+      this.name = result.name; 
+      this.key = result.key;
+      this.credentalService.AddCredential(result);
     });
   }
 

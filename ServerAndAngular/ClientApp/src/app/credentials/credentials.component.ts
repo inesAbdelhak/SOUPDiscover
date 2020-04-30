@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { CredentialService } from '../service/credential.service';
+import { CredentialDto } from '../Model/Credential';
 
 @Component({
   selector: 'app-credentials',
@@ -6,10 +8,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./credentials.component.css']
 })
 export class CredentialsComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+  public credentials: CredentialDto[];
+  constructor(private credentialService: CredentialService) {
   }
-
+   
+  ngOnInit() {
+    this.credentialService.GetCredentials().subscribe(result => {
+      this.credentials = result;
+    }, error => console.error(error));
+  }
 }
