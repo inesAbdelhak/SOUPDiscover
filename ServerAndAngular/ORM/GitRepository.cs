@@ -8,6 +8,11 @@
         public string Branch { get; set; }
 
         /// <summary>
+        /// ssh url to the repository
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
         /// The key to use, to clone repository if needed
         /// </summary>
         public Credential SshKey { get; set; }

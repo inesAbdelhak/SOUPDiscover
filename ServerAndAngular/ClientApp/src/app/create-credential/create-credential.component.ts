@@ -1,6 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
+import { CredentialDto } from '../Model/credential';
+import { RepositoryType } from '../Model/repository';
 
 export interface DialogData {
   name: string;
@@ -14,22 +16,21 @@ export interface DialogData {
 })
 export class CreateCredentialComponent implements OnInit {
 
-  name: string;
-  key: string;
+  data: CredentialDto;
 
   constructor(public dialog: MatDialog, public credentalService: CredentialService) { }
 
   openDialog(): void {
-    const dialogRef = this.dialog.open(DialogOverviewExampleDialog, {
+    this.data = { name: '', key: '' };
+    const dialogRef = this.dialog.open(CreateCredentialDialog, {
       //width: '250px',
       //height: '400px',
-      data: { name: '', key: ''}
+      data: { data: this.data}
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.name = result.name; 
-      this.key = result.key;
+      this.data = result;
       this.credentalService.AddCredential(result);
     });
   }
@@ -39,14 +40,13 @@ export class CreateCredentialComponent implements OnInit {
 }
 
 @Component({
-  selector: 'dialog-overview-example-dialog',
-  templateUrl: 'dialog-overview-example-dialog.html',
+  selector: 'create-credential-dialog',
+  templateUrl: 'create-credential-dialog.html',
 })
-export class DialogOverviewExampleDialog {
-
+export class CreateCredentialDialog  {
   constructor(
-    public dialogRef: MatDialogRef<DialogOverviewExampleDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData) { }
+    public dialogRef: MatDialogRef<CreateCredentialDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
 
   onNoClick(): void {
     this.dialogRef.close();

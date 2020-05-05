@@ -47,7 +47,7 @@ namespace SoupDiscover.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCredential(string id, Credential credential)
         {
-            if (id != credential.NameID)
+            if (id != credential.name)
             {
                 return BadRequest();
             }
@@ -86,7 +86,7 @@ namespace SoupDiscover.Controllers
             }
             catch (DbUpdateException)
             {
-                if (CredentialExists(authentificationToken.NameID))
+                if (CredentialExists(authentificationToken.name))
                 {
                     return Conflict();
                 }
@@ -96,7 +96,7 @@ namespace SoupDiscover.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAuthentificationToken", new { id = authentificationToken.NameID }, authentificationToken);
+            return CreatedAtAction("GetAuthentificationToken", new { id = authentificationToken.name }, authentificationToken);
         }
 
         // DELETE: api/Credentials/5
@@ -117,7 +117,7 @@ namespace SoupDiscover.Controllers
 
         private bool CredentialExists(string id)
         {
-            return _context.Credentials.Any(e => e.NameID == id);
+            return _context.Credentials.Any(e => e.name == id);
         }
     }
 }

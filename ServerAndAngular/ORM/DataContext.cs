@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SoupDiscover.ORM;
 
 namespace SoupDiscover.ORM
 {
@@ -25,5 +26,7 @@ namespace SoupDiscover.ORM
         public DbSet<Package> Packages { get; set; }
 
         public DbSet<Project> Projects { get; set; }
+
+        public DbSet<SoupDiscover.ORM.Repository> Repository { get; set; }
     }
 }

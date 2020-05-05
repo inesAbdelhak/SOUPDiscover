@@ -11,12 +11,12 @@ namespace SoupDiscover.ORM
         /// The name given to the credential
         /// </summary>
         [Key]
-        public string NameID { get; set; }
+        public string name { get; set; }
 
         /// <summary>
         /// The token
         /// </summary>
-        public string Key { get; set; }
+        public string key { get; set; }
 
         public CredentialType CredentialType { get; set; }
     }

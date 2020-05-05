@@ -1,3 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//# sourceMappingURL=Credential.js.map
+var CredentialDto = /** @class */ (function () {
+    function CredentialDto() {
+    }
+    return CredentialDto;
+}());
+exports.CredentialDto = CredentialDto;
+//# sourceMappingURL=credential.js.map

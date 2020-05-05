@@ -1,8 +1,7 @@
 <div>
-  <button mat-raised-button>Ajouter un nouveau dépot</button>
+  <app-create-repository></app-create-repository>
 
   <ul>
-    <li><a href="#">mhp-code master (Git)</a><button>Supprimer</button></li>
-    <li><a href="#">mhp-code release/65 (Git)</a><button>Supprimer</button></li>
+    <li *ngFor="let repo of repositories"><a [routerLink]="'/repositories/' + repo">{{repo.name}}}</a></li>
   </ul>
 </div>

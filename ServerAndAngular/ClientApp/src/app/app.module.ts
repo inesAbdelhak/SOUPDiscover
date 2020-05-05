@@ -16,9 +16,11 @@ import { MatListModule } from '@angular/material/list';
 import { ProjectComponent } from './project/project.component';
 import { RepositoriesComponent } from './repositories/repositories.component';
 import { CredentialsComponent } from './credentials/credentials.component';
-import { CreateCredentialComponent, DialogOverviewExampleDialog } from './create-credential/create-credential.component';
+import { CreateCredentialComponent, CreateCredentialDialog } from './create-credential/create-credential.component';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MaterialModule } from './material-module';
+import { CommonModule } from '@angular/common';
+import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repository/create-repository.component';
 
 @NgModule({
   declarations: [
@@ -28,9 +30,12 @@ import { MaterialModule } from './material-module';
     RepositoriesComponent,
     CredentialsComponent,
     CreateCredentialComponent,
-    DialogOverviewExampleDialog,
+    CreateCredentialDialog,
+    CreateRepositoryComponent,
+    CreateRepositoryDialog,
   ],
   imports: [
+    CommonModule,
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
@@ -50,7 +55,10 @@ import { MaterialModule } from './material-module';
     MatListModule
   ],
   entryComponents: [
-    CreateCredentialComponent, DialogOverviewExampleDialog
+    CreateCredentialComponent,
+    CreateCredentialDialog,
+    CreateRepositoryComponent,
+    CreateRepositoryDialog
     ],
   providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },],
   bootstrap: [AppComponent]

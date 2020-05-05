@@ -1,0 +1,30 @@
+<h1 mat-dialog-title>Création d'un nouveau dépot</h1>
+<div mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Type de dépot</mat-label>
+    <mat-select [(value)]="data.repositoryType">
+      <mat-option>--selectionner--</mat-option>
+      <mat-option *ngFor="let opt of repositoryTypes" [value]="opt">{{opt}}</mat-option>
+    </mat-select>
+  </mat-form-field><br />
+  <mat-form-field *ngIf="data.repositoryType === 'Git'">
+    <mat-label>Url ssh</mat-label>
+    <input matInput [(ngModel)]="data.url">
+  </mat-form-field><br />
+  <mat-form-field>
+    <mat-label>Branch</mat-label>
+    <input matInput [(ngModel)]="data.branch">
+  </mat-form-field><br />
+  <mat-form-field>
+    <mat-label>Clé ssh</mat-label>
+    <input matInput [(ngModel)]="data.sshKeyName">
+  </mat-form-field><br />
+  <mat-form-field>
+    <mat-label>Token pour les requêtes GitHUB</mat-label>
+    <input matInput [(ngModel)]="data.tokenName">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Annuler</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Créer</button>
+</div>
