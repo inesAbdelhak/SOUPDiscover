@@ -25,7 +25,7 @@ export class CreateCredentialComponent implements OnInit {
     const dialogRef = this.dialog.open(CreateCredentialDialog, {
       //width: '250px',
       //height: '400px',
-      data: { data: this.data}
+      data: this.data
     });
 
     dialogRef.afterClosed().subscribe(result => {

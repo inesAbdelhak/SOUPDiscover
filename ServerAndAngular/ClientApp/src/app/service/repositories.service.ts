@@ -24,7 +24,7 @@ export class RepositoriesService {
     return request;
   }
 
-  /** Return all repository on database */
+  /** Return all repositories on database */
   GetRepositories(): Observable<RepositoryDto[]> {
     return this.httpClient.get<RepositoryDto[]>(this.baseUrl + 'api/repositories');
   }

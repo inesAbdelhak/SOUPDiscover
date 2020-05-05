@@ -11,6 +11,7 @@ namespace SoupDiscover.Controllers
 {
     public enum RepositoryType
     {
+        None,
         Git,
     }
     public class RepositoryDto
@@ -55,9 +56,24 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Repositories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Repository>>> GetRepository()
+        public async Task<ActionResult<IEnumerable<RepositoryDto>>> GetRepository()
         {
-            return await _context.Repository.ToListAsync();
+            var list = await _context.Repository.ToListAsync();
+            var dtos = list.Select(r =>
+            {
+                var git = (GitRepository)r;
+                _context.Entry(git).Reference(g => g.SshKey).LoadAsync();
+                return new RepositoryDto()
+                {
+                    repositoryType = RepositoryType.Git,
+                    branch = git.Branch,
+                    name = r.Name,
+                    sshKeyName = git.SshKeyId,
+                    tokenName = git.TokenId,
+                    url = git.Url,
+                };
+            });
+            return CreatedAtAction("GetAllRepositories", dtos);
         }
 
         // GET: api/Repositories/5
@@ -110,20 +126,24 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Repository>> PostRepository(RepositoryDto repositoryDto)
+        public async Task<ActionResult<RepositoryDto>> PostRepository(RepositoryDto repositoryDto)
         {
             Repository repository = null;
             // Create repository from repository dto
             switch (repositoryDto.repositoryType)
             {
                 case RepositoryType.Git:
+                    var sshKey = _context.Credentials.Find(repositoryDto.sshKeyName);
+                    var token = _context.Credentials.Find(repositoryDto.tokenName);
                     repository = new GitRepository()
                     {
                         Branch = repositoryDto.branch,
                         Url = repositoryDto.url,
                         Name = repositoryDto.name,
-                        SshKey = _context.Credentials.Find(repositoryDto.sshKeyName),
-                        Token = _context.Credentials.Find(repositoryDto.tokenName),
+                        SshKey = sshKey,
+                        SshKeyId = sshKey?.name,
+                        Token = token,
+                        TokenId = token?.name,
                     };
                 break;
             }

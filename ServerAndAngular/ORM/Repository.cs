@@ -2,7 +2,7 @@
 
 namespace SoupDiscover.ORM
 {
-    public class Repository : EntityObject
+    public abstract class Repository : EntityObject
     {
         public int ID { get; set; }
          

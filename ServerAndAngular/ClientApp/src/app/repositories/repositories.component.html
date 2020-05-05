@@ -2,6 +2,6 @@
   <app-create-repository></app-create-repository>
 
   <ul>
-    <li *ngFor="let repo of repositories"><a [routerLink]="'/repositories/' + repo">{{repo.name}}}</a></li>
+    <li *ngFor="let repo of repositories"><a [routerLink]="'/repositories/' + repo.id">name:{{repo.name}}, id:{{repo.id}}, repositoryType:{{repo.repositoryType}}, url:{{repo.url}}, sshKeyName:{{repo.sshKeyName}}, branch:{{repo.branch}}</a></li>
   </ul>
 </div>

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.EntityFrameworkCore;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.ORM
@@ -15,8 +16,7 @@ namespace SoupDiscover.ORM
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder
-           .UseSqlite(@"Data Source=CustomerDB.db;");
+            optionsBuilder.UseSqlite(@"Data Source=CustomerDB.db;");
         }
 
         public DbSet<GitRepository> Repositories { get; set; }

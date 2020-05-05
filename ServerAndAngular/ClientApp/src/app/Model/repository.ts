@@ -7,16 +7,16 @@ export interface RepositoryDto {
   /** The id of the repository in database */
   id?: number;
   /** The type of the repository */
-  repositoryType: RepositoryType;
+  repositoryType?: RepositoryType;
   /** The name of the repository to display */
-  name: string;
+  name?: string;
   /** The url to the git repository */
-  url: string;
+  url?: string;
   /** The name of sh key to clone the repository */
-  sshKeyName: string;
+  sshKeyName?: string;
   /** The name of the branch to process */
-  branch: string;
+  branch?: string;
   /** The token of the token, to request GitHUB  */
-  tokenName: string;
+  tokenName?: string;
 }
 
