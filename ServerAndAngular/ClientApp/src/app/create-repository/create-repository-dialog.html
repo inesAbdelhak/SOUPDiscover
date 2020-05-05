@@ -12,21 +12,34 @@
     <input matInput [(ngModel)]="data.name">
   </mat-form-field><br />
   <!-- for git repositories -->
+  <!-- the git url in ssh format -->
   <mat-form-field *ngIf="selected?.name === 'Git'">
     <mat-label>Url ssh</mat-label>
     <input matInput [(ngModel)]="data.url">
   </mat-form-field><br />
+
+  <!-- The git branch name -->
   <mat-form-field *ngIf="selected?.name === 'Git'">
     <mat-label>Branch</mat-label>
     <input matInput [(ngModel)]="data.branch">
   </mat-form-field><br />
+
+  <!-- The ssh key to clone the repository -->
   <mat-form-field *ngIf="selected?.name === 'Git'">
     <mat-label>Clé ssh</mat-label>
-    <input matInput [(ngModel)]="data.sshKeyName">
+    <mat-select [(ngModel)]="data.sshKeyName">
+      <mat-option>--selectionner--</mat-option>
+      <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
+    </mat-select>
   </mat-form-field><br />
+
+  <!-- The GitHUB token -->
   <mat-form-field *ngIf="selected?.name === 'Git'">
     <mat-label>Token pour les requêtes GitHUB</mat-label>
-    <input matInput [(ngModel)]="data.tokenName">
+    <mat-select [(ngModel)]="data.tokenName">
+      <mat-option>--selectionner--</mat-option>
+      <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
+    </mat-select>
   </mat-form-field>
 </div>
 <div mat-dialog-actions>

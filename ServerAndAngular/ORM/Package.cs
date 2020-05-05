@@ -10,7 +10,5 @@ namespace SoupDiscover.ORM
         public string ID { get; set; }
 
         public PackageType PackageType { get; set; }
-
-        public ProcessStatus ProcessStatus { get; set; }
     }
 }

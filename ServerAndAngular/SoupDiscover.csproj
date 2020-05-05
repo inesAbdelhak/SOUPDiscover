@@ -36,6 +36,7 @@
     <None Remove=".gitignore" />
     <None Remove="ClientApp\src\app\material-module.ts" />
     <None Remove="ClientApp\src\app\Model\Credential.ts" />
+    <None Remove="ClientApp\src\app\Model\Project.ts" />
     <None Remove="ClientApp\src\app\Model\repository.ts" />
     <None Remove="CustomerDB.db" />
   </ItemGroup>
@@ -43,6 +44,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\material-module.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\Model\credential.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\Model\project.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\Model\repository.ts" />
   </ItemGroup>
 

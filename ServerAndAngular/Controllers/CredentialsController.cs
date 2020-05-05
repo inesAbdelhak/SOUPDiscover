@@ -31,14 +31,14 @@ namespace SoupDiscover.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Credential>> GetCredential(string id)
         {
-            var authentificationToken = await _context.Credentials.FindAsync(id);
+            var credential = await _context.Credentials.FindAsync(id);
 
-            if (authentificationToken == null)
+            if (credential == null)
             {
                 return NotFound();
             }
 
-            return authentificationToken;
+            return credential;
         }
 
         // PUT: api/Credentials/5
@@ -77,16 +77,16 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Credential>> PostCredential(Credential authentificationToken)
+        public async Task<ActionResult<Credential>> PostCredential(Credential credential)
         {
-            _context.Credentials.Add(authentificationToken);
+            _context.Credentials.Add(credential);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CredentialExists(authentificationToken.name))
+                if (CredentialExists(credential.name))
                 {
                     return Conflict();
                 }
@@ -96,23 +96,23 @@ namespace SoupDiscover.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAuthentificationToken", new { id = authentificationToken.name }, authentificationToken);
+            return CreatedAtAction("GetCredential", new { id = credential.name }, credential);
         }
 
         // DELETE: api/Credentials/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Credential>> DeleteCredential(string id)
         {
-            var authentificationToken = await _context.Credentials.FindAsync(id);
-            if (authentificationToken == null)
+            var credential = await _context.Credentials.FindAsync(id);
+            if (credential == null)
             {
                 return NotFound();
             }
 
-            _context.Credentials.Remove(authentificationToken);
+            _context.Credentials.Remove(credential);
             await _context.SaveChangesAsync();
 
-            return authentificationToken;
+            return credential;
         }
 
         private bool CredentialExists(string id)

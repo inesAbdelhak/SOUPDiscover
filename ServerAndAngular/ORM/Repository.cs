@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoupDiscover.ORM
 {
@@ -9,6 +10,7 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The name of the repository to display
         /// </summary>
+        [Required]
         public string Name { get; set; }
     }
 }

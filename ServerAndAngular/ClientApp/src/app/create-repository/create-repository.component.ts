@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { CredentialService } from '../service/credential.service';
 import { RepositoryDto, RepositoryType } from '../Model/repository';
 import { RepositoriesService } from '../service/repositories.service';
+import { CredentialDto } from '../Model/credential';
 
 @Component({
   selector: 'app-create-repository',
@@ -41,11 +42,12 @@ export class CreateRepositoryComponent implements OnInit {
 })
 export class CreateRepositoryDialog implements OnInit {
   repositoryTypes = Object.keys(RepositoryType).filter(e => !isNaN(+e)).map(o => { return { index: +o, name: RepositoryType[o] } });
-  //repositoryTypes = RepositoryType;
   selected: { index: number, name: string };
+
+  availableCredentials: CredentialDto[];
   constructor(
     public dialogRef: MatDialogRef<CreateRepositoryDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: RepositoryDto) { }
+    @Inject(MAT_DIALOG_DATA) public data: RepositoryDto, public credentialService : CredentialService) { }
 
   onNoClick(): void {
     this.dialogRef.close();
@@ -56,6 +58,9 @@ export class CreateRepositoryDialog implements OnInit {
   }
 
   ngOnInit(): void {
+    // Retrieve all available credentials
+    this.credentialService.GetCredentials()
+      .subscribe(res => this.availableCredentials = res);
   }
 
 }
