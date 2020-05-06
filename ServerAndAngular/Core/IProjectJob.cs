@@ -10,6 +10,6 @@ namespace SoupDiscover.Core
         /// <summary>
         /// The project to process
         /// </summary>
-        Project Project { get; set; }
+        SOUPSearchProject Project { get; set; }
     }
 }

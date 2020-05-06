@@ -19,13 +19,21 @@ namespace SoupDiscover.ORM
             optionsBuilder.UseSqlite(@"Data Source=CustomerDB.db;");
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<SOUPSearchProject>()
+            .Property<string>("SOUPTypeToSearchCollection")
+            .HasField("_sOUPTypeToSearch");
+        }
+
         public DbSet<GitRepository> Repositories { get; set; }
 
         public DbSet<Credential> Credentials { get; set; }
 
         public DbSet<Package> Packages { get; set; }
 
-        public DbSet<Project> Projects { get; set; }
+        public DbSet<SOUPSearchProject> Projects { get; set; }
 
         public DbSet<SoupDiscover.ORM.Repository> Repository { get; set; }
     }

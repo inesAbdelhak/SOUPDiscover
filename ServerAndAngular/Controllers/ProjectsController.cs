@@ -28,14 +28,14 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Projects
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<SOUPSearchProject>>> GetProjects()
         {
             return await _context.Projects.ToListAsync();
         }
 
         // GET: api/Projects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<SOUPSearchProject>> GetProject(int id)
         {
             var project = await _context.Projects.FindAsync(id);
 
@@ -51,7 +51,7 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(int id, Project project)
+        public async Task<IActionResult> PutProject(int id, SOUPSearchProject project)
         {
             if (id != project.Id)
             {
@@ -83,7 +83,7 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Project>> PostProject(Project project)
+        public async Task<ActionResult<SOUPSearchProject>> PostProject(SOUPSearchProject project)
         {
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
@@ -100,7 +100,7 @@ namespace SoupDiscover.Controllers
         /// <param name="projectId">Id of the project to Start</param>
         /// <returns></returns>
         [HttpPost("Start/{id}")]
-        public async Task<ActionResult<Project>> StartProject(int projectId)
+        public async Task<ActionResult<SOUPSearchProject>> StartProject(int projectId)
         {
             // Retrieve the project to start
             var project = await _context.Projects.FindAsync(projectId);
@@ -127,7 +127,7 @@ namespace SoupDiscover.Controllers
 
         // DELETE: api/Projects/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Project>> DeleteProject(int id)
+        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(int id)
         {
             var project = await _context.Projects.FindAsync(id);
             if (project == null)
