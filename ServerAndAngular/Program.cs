@@ -25,25 +25,35 @@ namespace SoupDiscover
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
+                var logger = services.GetRequiredService<ILogger<Program>>();
 
                 try
                 {
                     var context = services.GetRequiredService<DataContext>();
-                    context.Database.EnsureCreated();
+                    if (context.Database.EnsureCreated())
+                    {
+                        logger.LogInformation("The database schema is generated");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
                     logger.LogError(ex, "An error occurred creating the DB.");
                 }
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddLog4Net();
+                    logging.AddConsole();
                 });
+        }
     }
 }

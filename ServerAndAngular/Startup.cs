@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SoupDiscover.Core;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover
@@ -29,6 +30,8 @@ namespace SoupDiscover
                 configuration.RootPath = "ClientApp/dist";
             });
             services.AddDbContext<DataContext>(options => options.UseSqlite(@"Data Source=CustomerDB.db;"));
+            services.AddSingleton<IProjectJobManager, ProjectJobManager>();
+            services.AddTransient<IProjectJob, ProjectJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

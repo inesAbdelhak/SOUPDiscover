@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SoupDiscover.Core;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -14,10 +16,14 @@ namespace SoupDiscover.Controllers
     public class ProjectsController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly IProjectJobManager _projectJobManager;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ProjectsController(DataContext context)
+        public ProjectsController(DataContext context, IProjectJobManager projectJobManager, IServiceProvider serviceProvider)
         {
             _context = context;
+            _projectJobManager = projectJobManager;
+            _serviceProvider = serviceProvider;
         }
 
         // GET: api/Projects
@@ -83,6 +89,40 @@ namespace SoupDiscover.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProject", new { id = project.Id }, project);
+        }
+
+        // POST: api/Projects/Start/{id}
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        /// <summary>
+        /// Start the processing of the project
+        /// </summary>
+        /// <param name="projectId">Id of the project to Start</param>
+        /// <returns></returns>
+        [HttpPost("Start/{id}")]
+        public async Task<ActionResult<Project>> StartProject(int projectId)
+        {
+            // Retrieve the project to start
+            var project = await _context.Projects.FindAsync(projectId);
+            _context.Entry(project).Reference(r => r.Repository).Load();
+            switch (project.Repository)
+            {
+                case GitRepository git :
+                    _context.Entry((GitRepository)project.Repository).Reference(r => r.SshKey).Load();
+                    _context.Entry((GitRepository)project.Repository).Reference(r => r.Token).Load();
+                break;
+                default: throw new ApplicationException($"The repository Type {project.Repository?.GetType()} is not supported!");
+            }
+            // Create the job to process the project
+            var projectJob = _serviceProvider.GetService<IProjectJob>();
+            projectJob.Project = project;
+            // Add the Job to the JobManager
+            if (!_projectJobManager.StartTask(projectJob))
+            {
+                return Problem($"The project {project.Id} is already processing !");
+            }
+
+            return CreatedAtAction("Process Project", new { id = projectId }, project);
         }
 
         // DELETE: api/Projects/5

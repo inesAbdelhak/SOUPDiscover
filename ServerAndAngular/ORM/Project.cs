@@ -18,11 +18,13 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The repository where search files
         /// </summary>
+        [Required]
         public virtual Repository Repository { get; set; }
 
         /// <summary>
         /// The forign key to the repository definition
         /// </summary>
+        [Required]
         public int RepositoryId { get; set; }
 
         /// <summary>
