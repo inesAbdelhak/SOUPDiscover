@@ -43,6 +43,16 @@ namespace SoupDiscover.ORM
         /// </summary>
         public ProcessStatus ProcessStatus { get; set; }
 
+        /// <summary>
+        /// The command lines to execute before search and parse files
+        /// </summary>
+        public string CommandLinesBeforeParse { get; set; }
+
+        /// <summary>
+        /// List of Url nuget server where find metadata of packages
+        /// </summary>
+        public string NugetServerUrl { get; set; }
+
         [NotMapped]
         public SOUPToSearch[] SOUPTypeToSearch
         {
@@ -52,11 +62,5 @@ namespace SoupDiscover.ORM
                 _sOUPTypeToSearch = string.Join($"{delimiter}", value);
             }
         }
-    }
-
-    public enum SOUPToSearch
-    {
-        Nuget,
-        npm,
     }
 }

@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using SoupDiscover.ORM;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,8 +42,7 @@ namespace SoupDiscover.Core
         /// <summary>
         /// Start asynchronously the process, to find all SOUP in the repository
         /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
+        /// <param name="token">The token to stop the processing</param>
         public async Task StartAsync(CancellationToken token)
         {
             if (Project == null)
@@ -58,7 +59,7 @@ namespace SoupDiscover.Core
                 nugetPackages = await SearchNugetPackages();
             }
 
-            if (Project.SOUPTypeToSearch.Contains(SOUPToSearch.Nuget))
+            if (Project.SOUPTypeToSearch.Contains(SOUPToSearch.npm))
             {
                 npmPackages = await SearchNpmPackages();
             }
@@ -73,30 +74,55 @@ namespace SoupDiscover.Core
             }
         }
 
-        private Task<Package[]> SearchNpmPackages()
+        private async Task<Package[]> SearchNpmPackages()
         {
             // Clone du dépot avec l'option depth = 1 pour aller plus vite
-            //  On recherche le fichier ....
-            // on install les packages npm pour qu'il génère le fichier package-lock
-            // On parse le fichier package-lock
-            // On intéroge le server de packages pour retrouver les metadonnées des packages
-            return Task.FromResult((Package[])null);
+            // Lancer la commande qui permet de générer le fichier lock
+            // Parser le fichier lock
+            return null;
         }
 
-        private Task<Package[]> SearchNugetPackages()
+        private async Task<Package[]> SearchNugetPackages()
         {
-            // Clone the repository (depth = 1, pour aller plus vite )
-            // Chercher les fichiers global.json
-            //  - Télécharger les packages déclarés dans global.json : On récupère le fichier Packages.Soup.props qui se trouve dans le package stago.mhp.techcore.build.resources
-            //    - Chercher tous les fichiers *.props dans les packages nuget de global.json (on trouve le fichier Packages.Soup.props) et on rechercke les <PackageReference Update="..." Version="..."/>
-            // On cherche tous les fichiers *.props
-            //   - On y recherche tout les <PackageReference Update="..." version="..."/>
-            // On ouvre tous les fichiers packages.config 
-            //  - On y cherche tous les <Package id="..." version="..."/>
-            // On ouvre les fichiers *.csproj
-            //  - On recherche les <PackageRefernce id="..." version="..." />
-            // On intéroge les server de packages, pour retouver les metadonnée des packages
-            return Task.FromResult((Package[])null);
+            // Cloner le dépot (depth = 1, pour aller plus vite )
+            var directory = await RetriveSourceFiles();
+            // Lancer les lignes de commandes pour générer les fichiers packages.assets.props
+            // Parser les fichiers packages.assets.props
+            // Parser les fichiers packages.config
+            // Récupérer les métadonnées des packages nuget
+            return null;
+        }
+
+        /// <summary>
+        /// Return the directory where copy all files of the repository
+        /// Its a temporary directory
+        /// </summary>
+        private string GetWorkDirectory()
+        {
+            var workDir = Environment.GetEnvironmentVariable("TempWork");
+            if(workDir == null)
+            {
+                workDir = Path.GetTempPath();
+            }
+            // Create a directory where working
+            return Path.Combine(workDir, "Project", Project.Id.ToString());
+        }
+
+        /// <summary>
+        /// Return the directory where files are copied
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> RetriveSourceFiles()
+        {
+            var workDir = GetWorkDirectory();
+            if(Directory.Exists(workDir))
+            {
+                Directory.Delete(workDir, true);
+            }
+            var wrapperRepository = Project.Repository.GetRepositoryWrapper();
+            wrapperRepository.CopyTo(workDir);
+            return workDir;
         }
     }
+
 }
