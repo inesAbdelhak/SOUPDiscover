@@ -18,5 +18,4 @@ namespace SoupDiscover.Core
             }
         }
     }
-
 }

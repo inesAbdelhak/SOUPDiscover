@@ -22,9 +22,5 @@ namespace SoupDiscover.ORM
         public virtual Credential SshKey { get; set; }
 
         public string SshKeyId { get; set; }
-
-        public virtual Credential Token { get; set; }
-
-        public string TokenId { get; set; }
     }
 }

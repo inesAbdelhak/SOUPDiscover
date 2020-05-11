@@ -4,11 +4,19 @@ using System.Linq;
 
 namespace SoupDiscover.Core
 {
-    internal class ConfigFile
+    /// <summary>
+    /// To read create or modify a ssh config file. ~/.ssh/config
+    /// </summary>
+    public class SshConfigFile
     {
+        /// <summary>
+        /// All root element of the ssh config file
+        /// </summary>
         private IList<RootElement> _rootElements;
+        
         private bool _isUpdated;
-        public ConfigFile(string path)
+        
+        public SshConfigFile(string path)
         {
             Path = path;
             if (!File.Exists(path))
@@ -27,7 +35,7 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="root">the root element name</param>
         /// <param name="subElement">the sub-element to add</param>
-        /// <returns></returns>
+        /// <returns>true : The key is added, false : the element already exists</returns>
         public bool Add(string root, string subElement)
         {
             var rootElement = _rootElements.FirstOrDefault(e => e.Name == root);
@@ -41,6 +49,10 @@ namespace SoupDiscover.Core
             return result;
         }
 
+        /// <summary>
+        /// Save the current state to the file
+        /// </summary>
+        /// <returns>true: An update is pending ad saved. False : no pending modification.</returns>
         public bool Save()
         {
             if(!_isUpdated)
@@ -63,8 +75,15 @@ namespace SoupDiscover.Core
             return true;
         }
 
+        /// <summary>
+        /// The path to the config file
+        /// </summary>
         public string Path { get; }
 
+        /// <summary>
+        /// To read all rootElement of the ssh config file
+        /// </summary>
+        /// <param name="sshConfigFile">the config file path</param>
         private static IEnumerable<RootElement> ReadConfigFile(string sshConfigFile)
         {
             RootElement currentRoot = null;

@@ -23,8 +23,8 @@ namespace SoupDiscover.ORM
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<SOUPSearchProject>()
-            .Property<string>("SOUPTypeToSearchCollection")
-            .HasField("_sOUPTypeToSearch");
+            .Property<string>("_sOUPTypeToSearchCollection")
+            .HasField("_sOUPTypeToSearchCollection");
         }
 
         public DbSet<GitRepository> Repositories { get; set; }

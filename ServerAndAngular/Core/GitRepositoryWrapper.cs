@@ -69,7 +69,7 @@ namespace SoupDiscover.Core
         {
             // https://medium.com/@xiaolishen/use-multiple-ssh-keys-for-different-github-accounts-on-the-same-computer-7d7103ca8693
             var sshConfigFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), ".ssh", "config");
-            var config = new ConfigFile(sshConfigFile);
+            var config = new SshConfigFile(sshConfigFile);
             
             config.Add($"Host {HostName}-{_sshKeyId}", "StrictHostKeyChecking no");
             config.Add($"Host {HostName}-{_sshKeyId}", $"HostName {HostName}");

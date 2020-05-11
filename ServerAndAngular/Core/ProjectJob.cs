@@ -8,6 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.AccessControl;
+using System.Diagnostics;
+using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Xml.Linq;
+using log4net.Core;
 
 namespace SoupDiscover.Core
 {
@@ -29,7 +35,7 @@ namespace SoupDiscover.Core
         public SOUPSearchProject Project { get; set; }
 
         public object IdJob => Project.Id;
-        
+
         /// <summary>
         /// Start synchronously the process, to find all SOUP in the repository
         /// </summary>
@@ -63,6 +69,7 @@ namespace SoupDiscover.Core
             {
                 npmPackages = await SearchNpmPackages();
             }
+
             var list = new List<Package>();
             if (nugetPackages != null)
             {
@@ -72,11 +79,14 @@ namespace SoupDiscover.Core
             {
                 list.AddRange(npmPackages);
             }
+            // Save all packages in database
         }
 
         private async Task<Package[]> SearchNpmPackages()
         {
-            // Clone du dépot avec l'option depth = 1 pour aller plus vite
+            // Clone the repository
+            // var directory = await RetriveSourceFiles();
+            
             // Lancer la commande qui permet de générer le fichier lock
             // Parser le fichier lock
             return null;
@@ -84,13 +94,93 @@ namespace SoupDiscover.Core
 
         private async Task<Package[]> SearchNugetPackages()
         {
-            // Cloner le dépot (depth = 1, pour aller plus vite )
-            var directory = await RetriveSourceFiles();
-            // Lancer les lignes de commandes pour générer les fichiers packages.assets.props
-            // Parser les fichiers packages.assets.props
-            // Parser les fichiers packages.config
-            // Récupérer les métadonnées des packages nuget
-            return null;
+            // Copy content files of the repository to a temporary directory
+            var directory = await RetrieveSourceFiles();
+            // Execute command line defined in Packages.CommandLineBeforeParse
+            ExecuteCommandLinesBefore(directory);
+            // Search and parse files packages.assets.props and packages.config
+            return SearchNugetPackagesFiles(directory).ToArray();
+        }
+
+        private Package CreateNugetPackageDescription(string id, string version)
+        {
+            return new Package() { PackageId = id, Version = version };
+        }
+
+        private IEnumerable<Package> SearchNugetPackagesFiles(string path)
+        {
+            HashSet<string> alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<Package> allPackages = new List<Package>();
+            foreach (var jsonFile in Directory.GetFiles(path, "project.assets.json", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    // Parse project.assets.json, to extract all packages
+                    var jsonString = File.ReadAllText(jsonFile);
+                    using (var json = JsonDocument.Parse(jsonString))
+                    {
+                        var targets = json.RootElement.GetProperty("targets");
+                        foreach (var package in targets.EnumerateArray().SelectMany(e => e.EnumerateArray()))
+                        {
+                            var idAndVersion = package.GetString();
+                            if (!alreadyParsed.Contains(idAndVersion))
+                            {
+                                var splited = idAndVersion.Split('/');
+                                allPackages.Add(CreateNugetPackageDescription(splited[0], splited[1]));
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning($"Error on parsing the file {jsonFile}. Exception : {e}");
+                }
+            }
+
+            // Parse packages.config
+            foreach (var packageConfigFile in Directory.GetFiles(path, "packages.config", SearchOption.AllDirectories))
+            {
+                var doc = XDocument.Load(packageConfigFile);
+                foreach (var pack in doc.Root.Element("packages")?.Elements())
+                {
+                    var id = pack.Attribute("id")?.Value;
+                    var version = pack.Attribute("version")?.Value;
+                    if (!alreadyParsed.Contains($"{id}/{version}"))
+                    {
+                        allPackages.Add(CreateNugetPackageDescription(id, version));
+                    }
+                }
+            }
+            return allPackages;
+        }
+
+        private void ExecuteCommandLinesBefore(string path)
+        {
+            if (string.IsNullOrEmpty(Project.CommandLinesBeforeParse))
+            {
+                return; // No command line before parse is defined
+            }
+            string filename;
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                // Create a temporary file in path directory
+                filename = Path.Combine(path, "CommandLinesBeforeParse.sh");
+            }
+            else
+            {
+                filename = Path.Combine(path, "CommandLinesBeforeParse.bat");
+            }
+            File.WriteAllText(filename, Project.CommandLinesBeforeParse);
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                // Update ACL
+                Process.Start("chmod", $"777 {filename}").WaitForExit();
+            }
+            // Execute the script
+            Process.Start(new ProcessStartInfo(filename)
+            {
+                WorkingDirectory = path,
+            }).WaitForExit();
         }
 
         /// <summary>
@@ -100,7 +190,7 @@ namespace SoupDiscover.Core
         private string GetWorkDirectory()
         {
             var workDir = Environment.GetEnvironmentVariable("TempWork");
-            if(workDir == null)
+            if (workDir == null)
             {
                 workDir = Path.GetTempPath();
             }
@@ -109,13 +199,12 @@ namespace SoupDiscover.Core
         }
 
         /// <summary>
-        /// Return the directory where files are copied
+        /// Return the temporary directory where files are copied
         /// </summary>
-        /// <returns></returns>
-        private async Task<string> RetriveSourceFiles()
+        private async Task<string> RetrieveSourceFiles()
         {
             var workDir = GetWorkDirectory();
-            if(Directory.Exists(workDir))
+            if (Directory.Exists(workDir))
             {
                 Directory.Delete(workDir, true);
             }
@@ -124,5 +213,4 @@ namespace SoupDiscover.Core
             return workDir;
         }
     }
-
 }

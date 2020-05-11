@@ -7,8 +7,21 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// Id of the package
         /// </summary>
-        public string ID { get; set; }
+        public int Id { get; set; }
 
+        /// <summary>
+        /// The name of the package
+        /// </summary>
+        public string PackageId { get; set; }
+
+        /// <summary>
+        /// Version of the package
+        /// </summary>
+        public string Version { get; set; }
+
+        /// <summary>
+        /// Nuget package or npm package
+        /// </summary>
         public PackageType PackageType { get; set; }
     }
 }

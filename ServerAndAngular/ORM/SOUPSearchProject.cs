@@ -13,7 +13,7 @@ namespace SoupDiscover.ORM
     {
         private static readonly char delimiter = ';';
 
-        private string _sOUPTypeToSearch;
+        private string _sOUPTypeToSearchCollection;
         
         /// <summary>
         /// The primary  key of the project
@@ -56,10 +56,10 @@ namespace SoupDiscover.ORM
         [NotMapped]
         public SOUPToSearch[] SOUPTypeToSearch
         {
-            get { return _sOUPTypeToSearch.Split(delimiter).Select(e => Enum.Parse<SOUPToSearch>(e)).ToArray(); }
+            get { return _sOUPTypeToSearchCollection.Split(delimiter).Select(e => Enum.Parse<SOUPToSearch>(e)).ToArray(); }
             set
             {
-                _sOUPTypeToSearch = string.Join($"{delimiter}", value);
+                _sOUPTypeToSearchCollection = string.Join($"{delimiter}", value);
             }
         }
     }
