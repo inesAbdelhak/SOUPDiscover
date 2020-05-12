@@ -69,7 +69,6 @@ namespace SoupDiscover.Controllers
                     branch = git.Branch,
                     name = r.Name,
                     sshKeyName = git.SshKeyId,
-                    tokenName = git.TokenId,
                     url = git.Url,
                 };
             });
@@ -142,8 +141,6 @@ namespace SoupDiscover.Controllers
                         Name = repositoryDto.name,
                         SshKey = sshKey,
                         SshKeyId = sshKey?.name,
-                        Token = token,
-                        TokenId = token?.name,
                     };
                 break;
             }

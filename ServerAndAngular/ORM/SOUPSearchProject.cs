@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -56,10 +56,13 @@ namespace SoupDiscover.ORM
         [NotMapped]
         public SOUPToSearch[] SOUPTypeToSearch
         {
-            get { return _sOUPTypeToSearchCollection.Split(delimiter).Select(e => Enum.Parse<SOUPToSearch>(e)).ToArray(); }
+            get
+            {
+                return EnumExtension.Deserialize<SOUPToSearch>(_sOUPTypeToSearchCollection).ToArray();
+            }
             set
             {
-                _sOUPTypeToSearchCollection = string.Join($"{delimiter}", value);
+                _sOUPTypeToSearchCollection = value.Serialize(); ;
             }
         }
     }

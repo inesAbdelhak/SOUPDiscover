@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace SoupDiscover.Core
 {
@@ -32,14 +33,31 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="subElement">The text of the subElement</param>
         /// <returns></returns>
+        public bool AddSubElement(string subElementKey, string subElementValue)
+        {
+            var currentSubElement = _subElements.FirstOrDefault(e => e.StartsWith($"{subElementKey} "));
+            if(currentSubElement == $"{subElementKey} {subElementValue}")
+            {
+                return false;
+            }
+            if (currentSubElement != null)
+            {
+                // remove the current subElement
+                _subElements.Remove(currentSubElement);
+            }
+            // Add the new SubElement
+            _subElements.Add($"{subElementKey} {subElementValue}");
+            return true;
+        }
+
         public bool AddSubElement(string subElement)
         {
-            if (!_subElements.Contains(subElement))
+            var subElementSplit = subElement.Split(' ');
+            if (subElementSplit.Length != 2)
             {
-                _subElements.Add(subElement);
-                return true;
+                return false; // The subElement contains only a key. It will not be added
             }
-            return false;
+            return AddSubElement(subElementSplit[0], subElementSplit[1]);
         }
     }
 }

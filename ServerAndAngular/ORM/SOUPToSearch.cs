@@ -1,4 +1,6 @@
-﻿namespace SoupDiscover.ORM
+﻿using System;
+
+namespace SoupDiscover.ORM
 {
     public enum SOUPToSearch
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -71,6 +72,10 @@ namespace SoupDiscover.Core
                     file.WriteLine();
                 }
             }
+            if(Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                // Update permission to the file
+            }
             _isUpdated = false;
             return true;
         }
@@ -100,6 +105,7 @@ namespace SoupDiscover.Core
                         continue; // a sub-element but no rootElement
                     }
                     currentRoot.AddSubElement(l.Trim());
+                    continue;
                 }
                 yield return currentRoot = new RootElement(l.TrimEnd());
             }

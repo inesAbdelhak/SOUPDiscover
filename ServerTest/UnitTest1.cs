@@ -43,18 +43,20 @@ namespace ServerTest
             Assert.IsNotNull(job);
             job.Project = new SOUPSearchProject()
             {
-                // CommandLinesBeforeParse = "dotnet restore  --ignore-failed-sources"
+                CommandLinesBeforeParse = "dotnet restore --ignore-failed-sources",
                 ProcessStatus = ProcessStatus.Waiting,
                 Repository = new GitRepository()
                 {
                     Branch = "master",
+                    SshKeyId = "testsshKey",
                     SshKey = new Credential()
                     {
                         key = GetSShPrivetKey(),
-                        name = "test",
+                        name = "testsshKey",
                     },
                     Url = "git@github.com:NonoDS/SOUPDiscover.git",
-                }
+                },
+                SOUPTypeToSearch = new[] { SOUPToSearch.Nuget }
             };
             job.Start(CancellationToken.None);
         }

@@ -1,4 +1,7 @@
-﻿using SoupDiscover.ORM;
+﻿using log4net.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SoupDiscover.ORM;
 using System;
 
 namespace SoupDiscover.Core
@@ -7,14 +10,14 @@ namespace SoupDiscover.Core
     {
         public abstract void CopyTo(string path);
         
-        public static RepositoryWrapper CreateWrapperFrom(Repository repository)
+        public static RepositoryWrapper CreateWrapperFrom(Repository repository, IServiceProvider provider)
         {
             switch(repository)
             {
                 case GitRepository git:
-                    return new GitRepositoryWrapper(git.Url, git.Branch, git.SshKeyId, git.SshKey?.key, $"sshgitkey{git.SshKeyId}");
+                    return new GitRepositoryWrapper(provider.GetService<ILogger<GitRepositoryWrapper>>(), git.Url, git.Branch, git.SshKeyId, git.SshKey?.key, $"sshgitkey{git.SshKeyId}");
                 default:
-                    throw new ApplicationException($"The repository type {repository.GetType()} is not supported");
+                    throw new ApplicationException($"The repository type {repository.GetType()} is not supported!");
             }
         }
     }

@@ -23,10 +23,12 @@ namespace SoupDiscover.Core
     public class ProjectJob : IProjectJob
     {
         private readonly ILogger<ProjectJob> _logger;
+        private readonly IServiceProvider _provider;
 
-        public ProjectJob(ILogger<ProjectJob> logger)
+        public ProjectJob(ILogger<ProjectJob> logger, IServiceProvider provider)
         {
             _logger = logger;
+            _provider = provider;
         }
 
         /// <summary>
@@ -120,9 +122,9 @@ namespace SoupDiscover.Core
                     using (var json = JsonDocument.Parse(jsonString))
                     {
                         var targets = json.RootElement.GetProperty("targets");
-                        foreach (var package in targets.EnumerateArray().SelectMany(e => e.EnumerateArray()))
+                        foreach (var package in targets.EnumerateObject().SelectMany(e => e.Value.EnumerateObject()))
                         {
-                            var idAndVersion = package.GetString();
+                            var idAndVersion = package.Name;
                             if (!alreadyParsed.Contains(idAndVersion))
                             {
                                 var splited = idAndVersion.Split('/');
@@ -177,10 +179,7 @@ namespace SoupDiscover.Core
                 Process.Start("chmod", $"777 {filename}").WaitForExit();
             }
             // Execute the script
-            Process.Start(new ProcessStartInfo(filename)
-            {
-                WorkingDirectory = path,
-            }).WaitForExit();
+            ProcessHelper.ExecuteAndLog(_logger, filename, null, path);
         }
 
         /// <summary>
@@ -195,7 +194,7 @@ namespace SoupDiscover.Core
                 workDir = Path.GetTempPath();
             }
             // Create a directory where working
-            return Path.Combine(workDir, "Project", Project.Id.ToString());
+            return Path.Combine(workDir, "Projects", $"Project{Project.Id}");
         }
 
         /// <summary>
@@ -208,7 +207,7 @@ namespace SoupDiscover.Core
             {
                 Directory.Delete(workDir, true);
             }
-            var wrapperRepository = Project.Repository.GetRepositoryWrapper();
+            var wrapperRepository = Project.Repository.GetRepositoryWrapper(_provider);
             wrapperRepository.CopyTo(workDir);
             return workDir;
         }
