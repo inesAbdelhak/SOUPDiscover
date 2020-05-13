@@ -51,9 +51,9 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(int id, SOUPSearchProject project)
+        public async Task<IActionResult> PutProject(string id, SOUPSearchProject project)
         {
-            if (id != project.Id)
+            if (id != project.Name)
             {
                 return BadRequest();
             }
@@ -88,7 +88,7 @@ namespace SoupDiscover.Controllers
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProject", new { id = project.Id }, project);
+            return CreatedAtAction("GetProject", new { id = project.Name }, project);
         }
 
         // POST: api/Projects/Start/{id}
@@ -118,7 +118,7 @@ namespace SoupDiscover.Controllers
             // Add the Job to the JobManager
             if (!_projectJobManager.StartTask(projectJob))
             {
-                return Problem($"The project {project.Id} is already processing !");
+                return Problem($"The project {project.Name} is already processing !");
             }
 
             return CreatedAtAction("Process Project", new { id = projectId }, project);
@@ -140,9 +140,9 @@ namespace SoupDiscover.Controllers
             return project;
         }
 
-        private bool ProjectExists(int id)
+        private bool ProjectExists(string id)
         {
-            return _context.Projects.Any(e => e.Id == id);
+            return _context.Projects.Any(e => e.Name == id);
         }
     }
 }

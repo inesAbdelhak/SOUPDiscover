@@ -13,7 +13,7 @@ using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
-using log4net.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SoupDiscover.Core
 {
@@ -36,7 +36,7 @@ namespace SoupDiscover.Core
         /// </summary>
         public SOUPSearchProject Project { get; set; }
 
-        public object IdJob => Project.Id;
+        public object IdJob => Project.Name;
 
         /// <summary>
         /// Start synchronously the process, to find all SOUP in the repository
@@ -57,7 +57,7 @@ namespace SoupDiscover.Core
             {
                 throw new ApplicationException($"The property {nameof(Project)} must be not null!");
             }
-            _logger.LogInformation($"Start processing Project {Project.Id}");
+            _logger.LogInformation($"Start processing Project {Project.Name}");
 
             // Search nuget SOUP
             Package[] nugetPackages = null;
@@ -82,6 +82,14 @@ namespace SoupDiscover.Core
                 list.AddRange(npmPackages);
             }
             // Save all packages in database
+            await SaveToDataBase(list, token);
+        }
+
+        private async Task SaveToDataBase(List<Package> list, CancellationToken token)
+        {
+            var context = _provider.GetService<DataContext>();
+            context.Packages.AddRange(list);
+            await context.SaveChangesAsync(token);
         }
 
         private async Task<Package[]> SearchNpmPackages()
@@ -194,7 +202,7 @@ namespace SoupDiscover.Core
                 workDir = Path.GetTempPath();
             }
             // Create a directory where working
-            return Path.Combine(workDir, "Projects", $"Project{Project.Id}");
+            return Path.Combine(workDir, "Projects", $"Project{Project.Name}");
         }
 
         /// <summary>

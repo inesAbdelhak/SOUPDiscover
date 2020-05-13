@@ -5,12 +5,7 @@ namespace SoupDiscover.ORM
 {
     public abstract class Repository : EntityObject
     {
-        public int ID { get; set; }
-         
-        /// <summary>
-        /// The name of the repository to display
-        /// </summary>
-        [Required]
+        [Key]
         public string Name { get; set; }
     }
 }

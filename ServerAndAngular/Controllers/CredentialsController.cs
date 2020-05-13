@@ -24,7 +24,9 @@ namespace SoupDiscover.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Credential>>> GetCredentials()
         {
-            return await _context.Credentials.ToListAsync();
+            var list = await _context.Credentials.ToListAsync();
+            list.ForEach(e => e.key = "*****"); // doesn't return the key value
+            return list;
         }
 
         // GET: api/Credentials/5
@@ -37,6 +39,7 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
+            credential.key = "*****";
 
             return credential;
         }
@@ -112,6 +115,7 @@ namespace SoupDiscover.Controllers
             _context.Credentials.Remove(credential);
             await _context.SaveChangesAsync();
 
+            credential.key = "*****";
             return credential;
         }
 

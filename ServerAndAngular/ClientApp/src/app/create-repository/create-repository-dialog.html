@@ -31,15 +31,6 @@
       <mat-option>--selectionner--</mat-option>
       <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
     </mat-select>
-  </mat-form-field><br />
-
-  <!-- The GitHUB token -->
-  <mat-form-field *ngIf="selected?.name === 'Git'">
-    <mat-label>Token pour les requêtes GitHUB</mat-label>
-    <mat-select [(ngModel)]="data.tokenName">
-      <mat-option>--selectionner--</mat-option>
-      <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
-    </mat-select>
   </mat-form-field>
 </div>
 <div mat-dialog-actions>

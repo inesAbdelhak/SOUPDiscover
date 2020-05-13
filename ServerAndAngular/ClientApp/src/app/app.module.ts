@@ -21,6 +21,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { MaterialModule } from './material-module';
 import { CommonModule } from '@angular/common';
 import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repository/create-repository.component';
+import { CreateProjectComponent, CreateProjectDialog } from './create-project/create-project.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,8 @@ import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repo
     CreateCredentialDialog,
     CreateRepositoryComponent,
     CreateRepositoryDialog,
+    CreateProjectComponent,
+    CreateProjectDialog,
   ],
   imports: [
     CommonModule,
@@ -58,7 +61,9 @@ import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repo
     CreateCredentialComponent,
     CreateCredentialDialog,
     CreateRepositoryComponent,
-    CreateRepositoryDialog
+    CreateRepositoryDialog,
+    CreateProjectComponent,
+    CreateProjectDialog,
     ],
   providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },],
   bootstrap: [AppComponent]

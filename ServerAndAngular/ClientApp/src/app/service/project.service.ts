@@ -13,7 +13,7 @@ export class ProjectService {
    * Add a project on database
    * @param project the project to save to database
    */
-  AddCredential(project: ProjectDto): Observable<ProjectDto> {
+  AddProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     let request = this.httpClient.post<ProjectDto>(this.baseUrl + 'api/Projects', JSON.stringify(project), { headers: headerOptions });
     request.subscribe(res => console.log(res), error => console.error(error));
@@ -23,7 +23,7 @@ export class ProjectService {
   /**
    * Return all project of the database
    * */
-  GetCredentials(): Observable<ProjectDto[]> {
+  GetProjects(): Observable<ProjectDto[]> {
     return this.httpClient.get<ProjectDto[]>(this.baseUrl + 'api/Projects');
   }
 }

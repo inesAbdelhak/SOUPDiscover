@@ -11,27 +11,24 @@ namespace SoupDiscover.ORM
     /// </summary>
     public class SOUPSearchProject
     {
-        private static readonly char delimiter = ';';
-
         private string _sOUPTypeToSearchCollection;
         
         /// <summary>
         /// The primary  key of the project
         /// </summary>
         [Key]
-        public int Id { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The repository where search files
         /// </summary>
-        [Required]
         public virtual Repository Repository { get; set; }
 
         /// <summary>
         /// The foreign key to the repository definition
         /// </summary>
         [Required]
-        public int RepositoryId { get; set; }
+        public string RepositoryId { get; set; }
 
         /// <summary>
         /// All packages found for this repository
@@ -62,7 +59,7 @@ namespace SoupDiscover.ORM
             }
             set
             {
-                _sOUPTypeToSearchCollection = value.Serialize(); ;
+                _sOUPTypeToSearchCollection = value.Serialize();
             }
         }
     }

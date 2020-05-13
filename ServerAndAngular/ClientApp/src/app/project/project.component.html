@@ -1,7 +1,8 @@
 <div>
-  <button>Créer un nouvea projet</button>
+  <app-create-project></app-create-project>
   <br />
   <ul>
-    <li><a href="#">mhp-code master</a><button>Relancer l'analyse</button></li>
+    <li *ngFor="let project of projects"><a href="#">{{project.name}}</a>
+      <button mat-raised-button>Relancer l'analyse</button></li>
   </ul>
 </div>

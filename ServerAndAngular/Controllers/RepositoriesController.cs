@@ -37,10 +37,6 @@ namespace SoupDiscover.Controllers
         /// </summary>
         public string branch { get; set; }
 
-        /// <summary>
-        /// The token of the token, to request GitHUB
-        /// </summary>
-        public string tokenName { get; set; }
     }
 
     [Route("api/[controller]")]
@@ -93,9 +89,9 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRepository(int id, Repository repository)
+        public async Task<IActionResult> PutRepository(string id, Repository repository)
         {
-            if (id != repository.ID)
+            if (id != repository.Name)
             {
                 return BadRequest();
             }
@@ -133,7 +129,6 @@ namespace SoupDiscover.Controllers
             {
                 case RepositoryType.Git:
                     var sshKey = _context.Credentials.Find(repositoryDto.sshKeyName);
-                    var token = _context.Credentials.Find(repositoryDto.tokenName);
                     repository = new GitRepository()
                     {
                         Branch = repositoryDto.branch,
@@ -151,7 +146,7 @@ namespace SoupDiscover.Controllers
             _context.Repository.Add(repository);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRepository", new { id = repository.ID }, repository);
+            return CreatedAtAction("GetRepository", new { id = repository.Name }, repository);
         }
 
         // DELETE: api/Repositories/5
@@ -170,9 +165,9 @@ namespace SoupDiscover.Controllers
             return repository;
         }
 
-        private bool RepositoryExists(int id)
+        private bool RepositoryExists(string id)
         {
-            return _context.Repository.Any(e => e.ID == id);
+            return _context.Repository.Any(e => e.Name == id);
         }
     }
 }

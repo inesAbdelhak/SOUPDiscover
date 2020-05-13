@@ -1,4 +1,7 @@
+import { RepositoryDto } from "./repository";
+
 export class ProjectDto {
   name: string;
-  repositoryName: string;
+  commandLinesBeforeParse: string;
+  repositoryId: string;
 }
