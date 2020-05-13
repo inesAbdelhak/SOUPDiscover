@@ -10,7 +10,16 @@ import { ProjectService } from '../service/project.service';
 export class ProjectComponent implements OnInit {
 
   projects: ProjectDto[];
-  constructor(public projectService : ProjectService) { }
+
+  constructor(public projectService: ProjectService) { }
+
+  /**
+   * Launch analysis on the project
+   * @param project
+   */
+  LaunchAnalyse(projectName: string): void {
+    this.projectService.LaunchProject(projectName);
+  }
 
   ngOnInit() {
     this.projectService.GetProjects()

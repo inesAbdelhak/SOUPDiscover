@@ -99,12 +99,18 @@ namespace SoupDiscover.Controllers
         /// </summary>
         /// <param name="projectId">Id of the project to Start</param>
         /// <returns></returns>
-        [HttpPost("Start/{id}")]
-        public async Task<ActionResult<SOUPSearchProject>> StartProject(int projectId)
+        [HttpPost("Start")]
+        public async Task<ActionResult<SOUPSearchProject>> StartProject([FromBody]string projectId)
         {
             // Retrieve the project to start
             var project = await _context.Projects.FindAsync(projectId);
             _context.Entry(project).Reference(r => r.Repository).Load();
+#if DEBUG
+            if (project.SOUPTypeToSearch == null || project.SOUPTypeToSearch.Length == 0)
+            {
+                project.SOUPTypeToSearch = new SOUPToSearch[] { SOUPToSearch.Nuget };
+            }
+#endif
             switch (project.Repository)
             {
                 case GitRepository git :

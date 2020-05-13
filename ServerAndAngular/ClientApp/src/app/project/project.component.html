@@ -3,6 +3,7 @@
   <br />
   <ul>
     <li *ngFor="let project of projects"><a href="#">{{project.name}}</a>
-      <button mat-raised-button>Relancer l'analyse</button></li>
+      <button mat-raised-button (click)="LaunchAnalyse(project.name)">Analyser</button>
+    </li>
   </ul>
 </div>
