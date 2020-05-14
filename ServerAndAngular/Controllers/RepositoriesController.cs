@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -73,7 +74,7 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Repositories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Repository>> GetRepository(int id)
+        public async Task<ActionResult<Repository>> GetRepository(string id)
         {
             var repository = await _context.Repository.FindAsync(id);
 

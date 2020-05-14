@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Core.Respository
 {
     /// <summary>
     /// To read create or modify a ssh config file. ~/.ssh/config
@@ -14,9 +14,9 @@ namespace SoupDiscover.Core
         /// All root element of the ssh config file
         /// </summary>
         private IList<RootElement> _rootElements;
-        
+
         private bool _isUpdated;
-        
+
         public SshConfigFile(string path)
         {
             Path = path;
@@ -56,7 +56,7 @@ namespace SoupDiscover.Core
         /// <returns>true: An update is pending ad saved. False : no pending modification.</returns>
         public bool Save()
         {
-            if(!_isUpdated)
+            if (!_isUpdated)
             {
                 return false; // No need to update
             }
@@ -72,7 +72,7 @@ namespace SoupDiscover.Core
                     file.WriteLine();
                 }
             }
-            if(Environment.OSVersion.Platform == PlatformID.Unix)
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update permission to the file
             }

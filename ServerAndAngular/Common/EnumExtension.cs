@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SoupDiscover.ORM
+namespace SoupDiscover.Common
 {
     public static class EnumExtension
     {
@@ -10,24 +10,25 @@ namespace SoupDiscover.ORM
 
         public static IEnumerable<T> Deserialize<T>(string serializedEnum) where T : struct
         {
-            if(serializedEnum == null)
+            if (serializedEnum == null)
             {
                 yield break;
             }
-           var result = new List<T>();
-           foreach(T de in serializedEnum.Split(delimiter).Select(e => Enum.Parse<T>(e)))
-           {
+            var result = new List<T>();
+            foreach (T de in serializedEnum.Split(delimiter).Select(e => Enum.Parse<T>(e)))
+            {
                 yield return de;
-           }
+            }
         }
 
         public static string Serialize<T>(this T[] enumToSerialize) where T : Enum
         {
-            if(enumToSerialize == null)
+            if (enumToSerialize == null)
             {
                 return null;
             }
             return string.Join($"{delimiter}", enumToSerialize);
         }
     }
+
 }

@@ -2,11 +2,13 @@ import { Injectable, Inject } from '@angular/core';
 import { CredentialDto } from '../Model/credential';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
+import { RepositoryDto } from '../Model/repository';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CredentialService {
+  
   constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) {
   }
 

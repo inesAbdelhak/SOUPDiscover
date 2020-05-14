@@ -1,11 +1,12 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using SoupDiscover.Common;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Core.Respository
 {
     /// <summary>
     /// Wrapper to Git to clone files to a directory
@@ -32,7 +33,7 @@ namespace SoupDiscover.Core
 
         public GitRepositoryWrapper(ILogger<GitRepositoryWrapper> logger, string urlRepository, string branch, string sshKeyId, string sshKey, string sshKeyFilename)
         {
-            this._logger = logger;
+            _logger = logger;
             _urlRepository = urlRepository;
             _branch = branch;
             _sshKeyId = sshKeyId;
@@ -106,7 +107,7 @@ namespace SoupDiscover.Core
                 return _hostname;
             }
         }
-        
+
         /// <summary>
         /// The organization parsed in gir url
         /// </summary>

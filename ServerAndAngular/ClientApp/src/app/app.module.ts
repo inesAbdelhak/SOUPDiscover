@@ -22,6 +22,8 @@ import { MaterialModule } from './material-module';
 import { CommonModule } from '@angular/common';
 import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repository/create-repository.component';
 import { CreateProjectComponent, CreateProjectDialog } from './create-project/create-project.component';
+import { ProjectDetailComponent } from './project-detail/project-detail.component';
+import { RepositoryDetailComponent } from './repository-detail/repository-detail.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +38,8 @@ import { CreateProjectComponent, CreateProjectDialog } from './create-project/cr
     CreateRepositoryDialog,
     CreateProjectComponent,
     CreateProjectDialog,
+    ProjectDetailComponent,
+    RepositoryDetailComponent,
   ],
   imports: [
     CommonModule,
@@ -45,8 +49,11 @@ import { CreateProjectComponent, CreateProjectDialog } from './create-project/cr
     MatDialogModule,
     MaterialModule,
     RouterModule.forRoot([
-      { path: '', component: ProjectComponent, pathMatch: 'full' },
+      { path: '', pathMatch: 'full', redirectTo: 'project' }, 
+      { path: 'project', component: ProjectComponent, },
+      { path: 'project/:id', component: ProjectDetailComponent, },
       { path: 'repositories', component: RepositoriesComponent },
+      { path: 'repository/:id', component: RepositoryDetailComponent },
       { path: 'credentials', component: CredentialsComponent },
     ]),
     BrowserAnimationsModule,

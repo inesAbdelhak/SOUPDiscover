@@ -14,6 +14,8 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using SoupDiscover.Common;
+using SoupDiscover.Core.Respository;
 
 namespace SoupDiscover.Core
 {
@@ -62,12 +64,12 @@ namespace SoupDiscover.Core
             // Search nuget SOUP
             Package[] nugetPackages = null;
             Package[] npmPackages = null;
-            if (Project.SOUPTypeToSearch.Contains(SOUPToSearch.Nuget))
+            if (Project.SOUPTypeToSearch.Contains(PackageType.Nuget))
             {
                 nugetPackages = await SearchNugetPackages();
             }
 
-            if (Project.SOUPTypeToSearch.Contains(SOUPToSearch.npm))
+            if (Project.SOUPTypeToSearch.Contains(PackageType.Npm))
             {
                 npmPackages = await SearchNpmPackages();
             }

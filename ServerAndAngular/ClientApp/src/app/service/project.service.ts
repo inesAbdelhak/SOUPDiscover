@@ -1,12 +1,28 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ProjectDto } from '../Model/Project';
+import { ProjectDto, ProjectWithDetailsDto } from '../Model/Project';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectService {
+  /**
+   * Update the project to server
+   * @param project The new state of the project
+   */
+  UpdateProject(project: ProjectDto): Observable<ProjectDto> {
+    const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
+    let request = this.httpClient.put<ProjectDto>(this.baseUrl + 'api/Projects', JSON.stringify(project), { headers: headerOptions })
+    request.subscribe(res => console.log(res), error => console.error(error));
+    return request;
+  }
+  /**
+   * Export the detected soup of the project to a csv fle
+   * */
+  ExportToCsv(projectId : string) {
+      throw new Error("Method not implemented.");
+  }
   /**
    * Launch the project analysis
    * @param name the name of the project to launch
@@ -34,6 +50,18 @@ export class ProjectService {
    * Return all project of the database
    * */
   GetProjects(): Observable<ProjectDto[]> {
-    return this.httpClient.get<ProjectDto[]>(this.baseUrl + 'api/Projects');
+    let request = this.httpClient.get<ProjectDto[]>(this.baseUrl + 'api/Projects');
+    request.subscribe(res => console.log(res), error => console.error(error));
+    return request;
+  }
+
+  /**
+   * Return the project, with all packages detected
+   * @param name the name of the project to retrieve
+   */
+  GetProject(name: string): Observable<ProjectWithDetailsDto>{
+    let request = this.httpClient.get<ProjectWithDetailsDto>(this.baseUrl + 'api/Projects/' + name);
+    request.subscribe(res => console.log(res), error => console.error(error));
+    return request;
   }
 }

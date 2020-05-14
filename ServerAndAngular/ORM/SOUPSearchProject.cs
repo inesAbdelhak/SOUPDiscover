@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SoupDiscover.Common;
+using SoupDiscover.Core.Respository;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -51,11 +53,11 @@ namespace SoupDiscover.ORM
         public string NugetServerUrl { get; set; }
 
         [NotMapped]
-        public SOUPToSearch[] SOUPTypeToSearch
+        public PackageType[] SOUPTypeToSearch
         {
             get
             {
-                return EnumExtension.Deserialize<SOUPToSearch>(_sOUPTypeToSearchCollection).ToArray();
+                return EnumExtension.Deserialize<PackageType>(_sOUPTypeToSearchCollection).ToArray();
             }
             set
             {

@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 using SoupDiscover.ORM;
 using System;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Core.Respository
 {
     public abstract class RepositoryWrapper
     {
         public abstract void CopyTo(string path);
-        
+
         public static RepositoryWrapper CreateWrapperFrom(Repository repository, IServiceProvider provider)
         {
-            switch(repository)
+            switch (repository)
             {
                 case GitRepository git:
                     return new GitRepositoryWrapper(provider.GetService<ILogger<GitRepositoryWrapper>>(), git.Url, git.Branch, git.SshKeyId, git.SshKey?.key, $"sshgitkey{git.SshKeyId}");

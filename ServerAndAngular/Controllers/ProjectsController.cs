@@ -30,15 +30,16 @@ namespace SoupDiscover.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SOUPSearchProject>>> GetProjects()
         {
+            // Return only project, without found SOUP
             return await _context.Projects.ToListAsync();
         }
 
         // GET: api/Projects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SOUPSearchProject>> GetProject(int id)
+        public async Task<ActionResult<SOUPSearchProject>> GetProject(string id)
         {
             var project = await _context.Projects.FindAsync(id);
-
+            await _context.Entry(project).Collection(p => p.Packages).LoadAsync();
             if (project == null)
             {
                 return NotFound();
@@ -108,7 +109,7 @@ namespace SoupDiscover.Controllers
 #if DEBUG
             if (project.SOUPTypeToSearch == null || project.SOUPTypeToSearch.Length == 0)
             {
-                project.SOUPTypeToSearch = new SOUPToSearch[] { SOUPToSearch.Nuget };
+                project.SOUPTypeToSearch = new PackageType[] { PackageType.Nuget };
             }
 #endif
             switch (project.Repository)

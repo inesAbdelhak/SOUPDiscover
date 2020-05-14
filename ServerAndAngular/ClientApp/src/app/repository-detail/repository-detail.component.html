@@ -1,0 +1,32 @@
+<div class="title"><h1>Détail du dépot {{repositoryId}}</h1></div>
+<!-- div display where repository loaded -->
+<div *ngIf="repository != null">
+  <p>Type de dépot : {{repository?.repositoryType}}</p>
+
+  <!-- Div for Git repository -->
+  <div *ngIf="repository?.repositoryType === 'Git'">
+    <!-- the git url in ssh format -->
+    <mat-form-field>
+      <mat-label>Url ssh</mat-label>
+      <input matInput [(ngModel)]="repository.url">
+    </mat-form-field><br />
+
+    <!-- The git branch name -->
+    <mat-form-field>
+      <mat-label>Branch</mat-label>
+      <input matInput [(ngModel)]="repository.branch">
+    </mat-form-field><br />
+
+    <!-- The ssh key to clone the repository -->
+    <mat-form-field>
+      <mat-label>Clé ssh</mat-label>
+      <mat-select [(ngModel)]="repository.sshKeyName">
+        <mat-option>--selectionner--</mat-option>
+        <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <button (click)="UpdateRepository()">Sauvegarder</button>
+</div>
+
+

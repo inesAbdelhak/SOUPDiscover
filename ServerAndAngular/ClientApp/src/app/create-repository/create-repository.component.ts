@@ -15,7 +15,7 @@ export class CreateRepositoryComponent implements OnInit {
   public data: RepositoryDto;
 
   constructor(public dialog: MatDialog,
-    public credentalService: CredentialService,
+    public credentialService: CredentialService,
     public repositoryService: RepositoriesService) { }
 
   openDialog(): void {

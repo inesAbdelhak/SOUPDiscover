@@ -1,7 +1,6 @@
-﻿using SoupDiscover.ORM;
-using System;
+﻿using System;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Core.Respository
 {
     public static class RepositoryWrapperExtension
     {

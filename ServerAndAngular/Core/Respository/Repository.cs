@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoupDiscover.ORM;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SoupDiscover.ORM
+namespace SoupDiscover.Core.Respository
 {
     public abstract class Repository : EntityObject
     {

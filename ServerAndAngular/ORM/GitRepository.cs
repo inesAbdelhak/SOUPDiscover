@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SoupDiscover.Core.Respository;
+using System.ComponentModel.DataAnnotations;
 
 namespace SoupDiscover.ORM
 {

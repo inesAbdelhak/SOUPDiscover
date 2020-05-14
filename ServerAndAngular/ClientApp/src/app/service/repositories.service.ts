@@ -28,4 +28,22 @@ export class RepositoriesService {
   GetRepositories(): Observable<RepositoryDto[]> {
     return this.httpClient.get<RepositoryDto[]>(this.baseUrl + 'api/repositories');
   }
+
+  GetRepository(id: string): Observable<RepositoryDto>{
+    let request = this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
+    request.subscribe(res => console.log(res), error => console.error(error));
+    return request;
+  }
+
+  /**
+   * Update the repository
+   * @param repository the repository to update
+   */
+  UpdateRepository(repository: RepositoryDto) {
+    const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
+    let request = this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories", JSON.stringify(repository), { headers: headerOptions });
+    request.subscribe(res => console.log(res), error => console.error(error));
+    return request;
+  }
+
 }

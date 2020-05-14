@@ -2,7 +2,7 @@
   <app-create-project></app-create-project>
   <br />
   <ul>
-    <li *ngFor="let project of projects"><a href="#">{{project.name}}</a>
+    <li *ngFor="let project of projects"><a [routerLink]="['/project', project.name]">{{project.name}}</a>
       <button mat-raised-button (click)="LaunchAnalyse(project.name)">Analyser</button>
     </li>
   </ul>

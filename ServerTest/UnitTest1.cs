@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using SoupDiscover.Core;
+using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
 using System.IO;
 using System.Threading;
@@ -56,7 +57,7 @@ namespace ServerTest
                     },
                     Url = "git@github.com:NonoDS/SOUPDiscover.git",
                 },
-                SOUPTypeToSearch = new[] { SOUPToSearch.Nuget }
+                SOUPTypeToSearch = new[] { PackageType.Nuget }
             };
             job.Start(CancellationToken.None);
         }

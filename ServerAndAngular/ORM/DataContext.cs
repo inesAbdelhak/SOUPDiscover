@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
-using SoupDiscover.ORM;
+using SoupDiscover.Core.Respository;
 
 namespace SoupDiscover.ORM
 {
@@ -35,6 +35,6 @@ namespace SoupDiscover.ORM
 
         public DbSet<SOUPSearchProject> Projects { get; set; }
 
-        public DbSet<SoupDiscover.ORM.Repository> Repository { get; set; }
+        public DbSet<Repository> Repository { get; set; }
     }
 }

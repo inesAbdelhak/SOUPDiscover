@@ -1,0 +1,43 @@
+<div class="title"><h1>{{currentProjectId}}</h1></div>
+<div>
+  <!-- Name of the project-->
+  <mat-label>Nom</mat-label>
+  <mat-label>{{currentProjectId}}</mat-label>
+  <br />
+  <!-- The repository to use -->
+  <mat-form-field *ngIf="project != null">
+    <mat-select [(ngModel)]="project.repositoryId">
+      <mat-option>--Dépot--</mat-option>
+      <mat-option *ngFor="let repo of repositories" [value]="repo.name">{{repo.name}}</mat-option>
+    </mat-select>
+  </mat-form-field><br />
+  <!-- Command to prepare files -->
+  <mat-form-field *ngIf="project != null">
+    <mat-label>Commande de préparation</mat-label>
+    <textarea matInput [(ngModel)]="project.commandLinesBeforeParse"></textarea>
+  </mat-form-field>
+</div>
+
+<div>
+  <!-- Display list of packages found -->
+  <table mat-table [dataSource]="packages" class="mat-elevation-z8">
+    <!-- Package Id -->
+    <ng-container matColumnDef="PackageId">
+      <th mat-header-cell *matHeaderCellDef> Id </th>
+      <td mat-cell *matCellDef="let element"> {{element.PackageId}} </td>
+    </ng-container>
+
+    <!-- Package Version -->
+    <ng-container matColumnDef="Version">
+      <th mat-header-cell *matHeaderCellDef> Version </th>
+      <td mat-cell *matCellDef="let element"> {{element.Version}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
+<div>
+  <button (click)="UpdateProject()">Sauvegarder</button>
+  <button (click)="ExportToCsv()">Exporter a format csv</button>
+</div>

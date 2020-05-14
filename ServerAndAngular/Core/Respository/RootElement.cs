@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Core.Respository
 {
     /// <summary>
     /// A root Element in ssh config file.
@@ -12,7 +12,7 @@ namespace SoupDiscover.Core
     internal class RootElement
     {
         private IList<string> _subElements = new List<string>();
-        
+
         /// <summary>
         /// The name of the RootElemet. Ex : "Host *"
         /// </summary>
@@ -36,7 +36,7 @@ namespace SoupDiscover.Core
         public bool AddSubElement(string subElementKey, string subElementValue)
         {
             var currentSubElement = _subElements.FirstOrDefault(e => e.StartsWith($"{subElementKey} "));
-            if(currentSubElement == $"{subElementKey} {subElementValue}")
+            if (currentSubElement == $"{subElementKey} {subElementValue}")
             {
                 return false;
             }

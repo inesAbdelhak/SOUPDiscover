@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Common
 {
     public static class ProcessHelper
     {

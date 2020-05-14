@@ -40,6 +40,7 @@
     <None Remove=".gitignore" />
     <None Remove="ClientApp\src\app\material-module.ts" />
     <None Remove="ClientApp\src\app\Model\Credential.ts" />
+    <None Remove="ClientApp\src\app\Model\package.ts" />
     <None Remove="ClientApp\src\app\Model\Project.ts" />
     <None Remove="ClientApp\src\app\Model\repository.ts" />
     <None Remove="CustomerDB.db" />
@@ -50,6 +51,7 @@
     <TypeScriptCompile Include="ClientApp\src\app\Model\credential.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\Model\project.ts" />
     <TypeScriptCompile Include="ClientApp\src\app\Model\repository.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\Model\package.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
