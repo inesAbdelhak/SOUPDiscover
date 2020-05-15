@@ -15,6 +15,7 @@ export class RepositoryDetailComponent implements OnInit {
   repositoryId: string;
   repository: RepositoryDto;
   availableCredentials: CredentialDto[];
+  edit: boolean = false;
 
   constructor(private repositoriesService: RepositoriesService,
     private route: ActivatedRoute,
@@ -33,7 +34,17 @@ export class RepositoryDetailComponent implements OnInit {
       .subscribe(res => this.availableCredentials = res);
   }
 
+  /**
+   * Update the server with the current state of the repository configuration
+   * */
   UpdateRepository(): void {
-    this.repositoriesService.UpdateRepository(this.repository);
+    this.repositoriesService.UpdateRepository(this.repository).subscribe(res => this.edit = false);
+  }
+
+  /**
+   * Start editing the repository configuration
+   * */
+  EditRepository(): void {
+    this.edit = true;
   }
 }

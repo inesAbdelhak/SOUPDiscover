@@ -122,10 +122,10 @@ namespace SoupDiscover.Controllers
         }
 
         // DELETE: api/Repositories/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Repository>> DeleteRepository(int id)
+        [HttpDelete("{repositoryId}")]
+        public async Task<ActionResult<RepositoryDto>> DeleteRepository(string repositoryId)
         {
-            var repository = await _context.Repository.FindAsync(id);
+            var repository = await _context.Repository.FindAsync(repositoryId);
             if (repository == null)
             {
                 return NotFound();
@@ -133,8 +133,20 @@ namespace SoupDiscover.Controllers
 
             _context.Repository.Remove(repository);
             await _context.SaveChangesAsync();
-
-            return repository;
+            var repositoryDto = new RepositoryDto();
+            repositoryDto.name = repository.Name;
+            switch(repository)
+            {
+                case GitRepository git:
+                    repositoryDto.repositoryType = RepositoryType.Git;
+                    repositoryDto.branch = git.Branch;
+                    repositoryDto.sshKeyName = git.SshKeyId;
+                    repositoryDto.url = git.Url;
+                break;
+                default:
+                    return Problem($"Repository type {typeof(Repository)} is not supported!");
+            }
+            return repositoryDto;
         }
 
         private bool RepositoryExists(string id)

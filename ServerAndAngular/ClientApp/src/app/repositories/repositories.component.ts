@@ -13,6 +13,14 @@ export class RepositoriesComponent implements OnInit {
 
   constructor(public repositoriesService: RepositoriesService) { }
 
+  /**
+ * To update repositories list, when a project is added or deleted
+ */
+  repositoryListUpdate = function (repository: RepositoryDto): void {
+    this.repositoriesService.GetRepositories()
+      .subscribe(result => this.repositories = result);
+  }
+
   ngOnInit() {
     /* Read all repositories */
     this.repositoriesService.GetRepositories()

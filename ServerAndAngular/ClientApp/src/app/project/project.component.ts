@@ -11,8 +11,15 @@ export class ProjectComponent implements OnInit {
 
   projects: ProjectDto[];
 
-  constructor(public projectService: ProjectService) { }
+  /**
+   * To update project list, when a project is added or deleted
+   */
+  projectListUpdate = function (project: ProjectDto): void {
+    this.projectService.GetProjects()
+      .subscribe(result => this.projects = result);
+  }
 
+  constructor(public projectService: ProjectService) { }
   /**
    * Launch analysis on the project
    * @param project

@@ -10,6 +10,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 * Manage repositories on server
 */
 export class RepositoriesService {
+  /**
+   * Delete a repository
+   * @param currentProjectId
+   */
+  DeleteProject(currentProjectId: string): Observable<RepositoryDto> {
+    return this.httpClient.delete("api/repositories/" + currentProjectId);
+  }
 
   constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
@@ -24,11 +31,17 @@ export class RepositoriesService {
     return request;
   }
 
-  /** Return all repositories on database */
+  /**
+   *  Return all repositories on database
+   */
   GetRepositories(): Observable<RepositoryDto[]> {
     return this.httpClient.get<RepositoryDto[]>(this.baseUrl + 'api/repositories');
   }
 
+  /**
+   * Get a repository configuration
+   * @param id
+   */
   GetRepository(id: string): Observable<RepositoryDto>{
     let request = this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
     request.subscribe(res => console.log(res), error => console.error(error));

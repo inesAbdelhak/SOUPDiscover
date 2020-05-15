@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, Pipe, PipeTransform } from '@angular/core';
+import { Component, OnInit, Inject, Pipe, PipeTransform, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
 import { RepositoryDto, RepositoryType } from '../Model/repository';
@@ -13,6 +13,7 @@ import { CredentialDto } from '../Model/credential';
 export class CreateRepositoryComponent implements OnInit {
 
   public data: RepositoryDto;
+  @Output() repositoryCreated: EventEmitter<RepositoryDto> = new EventEmitter<RepositoryDto>();
 
   constructor(public dialog: MatDialog,
     public credentialService: CredentialService,
@@ -30,7 +31,8 @@ export class CreateRepositoryComponent implements OnInit {
       console.log('The dialog was closed');
       // result.repositoryType = RepositoryType.Git;
       this.data = result;
-      this.repositoryService.AddRepository(this.data);
+      this.repositoryService.AddRepository(this.data)
+        .subscribe(res => this.repositoryCreated.emit(res));
     });
   }
 

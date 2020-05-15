@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../service/project.service';
 import { ProjectWithDetailsDto } from '../Model/Project';
 import { RepositoryDto } from '../Model/repository';
@@ -27,7 +27,10 @@ export class ProjectDetailComponent implements OnInit {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
-  constructor(private projectService: ProjectService, private repositoriesService: RepositoriesService, private route: ActivatedRoute) { }
+  constructor(private projectService: ProjectService,
+    private repositoriesService: RepositoriesService,
+    private route: ActivatedRoute,
+    private router: Router) { }
 
   /**
    * Retrieve id of the project to display
@@ -44,6 +47,14 @@ export class ProjectDetailComponent implements OnInit {
       });
     });
     this.repositoriesService.GetRepositories().subscribe(res => this.repositories = res);
+  }
+
+  /**
+   * Delete the project
+   * */
+  DeleteProject(): void {
+    this.repositoriesService.DeleteProject(this.currentProjectId)
+      .subscribe(res => this.router.navigate(['..'], { relativeTo: this.route }));
   }
 
   /**

@@ -1,9 +1,9 @@
 <div>
-  <app-create-project></app-create-project>
+  <app-create-project (projectCreated)="projectListUpdate($event)"></app-create-project>
   <br />
   <ul>
     <li *ngFor="let project of projects"><a [routerLink]="['/project', project.name]">{{project.name}}</a>
-      <button mat-raised-button (click)="LaunchAnalyse(project.name)">Analyser</button>
+      <img src="assets/searching.gif" width="20" height="20" alt="image"/><button mat-raised-button (click)="LaunchAnalyse(project.name)">Analyser</button>
     </li>
   </ul>
 </div>

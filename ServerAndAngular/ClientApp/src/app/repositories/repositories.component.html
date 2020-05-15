@@ -1,5 +1,5 @@
 <div>
-  <app-create-repository></app-create-repository>
+  <app-create-repository (repositoryCreated)="repositoryListUpdate($event)"></app-create-repository>
 
   <ul>
     <li *ngFor="let repo of repositories"><a [routerLink]="['/repository', repo.name]">{{repo.name}} of type {{repo.repositoryType}} on url:{{repo.url}}</a></li>

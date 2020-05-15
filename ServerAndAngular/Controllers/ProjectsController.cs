@@ -37,10 +37,10 @@ namespace SoupDiscover.Controllers
         }
 
         // GET: api/Projects/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<SOUPSearchProject>> GetProject(string id)
+        [HttpGet("{projectId}")]
+        public async Task<ActionResult<SOUPSearchProject>> GetProject(string projectId)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects.FindAsync(projectId);
             _context.Entry(project).Collection(p => p.Packages).Load();
             if (project == null)
             {
@@ -53,10 +53,10 @@ namespace SoupDiscover.Controllers
         // PUT: api/Projects/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(string id, SOUPSearchProject project)
+        [HttpPut("{projectId}")]
+        public async Task<IActionResult> PutProject(string projectId, SOUPSearchProject project)
         {
-            if (id != project.Name)
+            if (projectId != project.Name)
             {
                 return BadRequest();
             }
@@ -69,7 +69,7 @@ namespace SoupDiscover.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProjectExists(id))
+                if (!ProjectExists(projectId))
                 {
                     return NotFound();
                 }
@@ -134,10 +134,10 @@ namespace SoupDiscover.Controllers
         }
 
         // DELETE: api/Projects/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(string id)
+        [HttpDelete("{projectId}")]
+        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(string projectId)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects.FindAsync(projectId);
             if (project == null)
             {
                 return NotFound();
@@ -149,9 +149,9 @@ namespace SoupDiscover.Controllers
             return project;
         }
 
-        private bool ProjectExists(string id)
+        private bool ProjectExists(string projectId)
         {
-            return _context.Projects.Any(e => e.Name == id);
+            return _context.Projects.Any(e => e.Name == projectId);
         }
 
         /// <summary>

@@ -30,6 +30,7 @@
   <div class="buttons">
     <button mat-button *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
     <button mat-button *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
+    <button (click)="DeleteProject()">Supprimer</button>
   </div>
 </section>
 <hr/>

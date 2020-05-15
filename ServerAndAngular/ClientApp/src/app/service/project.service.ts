@@ -17,7 +17,7 @@ export class ProjectService {
   UpdateProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     let request = this.httpClient.put<ProjectDto>(this.baseUrl + 'api/Projects/' + project.name, JSON.stringify(project), { headers: headerOptions })
-    request.subscribe(res => console.log(res), error => console.error(error));
+    //request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 
@@ -44,7 +44,7 @@ export class ProjectService {
   AddProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     let request = this.httpClient.post<ProjectDto>(this.baseUrl + 'api/Projects', JSON.stringify(project), { headers: headerOptions });
-    request.subscribe(res => console.log(res), error => console.error(error));
+    //request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 
@@ -53,7 +53,7 @@ export class ProjectService {
    * */
   GetProjects(): Observable<ProjectDto[]> {
     let request = this.httpClient.get<ProjectDto[]>(this.baseUrl + 'api/Projects');
-    request.subscribe(res => console.log(res), error => console.error(error));
+    //request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 
@@ -63,7 +63,7 @@ export class ProjectService {
    */
   GetProject(name: string): Observable<ProjectWithDetailsDto>{
     let request = this.httpClient.get<ProjectWithDetailsDto>(this.baseUrl + 'api/Projects/' + name);
-    request.subscribe(res => console.log(res), error => console.error(error));
+    //request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 }
