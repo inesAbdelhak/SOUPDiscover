@@ -41,9 +41,8 @@ export class RepositoriesService {
    */
   UpdateRepository(repository: RepositoryDto) {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    let request = this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories", JSON.stringify(repository), { headers: headerOptions });
+    let request = this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories/" + repository.name, JSON.stringify(repository), { headers: headerOptions });
     request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
-
 }

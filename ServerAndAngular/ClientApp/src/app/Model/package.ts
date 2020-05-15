@@ -8,20 +8,20 @@ export class PackageDto {
   /**
    * Id of the package in database
    */
-  Id: number;
+  id: number;
 
   /**
     * The name of the package
     */
-  PackageId: string;
+  packageId: string;
 
   /**
     * Version of the package
     */
-  Version: string;
+  version: string;
 
   /**
     * Nuget package or npm package
     */
-  PackageType: PackageType;
+  packageType: PackageType;
 }

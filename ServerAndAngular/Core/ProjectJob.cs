@@ -90,7 +90,9 @@ namespace SoupDiscover.Core
         private async Task SaveToDataBase(List<Package> list, CancellationToken token)
         {
             var context = _provider.GetService<DataContext>();
+            Project.Packages = list;
             context.Packages.AddRange(list);
+            context.Projects.Update(Project);
             await context.SaveChangesAsync(token);
         }
 

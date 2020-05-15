@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SoupDiscover.Core;
@@ -39,7 +41,7 @@ namespace SoupDiscover.Controllers
         public async Task<ActionResult<SOUPSearchProject>> GetProject(string id)
         {
             var project = await _context.Projects.FindAsync(id);
-            await _context.Entry(project).Collection(p => p.Packages).LoadAsync();
+            _context.Entry(project).Collection(p => p.Packages).Load();
             if (project == null)
             {
                 return NotFound();
@@ -100,8 +102,8 @@ namespace SoupDiscover.Controllers
         /// </summary>
         /// <param name="projectId">Id of the project to Start</param>
         /// <returns></returns>
-        [HttpPost("Start")]
-        public async Task<ActionResult<SOUPSearchProject>> StartProject([FromBody]string projectId)
+        [HttpPost("Start/{projectId}")]
+        public async Task<ActionResult<SOUPSearchProject>> StartProject(string projectId)
         {
             // Retrieve the project to start
             var project = await _context.Projects.FindAsync(projectId);
@@ -133,7 +135,7 @@ namespace SoupDiscover.Controllers
 
         // DELETE: api/Projects/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(int id)
+        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(string id)
         {
             var project = await _context.Projects.FindAsync(id);
             if (project == null)
@@ -150,6 +152,48 @@ namespace SoupDiscover.Controllers
         private bool ProjectExists(string id)
         {
             return _context.Projects.Any(e => e.Name == id);
+        }
+
+        /// <summary>
+        /// Export package into a csv file
+        /// </summary>
+        /// <param name="projectId">the project to export</param>
+        /// <returns>A result with</returns>
+        [HttpGet("exporttocsv/{projectId}")]
+        public async Task<ActionResult> DownloadCsv(string projectId)
+        {
+            if (string.IsNullOrEmpty(projectId))
+            {
+                return Problem($"Project Id not defined!");
+            }
+            var csvStream = ExportPackagesToCsvFile(projectId);
+            if (csvStream == null)
+            {
+                return Problem($"Unable to find the project {projectId}");
+            }
+            return File(csvStream, "text/plain", $"{projectId}.csv");
+        }
+
+        private Stream ExportPackagesToCsvFile(string projectId)
+        {
+            var project = _context.Projects.Find(projectId);
+            if (project == null)
+            {
+                return null;
+            }
+            var baseStream = new MemoryStream();
+            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8);
+            _context.Entry(project).Collection(p => p.Packages).Load();
+
+            // Create header
+            stream.WriteLine("PackageId;Version");
+            foreach (var p in project.Packages)
+            {
+                stream.WriteLine($"{p.PackageId};{p.Version}");
+            }
+            stream.Flush();
+            baseStream.Seek(0, SeekOrigin.Begin);
+            return baseStream;
         }
     }
 }

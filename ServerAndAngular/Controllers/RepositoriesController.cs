@@ -5,41 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SoupDiscover.Controllers.Dto;
 using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
 {
-    public enum RepositoryType
-    {
-        None,
-        Git,
-    }
-    public class RepositoryDto
-    {
-        public RepositoryType repositoryType { get; set; }
-
-        /// <summary>
-        /// The name of the repository (to display)
-        /// </summary>
-        public string name { get; set; }
-        /// <summary>
-        /// The name of sh key to clone the repository
-        /// </summary>
-        public string url { get; set; }
-
-        /// <summary>
-        /// The name of sh key to clone the repository
-        /// </summary>
-        public string sshKeyName { get; set; }
-
-        /// <summary>
-        /// The name of the branch to process
-        /// </summary>
-        public string branch { get; set; }
-
-    }
-
     [Route("api/[controller]")]
     [ApiController]
     public class RepositoriesController : ControllerBase

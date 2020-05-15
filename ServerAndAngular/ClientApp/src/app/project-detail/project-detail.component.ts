@@ -20,7 +20,8 @@ export class ProjectDetailComponent implements OnInit {
 
   repositories: RepositoryDto[];
   packages: PackageDto[];
-  displayedColumns: string[] = ['PackageId', 'Version'];
+  displayedColumns: string[] = ['packageId', 'version'];
+  edit: boolean = false;
 
   constructor(private projectService: ProjectService, private repositoriesService: RepositoriesService, private route: ActivatedRoute) { }
 
@@ -35,7 +36,6 @@ export class ProjectDetailComponent implements OnInit {
       this.projectService.GetProject(this.currentProjectId).subscribe(res => this.project = res);
     });
     this.repositoriesService.GetRepositories().subscribe(res => this.repositories = res);
-    this.packages = [{ Id: 0, PackageId: 'test1', Version: '1.0', PackageType: PackageType.nuget }] 
   }
 
   /**
@@ -48,7 +48,7 @@ export class ProjectDetailComponent implements OnInit {
   /**
    * Export all detected soup to a csv file
    * */
-  ExportToCsv(): void {
-    this.projectService.ExportToCsv(this.currentProjectId);
+  GetCsvUrl(): string {
+    return this.projectService.GetCsvUrl(this.currentProjectId);
   }
 }

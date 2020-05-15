@@ -13,16 +13,18 @@ export class ProjectService {
    */
   UpdateProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    let request = this.httpClient.put<ProjectDto>(this.baseUrl + 'api/Projects', JSON.stringify(project), { headers: headerOptions })
+    let request = this.httpClient.put<ProjectDto>(this.baseUrl + 'api/Projects/' + project.name, JSON.stringify(project), { headers: headerOptions })
     request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
+
   /**
-   * Export the detected soup of the project to a csv fle
+   * Return the url that permit to download csv file of the project
    * */
-  ExportToCsv(projectId : string) {
-      throw new Error("Method not implemented.");
+  GetCsvUrl(projectId: string) : string {
+    return this.baseUrl + "api/Projects/exporttocsv/" + projectId;
   }
+
   /**
    * Launch the project analysis
    * @param name the name of the project to launch
