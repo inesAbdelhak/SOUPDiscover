@@ -1,10 +1,7 @@
-<div class="title"><h1>{{currentProjectId}}</h1></div>
-<div class="configuration">
-  <!-- Name of the project-->
-  <mat-label>Nom</mat-label>
-  <mat-label>{{currentProjectId}}</mat-label>
+<div class="title"><h1>Projet {{currentProjectId}}</h1> <button mat-button (click)="Analyse()">Analyser</button></div>
+<section class="configuration">
   <br />
-  <div *ngIf="edit">
+  <div *ngIf="edit === true">
     <!-- The repository to use -->
     <mat-form-field *ngIf="project != null">
       <mat-select [(ngModel)]="project.repositoryId">
@@ -18,37 +15,51 @@
       <textarea matInput [(ngModel)]="project.commandLinesBeforeParse"></textarea>
     </mat-form-field>
   </div>
-  <div *ngIf="!edit">
-    <mat-label>Dépot</mat-label>
-    <mat-label *ngIf="project != null">{{project.repositoryId}}</mat-label>
-    <br />
-    <mat-label>Commande de préparation</mat-label>
-    <p *ngIf="project != null">{{project.commandLinesBeforeParse}}</p><br />
+  <div *ngIf="edit === false && project != null">
+    <table class="biutifulTable">
+      <tr>
+        <th>Dépot</th>
+        <th>{{project.repositoryId}}</th>
+      </tr>
+      <tr>
+        <th>Commande de préparation</th>
+        <th>{{project.commandLinesBeforeParse}}</th>
+      </tr>
+    </table>
   </div>
-</div>
+  <div class="buttons">
+    <button mat-button *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
+    <button mat-button *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
+  </div>
+</section>
+<hr/>
+<section>
+  <h2>Packages trouvés pour le projet</h2>
+  <div>
+    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv</a><br />
 
-<div class="buttons">
-  <button *ngIf="edit" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
-  <button *ngIf="!edit" (click)="UpdateProject()">Sauvegarder</button>
-</div>
+    <mat-form-field>
+      <mat-label>Filter</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
+    </mat-form-field><br />
 
-<div>
-  <a [href]="GetCsvUrl()" [download]="currentProjectId +'.csv'">Télécharger le fichier csv</a>
-  <!-- Display list of packages found -->
-  <table *ngIf="project != null" mat-table [dataSource]="project.packages" class="mat-elevation-z8">
-    <!-- Package Id -->
-    <ng-container matColumnDef="packageId">
-      <th mat-header-cell *matHeaderCellDef> Id </th>
-      <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
-    </ng-container>
+    <!-- Display list of packages found -->
+    <table *ngIf="project != null" mat-table [dataSource]="packages" matSort class="mat-elevation-z8">
+      <!-- Package Id -->
+      <ng-container matColumnDef="packageId">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+        <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
+      </ng-container>
 
-    <!-- Package Version -->
-    <ng-container matColumnDef="version">
-      <th mat-header-cell *matHeaderCellDef> Version </th>
-      <td mat-cell *matCellDef="let element"> {{element.version}} </td>
-    </ng-container>
+      <!-- Package Version -->
+      <ng-container matColumnDef="version">
+        <th mat-header-cell *matHeaderCellDef> Version </th>
+        <td mat-cell *matCellDef="let element"> {{element.version}} </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-</div>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </div>
+</section>

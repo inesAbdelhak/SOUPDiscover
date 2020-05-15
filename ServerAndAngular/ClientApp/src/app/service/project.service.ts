@@ -7,6 +7,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProjectService {
+
+  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
+
   /**
    * Update the project to server
    * @param project The new state of the project
@@ -30,12 +33,9 @@ export class ProjectService {
    * @param name the name of the project to launch
    */
   LaunchProject(name: string) {
-    const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    let request = this.httpClient.post<ProjectDto>(this.baseUrl + "api/Projects/Start", JSON.stringify(name), { headers: headerOptions });
+    let request = this.httpClient.post<ProjectDto>(this.baseUrl + "api/Projects/Start/" + name, null);
     request.subscribe(res => console.log(res), error => console.error(error));
   }
-
-  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
   /**
    * Add a project on database

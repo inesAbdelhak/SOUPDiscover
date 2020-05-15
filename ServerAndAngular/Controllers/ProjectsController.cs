@@ -174,7 +174,11 @@ namespace SoupDiscover.Controllers
             return File(csvStream, "text/plain", $"{projectId}.csv");
         }
 
-        private Stream ExportPackagesToCsvFile(string projectId)
+        /// <summary>
+        /// Create a stream that contains the csv file
+        /// </summary>
+        /// <param name="projectId">Id of the project</param>
+        private Stream ExportPackagesToCsvFile(string projectId, char delimiter = ';')
         {
             var project = _context.Projects.Find(projectId);
             if (project == null)
@@ -186,13 +190,14 @@ namespace SoupDiscover.Controllers
             _context.Entry(project).Collection(p => p.Packages).Load();
 
             // Create header
-            stream.WriteLine("PackageId;Version");
+            stream.WriteLine($"PackageId{delimiter}Version");
             foreach (var p in project.Packages)
             {
-                stream.WriteLine($"{p.PackageId};{p.Version}");
+                stream.WriteLine($"{p.PackageId}{delimiter}{p.Version}");
             }
-            stream.Flush();
-            baseStream.Seek(0, SeekOrigin.Begin);
+            stream.Flush(); // Empty the stream to the base stream
+            // Don't close the StreamWriter, this will close the base stream
+            baseStream.Seek(0, SeekOrigin.Begin); // Move the position to the start of the stream
             return baseStream;
         }
     }
