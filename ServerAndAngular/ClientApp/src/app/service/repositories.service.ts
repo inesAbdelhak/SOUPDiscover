@@ -14,8 +14,8 @@ export class RepositoriesService {
    * Delete a repository
    * @param currentProjectId
    */
-  DeleteProject(currentProjectId: string): Observable<RepositoryDto> {
-    return this.httpClient.delete("api/repositories/" + currentProjectId);
+  DeleteRepository(repositoryId: string): Observable<RepositoryDto> {
+    return this.httpClient.delete("api/repositories/" + repositoryId);
   }
 
   constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }

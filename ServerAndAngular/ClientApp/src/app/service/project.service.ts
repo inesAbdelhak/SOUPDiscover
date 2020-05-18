@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProjectService {
+  
 
   constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
@@ -65,5 +66,13 @@ export class ProjectService {
     let request = this.httpClient.get<ProjectWithDetailsDto>(this.baseUrl + 'api/Projects/' + name);
     //request.subscribe(res => console.log(res), error => console.error(error));
     return request;
+  }
+
+  /**
+   * Remove a project from its name
+   * @param currentProjectId
+   */
+  DeleteProject(currentProjectId: string): Observable<ProjectDto> {
+    return this.httpClient.delete<ProjectDto>(this.baseUrl + 'api/Projects/' + currentProjectId);
   }
 }

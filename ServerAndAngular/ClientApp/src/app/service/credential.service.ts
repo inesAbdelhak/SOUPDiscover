@@ -19,7 +19,7 @@ export class CredentialService {
   AddCredential(credential: CredentialDto): Observable<CredentialDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     let request = this.httpClient.post<CredentialDto>(this.baseUrl + 'api/Credentials', JSON.stringify(credential), { headers: headerOptions });
-    //request.subscribe(res => console.log(res), error => console.error(error));
+    // request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 

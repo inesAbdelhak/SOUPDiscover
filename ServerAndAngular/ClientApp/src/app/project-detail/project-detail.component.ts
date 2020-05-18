@@ -53,7 +53,7 @@ export class ProjectDetailComponent implements OnInit {
    * Delete the project
    * */
   DeleteProject(): void {
-    this.repositoriesService.DeleteProject(this.currentProjectId)
+    this.projectService.DeleteProject(this.currentProjectId)
       .subscribe(res => this.router.navigate(['..'], { relativeTo: this.route }));
   }
 

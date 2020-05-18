@@ -90,6 +90,9 @@ namespace SoupDiscover.Core
         private async Task SaveToDataBase(List<Package> list, CancellationToken token)
         {
             var context = _provider.GetService<DataContext>();
+            
+            context.Entry(Project).Collection(p => p.Packages).Load();
+            context.RemoveRange(Project.Packages); // Remove the old result
             Project.Packages = list;
             context.Packages.AddRange(list);
             context.Projects.Update(Project);
@@ -139,6 +142,7 @@ namespace SoupDiscover.Core
                             var idAndVersion = package.Name;
                             if (!alreadyParsed.Contains(idAndVersion))
                             {
+                                alreadyParsed.Add(idAndVersion);
                                 var splited = idAndVersion.Split('/');
                                 allPackages.Add(CreateNugetPackageDescription(splited[0], splited[1]));
                             }
@@ -161,6 +165,7 @@ namespace SoupDiscover.Core
                     var version = pack.Attribute("version")?.Value;
                     if (!alreadyParsed.Contains($"{id}/{version}"))
                     {
+                        alreadyParsed.Add($"{id}/{version}");
                         allPackages.Add(CreateNugetPackageDescription(id, version));
                     }
                 }
