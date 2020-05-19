@@ -1,8 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
-import { CredentialDto } from '../Model/credential';
-import { RepositoryType } from '../Model/repository';
+import { CredentialDto } from '../model/credential';
 
 export interface DialogData {
   name: string;

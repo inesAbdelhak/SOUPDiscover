@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { CredentialService } from '../service/credential.service';
-import { CredentialDto } from '../Model/credential';
+import { CredentialDto } from '../model/credential';
 
 @Component({
   selector: 'app-credentials',

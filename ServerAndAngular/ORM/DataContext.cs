@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using SoupDiscover.Core.Respository;
 
 namespace SoupDiscover.ORM
@@ -22,9 +23,7 @@ namespace SoupDiscover.ORM
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<SOUPSearchProject>()
-            .Property<string>("_sOUPTypeToSearchCollection")
-            .HasField("_sOUPTypeToSearchCollection");
+            // modelBuilder.Entity<Package>().HasOne(p => p.SOUPSearchProject).WithMany(p => p.Packages).OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<GitRepository> Repositories { get; set; }

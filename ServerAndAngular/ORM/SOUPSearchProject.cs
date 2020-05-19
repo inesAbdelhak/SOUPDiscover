@@ -13,8 +13,6 @@ namespace SoupDiscover.ORM
     /// </summary>
     public class SOUPSearchProject
     {
-        private string _sOUPTypeToSearchCollection;
-        
         /// <summary>
         /// The primary  key of the project
         /// </summary>
@@ -52,17 +50,5 @@ namespace SoupDiscover.ORM
         /// </summary>
         public string NugetServerUrl { get; set; }
 
-        [NotMapped]
-        public PackageType[] SOUPTypeToSearch
-        {
-            get
-            {
-                return EnumExtension.Deserialize<PackageType>(_sOUPTypeToSearchCollection).ToArray();
-            }
-            set
-            {
-                _sOUPTypeToSearchCollection = value.Serialize();
-            }
-        }
     }
 }

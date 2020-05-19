@@ -1,8 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
-import { CredentialDto } from '../Model/credential';
+import { CredentialDto } from '../model/credential';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
-import { RepositoryDto } from '../Model/repository';
 
 @Injectable({
   providedIn: 'root'

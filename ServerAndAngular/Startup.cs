@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SoupDiscover.Common;
 using SoupDiscover.Core;
 using SoupDiscover.ORM;
 
@@ -27,7 +28,7 @@ namespace SoupDiscover
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/dist";
+                configuration.RootPath = "dist";
             });
             services.AddDbContext<DataContext>(options => options.UseSqlite(@"Data Source=CustomerDB.db;"));
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();

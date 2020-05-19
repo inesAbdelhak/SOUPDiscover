@@ -14,10 +14,12 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using SoupDiscover.Common;
 using SoupDiscover.Core.Respository;
+using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using SoupDiscover.Core;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Common
 {
     /// <summary>
     /// Permit to find all SOUP in the repository defined in the project
@@ -64,15 +66,12 @@ namespace SoupDiscover.Core
             // Search nuget SOUP
             Package[] nugetPackages = null;
             Package[] npmPackages = null;
-            if (Project.SOUPTypeToSearch.Contains(PackageType.Nuget))
-            {
-                nugetPackages = await SearchNugetPackages();
-            }
-
-            if (Project.SOUPTypeToSearch.Contains(PackageType.Npm))
-            {
-                npmPackages = await SearchNpmPackages();
-            }
+            // Copy content files of the repository to a temporary directory
+            var directory = await RetrieveSourceFiles();
+            // Execute command line defined in Packages.CommandLineBeforeParse
+            ExecuteCommandLinesBefore(directory);
+            nugetPackages = await SearchNugetPackages(directory);
+            npmPackages = await SearchNpmPackages(directory);
 
             var list = new List<Package>();
             if (nugetPackages != null)
@@ -90,7 +89,7 @@ namespace SoupDiscover.Core
         private async Task SaveToDataBase(List<Package> list, CancellationToken token)
         {
             var context = _provider.GetService<DataContext>();
-            
+
             context.Entry(Project).Collection(p => p.Packages).Load();
             context.RemoveRange(Project.Packages); // Remove the old result
             Project.Packages = list;
@@ -99,22 +98,41 @@ namespace SoupDiscover.Core
             await context.SaveChangesAsync(token);
         }
 
-        private async Task<Package[]> SearchNpmPackages()
+        private async Task<Package[]> SearchNpmPackages(string directory)
         {
-            // Clone the repository
-            // var directory = await RetriveSourceFiles();
-            
-            // Lancer la commande qui permet de générer le fichier lock
-            // Parser le fichier lock
-            return null;
+            List<Package> packages = new List<Package>();
+            var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            // Search all lock files
+            foreach (var lockFile in Directory.GetFiles(directory, "package-lock.json", SearchOption.AllDirectories))
+            {
+                var fileContent = File.ReadAllText(lockFile, Encoding.UTF8);
+                var json = JsonDocument.Parse(fileContent);
+                foreach (var dep in json.RootElement.GetProperty("dependencies").EnumerateObject())
+                {
+                    var packageId = dep.Name;
+                    var version = dep.Value.GetProperty("version").GetString();
+                    var key = $"{packageId}/{version}";
+
+                    // Check if its a dev dependency
+                    var isDev = dep.Value.TryGetProperty("dev", out var dev);
+                    if (isDev)
+                    {
+                        isDev = dev.ValueKind == JsonValueKind.True;
+                    }
+
+                    // Doesn't add dev dependencies
+                    if (!isDev && !alreadyParsed.Contains(key))
+                    {
+                        alreadyParsed.Add(key);
+                        packages.Add(new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm });
+                    }
+                }
+            }
+            return packages.ToArray();
         }
 
-        private async Task<Package[]> SearchNugetPackages()
+        private async Task<Package[]> SearchNugetPackages(string directory)
         {
-            // Copy content files of the repository to a temporary directory
-            var directory = await RetrieveSourceFiles();
-            // Execute command line defined in Packages.CommandLineBeforeParse
-            ExecuteCommandLinesBefore(directory);
             // Search and parse files packages.assets.props and packages.config
             return SearchNugetPackagesFiles(directory).ToArray();
         }
@@ -220,10 +238,7 @@ namespace SoupDiscover.Core
         private async Task<string> RetrieveSourceFiles()
         {
             var workDir = GetWorkDirectory();
-            if (Directory.Exists(workDir))
-            {
-                Directory.Delete(workDir, true);
-            }
+            PathHelper.DeleteDirectory(workDir);
             var wrapperRepository = Project.Repository.GetRepositoryWrapper(_provider);
             wrapperRepository.CopyTo(workDir);
             return workDir;

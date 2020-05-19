@@ -1,9 +1,10 @@
 import { Component, OnInit, Inject, Pipe, PipeTransform, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
-import { RepositoryDto, RepositoryType } from '../Model/repository';
+import { RepositoryDto, RepositoryType } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
-import { CredentialDto } from '../Model/credential';
+import { CredentialDto } from '../model/credential';
+import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-create-repository',
@@ -12,18 +13,18 @@ import { CredentialDto } from '../Model/credential';
 })
 export class CreateRepositoryComponent implements OnInit {
 
-  public data: RepositoryDto;
+  data: RepositoryDto;
   @Output() repositoryCreated: EventEmitter<RepositoryDto> = new EventEmitter<RepositoryDto>();
 
   constructor(public dialog: MatDialog,
-    public credentialService: CredentialService,
-    public repositoryService: RepositoriesService) { }
+    private credentialService: CredentialService,
+    private repositoryService: RepositoriesService) { }
 
   openDialog(): void {
     this.data = {};
     const dialogRef = this.dialog.open(CreateRepositoryDialog, {
-      //width: '250px',
-      //height: '400px',
+      // width: '250px',
+      // height: '400px',
       data: this.data
     });
 
@@ -32,7 +33,8 @@ export class CreateRepositoryComponent implements OnInit {
       // result.repositoryType = RepositoryType.Git;
       this.data = result;
       this.repositoryService.AddRepository(this.data)
-        .subscribe(res => this.repositoryCreated.emit(res));
+        .subscribe(res => this.repositoryCreated.emit(res),
+          error => this.error = error);
     });
   }
 
@@ -47,24 +49,31 @@ export class CreateRepositoryComponent implements OnInit {
 export class CreateRepositoryDialog implements OnInit {
   repositoryTypes = Object.keys(RepositoryType).filter(e => !isNaN(+e)).map(o => { return { index: +o, name: RepositoryType[o] } });
   selected: { index: number, name: string };
-
   availableCredentials: CredentialDto[];
-  constructor(
-    public dialogRef: MatDialogRef<CreateRepositoryDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: RepositoryDto, public credentialService : CredentialService) { }
+  registredForms: FormGroup;
 
-  onNoClick(): void {
+  constructor(
+    private dialogRef: MatDialogRef<CreateRepositoryDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: RepositoryDto,
+    private credentialService: CredentialService,
+    private repositoryService: RepositoriesService) { }
+
+  public onNoClick(): void {
     this.dialogRef.close();
   }
 
-  onOkClick(): void {
+  public onOkClick(): void {
     this.data.repositoryType = this.selected.index;
+    this.repositoryService.AddRepository(this.data)
+      .subscribe(res => this.dialogRef.close());
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
+    //this.registredForms = this.formBuilder.group({
+    //  url: ['', Validators.required],
+    //});
     // Retrieve all available credentials
     this.credentialService.GetCredentials()
       .subscribe(res => this.availableCredentials = res);
   }
-
 }

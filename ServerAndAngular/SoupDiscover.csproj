@@ -39,19 +39,19 @@
   <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove="ClientApp\src\app\material-module.ts" />
-    <None Remove="ClientApp\src\app\Model\Credential.ts" />
-    <None Remove="ClientApp\src\app\Model\package.ts" />
-    <None Remove="ClientApp\src\app\Model\Project.ts" />
-    <None Remove="ClientApp\src\app\Model\repository.ts" />
+    <None Remove="ClientApp\src\app\model\credential.ts" />
+    <None Remove="ClientApp\src\app\model\package.ts" />
+    <None Remove="ClientApp\src\app\model\project.ts" />
+    <None Remove="ClientApp\src\app\model\repository.ts" />
     <None Remove="CustomerDB.db" />
   </ItemGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\app\material-module.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\Model\credential.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\Model\project.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\Model\repository.ts" />
-    <TypeScriptCompile Include="ClientApp\src\app\Model\package.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\credential.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\project.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\repository.ts" />
+    <TypeScriptCompile Include="ClientApp\src\app\model\package.ts" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
@@ -66,9 +66,9 @@
 
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" Condition="'$(BuildAngular)' != 'false'"/>
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" Condition="'$(BuildAngular)' != 'false'"/>
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' and '$(BuildAngular)' != 'false'" />
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>

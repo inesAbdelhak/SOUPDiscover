@@ -25,6 +25,7 @@ import { CreateProjectComponent, CreateProjectDialog } from './create-project/cr
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { RepositoryDetailComponent } from './repository-detail/repository-detail.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,

@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject, EventEmitter, Output } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ProjectService } from '../service/project.service';
-import { ProjectDto } from '../Model/Project';
-import { RepositoryDto, RepositoryType } from '../Model/repository';
+import { ProjectDto } from '../model/project';
+import { RepositoryDto, RepositoryType } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
  
 @Component({

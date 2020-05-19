@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RepositoryDto } from '../Model/repository';
+import { RepositoryDto } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
 import { ActivatedRoute } from '@angular/router';
-import { CredentialDto } from '../Model/credential';
+import { CredentialDto } from '../model/credential';
 import { CredentialService } from '../service/credential.service';
 
 @Component({

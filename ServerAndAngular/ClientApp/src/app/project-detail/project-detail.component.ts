@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../service/project.service';
-import { ProjectWithDetailsDto } from '../Model/Project';
-import { RepositoryDto } from '../Model/repository';
+import { ProjectWithDetailsDto } from '../model/project';
+import { RepositoryDto } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
-import { PackageDto, PackageType } from '../Model/package';
+import { PackageDto, PackageType } from '../model/package';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 

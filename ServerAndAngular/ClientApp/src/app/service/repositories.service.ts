@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RepositoryDto } from '../Model/repository';
+import { RepositoryDto } from '../model/repository';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
@@ -10,6 +10,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 * Manage repositories on server
 */
 export class RepositoriesService {
+
+  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
+
   /**
    * Delete a repository
    * @param currentProjectId
@@ -18,8 +21,6 @@ export class RepositoriesService {
     return this.httpClient.delete("api/repositories/" + repositoryId);
   }
 
-  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
-
   /**
    * Create a new repository
    * @param repository the new repository to create
@@ -27,7 +28,7 @@ export class RepositoriesService {
   AddRepository(repository: RepositoryDto): Observable<RepositoryDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     let request = this.httpClient.post<RepositoryDto>(this.baseUrl + 'api/repositories', JSON.stringify(repository), { headers: headerOptions });
-    request.subscribe(res => console.log(res), error => console.error(error));
+    // request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 
@@ -44,7 +45,7 @@ export class RepositoriesService {
    */
   GetRepository(id: string): Observable<RepositoryDto>{
     let request = this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
-    request.subscribe(res => console.log(res), error => console.error(error));
+    // request.subscribe(res => console.log(res), error => console.error(error));
     return request;
   }
 

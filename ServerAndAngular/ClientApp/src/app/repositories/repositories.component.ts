@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RepositoriesService } from '../service/repositories.service';
-import { RepositoryDto } from '../Model/repository';
+import { RepositoryDto } from '../model/repository';
 
 @Component({
   selector: 'app-repositories',

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using SoupDiscover.Core;
 using SoupDiscover.ORM;
@@ -108,12 +109,6 @@ namespace SoupDiscover.Controllers
             // Retrieve the project to start
             var project = await _context.Projects.FindAsync(projectId);
             _context.Entry(project).Reference(r => r.Repository).Load();
-#if DEBUG
-            if (project.SOUPTypeToSearch == null || project.SOUPTypeToSearch.Length == 0)
-            {
-                project.SOUPTypeToSearch = new PackageType[] { PackageType.Nuget };
-            }
-#endif
             switch (project.Repository)
             {
                 case GitRepository git :
@@ -142,7 +137,8 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
-
+            _context.Entry(project).Collection(p => p.Packages).Load();
+            _context.Packages.RemoveRange(project.Packages);
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
