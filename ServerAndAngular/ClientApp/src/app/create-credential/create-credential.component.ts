@@ -28,9 +28,8 @@ export class CreateCredentialComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
       this.data = result;
-      this.credentalService.AddCredential(result);
+      this.credentalService.AddCredential(result).subscribe(res => { });
     });
   }
 

@@ -17,8 +17,6 @@ namespace SoupDiscover.ORM
         /// The token
         /// </summary>
         public string key { get; set; }
-
-        public CredentialType CredentialType { get; set; }
     }
 
     public enum CredentialType

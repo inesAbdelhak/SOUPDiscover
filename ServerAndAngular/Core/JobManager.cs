@@ -43,26 +43,29 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="project">The project to process</param>
         /// <returns>false : The project is already processing else true</returns>
-        public bool StartTask(IJob job)
+        public Task<TJob> StartTask<TJob>(TJob job)
+            where TJob : IJob
         {
+            var task = new TaskParameter();
             // Check if this project is not currently processing
             lock (_syncObject)
             {
                 if (_processingJobs.ContainsKey(job.IdJob))
                 {
                     _logger.LogDebug($"Try to start a job that is already running");
-                    return false; // Already processing
+                    return null; // Already processing
                 }
                 // Create a task to start the processing
-                var task = new TaskParameter();
                 var tokenSource = new CancellationTokenSource();
                 task.CancellationTokenSource = tokenSource;
                 _logger.LogInformation($"Start the Job {job.IdJob}");
-                task.Task = job.StartAsync(task.CancellationTokenSource.Token)
-                    .ContinueWith(EndProcessingJob, job, task.CancellationTokenSource.Token);
+                var finalTask = job.StartAsync(task.CancellationTokenSource.Token)
+                    .ContinueWith(t => EndProcessingJob(job), task.CancellationTokenSource.Token)
+                    .ContinueWith(t => job, task.CancellationTokenSource.Token);
                 _processingJobs.Add(job.IdJob, task);
+                task.Task = finalTask;
+                return finalTask;
             }
-            return true;
         }
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="initialTask">the task that processing the</param>
         /// <param name="job">The object, that manage the processing of the project</param>
-        private void EndProcessingJob(Task initialTask, object job)
+        private void EndProcessingJob(IJob job)
         {
             if (job == null)
             {

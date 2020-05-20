@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic.CompilerServices;
 using SoupDiscover.Core;
 using SoupDiscover.ORM;
 
@@ -39,16 +42,16 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Projects/5
         [HttpGet("{projectId}")]
-        public async Task<ActionResult<SOUPSearchProject>> GetProject(string projectId)
+        public async Task<ActionResult<ProjectDto>> GetProject(string projectId)
         {
             var project = await _context.Projects.FindAsync(projectId);
-            _context.Entry(project).Collection(p => p.Packages).Load();
+            _context.Entry(project);
             if (project == null)
             {
                 return NotFound();
             }
 
-            return project;
+            return project.ToDto();
         }
 
         // PUT: api/Projects/5
@@ -120,7 +123,8 @@ namespace SoupDiscover.Controllers
             var projectJob = _serviceProvider.GetService<IProjectJob>();
             projectJob.Project = project;
             // Add the Job to the JobManager
-            if (!_projectJobManager.StartTask(projectJob))
+            var task = _projectJobManager.StartTask(projectJob);
+            if (task == null)
             {
                 return Problem($"The project {project.Name} is already processing !");
             }
@@ -137,8 +141,8 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
-            _context.Entry(project).Collection(p => p.Packages).Load();
-            _context.Packages.RemoveRange(project.Packages);
+            _context.Entry(project).Collection(p => p.PackageConsumers).Load();
+            _context.PackageConsumer.RemoveRange(project.PackageConsumers);
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
@@ -148,53 +152,6 @@ namespace SoupDiscover.Controllers
         private bool ProjectExists(string projectId)
         {
             return _context.Projects.Any(e => e.Name == projectId);
-        }
-
-        /// <summary>
-        /// Export package into a csv file
-        /// </summary>
-        /// <param name="projectId">the project to export</param>
-        /// <returns>A result with</returns>
-        [HttpGet("exporttocsv/{projectId}")]
-        public async Task<ActionResult> DownloadCsv(string projectId)
-        {
-            if (string.IsNullOrEmpty(projectId))
-            {
-                return Problem($"Project Id not defined!");
-            }
-            var csvStream = ExportPackagesToCsvFile(projectId);
-            if (csvStream == null)
-            {
-                return Problem($"Unable to find the project {projectId}");
-            }
-            return File(csvStream, "text/plain", $"{projectId}.csv");
-        }
-
-        /// <summary>
-        /// Create a stream that contains the csv file
-        /// </summary>
-        /// <param name="projectId">Id of the project</param>
-        private Stream ExportPackagesToCsvFile(string projectId, char delimiter = ';')
-        {
-            var project = _context.Projects.Find(projectId);
-            if (project == null)
-            {
-                return null;
-            }
-            var baseStream = new MemoryStream();
-            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8);
-            _context.Entry(project).Collection(p => p.Packages).Load();
-
-            // Create header
-            stream.WriteLine($"PackageId{delimiter}Version");
-            foreach (var p in project.Packages)
-            {
-                stream.WriteLine($"{p.PackageId}{delimiter}{p.Version}");
-            }
-            stream.Flush(); // Empty the stream to the base stream
-            // Don't close the StreamWriter, this will close the base stream
-            baseStream.Seek(0, SeekOrigin.Begin); // Move the position to the start of the stream
-            return baseStream;
         }
     }
 }

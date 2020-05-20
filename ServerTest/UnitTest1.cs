@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -39,16 +40,23 @@ namespace ServerTest
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
             services.AddTransient<IProjectJob, ProjectJob>();
             services.AddLogging();
+            services.AddDbContext<DataContext>(optionBuilder => optionBuilder.UseSqlite(@"Data Source=CustomerDBTest.db;"));
             var provider = services.BuildServiceProvider();
             var job = provider.GetService<IProjectJob>();
+            
+            var context = provider.GetRequiredService<DataContext>();
+            context.Database.EnsureCreated();
 
             Assert.IsNotNull(job);
             job.Project = new SOUPSearchProject()
             {
+                Name="ProjetDeTest",
                 CommandLinesBeforeParse = "dotnet restore --ignore-failed-sources",
                 ProcessStatus = ProcessStatus.Waiting,
+                NugetServerUrl = @"https://www.nuget.org/api/v2",
                 Repository = new GitRepository()
                 {
+                    Name = "NonoDSRepository",
                     Branch = "master",
                     SshKeyId = "testsshKey",
                     SshKey = new Credential()
@@ -59,6 +67,9 @@ namespace ServerTest
                     Url = "git@github.com:NonoDS/SOUPDiscover.git",
                 },
             };
+            context = provider.GetService<DataContext>();
+            context.Projects.Add(job.Project);
+            context.SaveChanges();
             job.Start(CancellationToken.None);
         }
 

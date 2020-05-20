@@ -18,6 +18,9 @@ using SoupDiscover.Core.Respository;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using SoupDiscover.Core;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using Microsoft.CodeAnalysis;
 
 namespace SoupDiscover.Common
 {
@@ -28,12 +31,16 @@ namespace SoupDiscover.Common
     {
         private readonly ILogger<ProjectJob> _logger;
         private readonly IServiceProvider _provider;
+        
+        private SearchNugetPackageMetada _searchNugetPackageMetada = new SearchNugetPackageMetada();
+        private SearchNpmPackageMetadata _searchNpmPackageMetadata = new SearchNpmPackageMetadata();
 
         public ProjectJob(ILogger<ProjectJob> logger, IServiceProvider provider)
         {
             _logger = logger;
             _provider = provider;
         }
+
 
         /// <summary>
         /// The project to process
@@ -55,7 +62,7 @@ namespace SoupDiscover.Common
         /// Start asynchronously the process, to find all SOUP in the repository
         /// </summary>
         /// <param name="token">The token to stop the processing</param>
-        public async Task StartAsync(CancellationToken token)
+        public async Task<ProjectJob> StartAsync(CancellationToken token)
         {
             if (Project == null)
             {
@@ -64,8 +71,8 @@ namespace SoupDiscover.Common
             _logger.LogInformation($"Start processing Project {Project.Name}");
 
             // Search nuget SOUP
-            Package[] nugetPackages = null;
-            Package[] npmPackages = null;
+            PackageConsumerName[] nugetPackages = null;
+            PackageConsumerName[] npmPackages = null;
             // Copy content files of the repository to a temporary directory
             var directory = await RetrieveSourceFiles();
             // Execute command line defined in Packages.CommandLineBeforeParse
@@ -73,7 +80,7 @@ namespace SoupDiscover.Common
             nugetPackages = await SearchNugetPackages(directory);
             npmPackages = await SearchNpmPackages(directory);
 
-            var list = new List<Package>();
+            var list = new List<PackageConsumerName>();
             if (nugetPackages != null)
             {
                 list.AddRange(nugetPackages);
@@ -83,24 +90,117 @@ namespace SoupDiscover.Common
                 list.AddRange(npmPackages);
             }
             // Save all packages in database
-            await SaveToDataBase(list, token);
+            await SaveSearchResult(list, directory, token);
+            return this;
         }
 
-        private async Task SaveToDataBase(List<Package> list, CancellationToken token)
+        /// <summary>
+        /// Save result to database
+        /// </summary>
+        /// <param name="projectJob">The job that finished</param>
+        /// <returns></returns>
+        private async Task SaveSearchResult(List<PackageConsumerName> packageConsumerNames, string checkoutDirectory, CancellationToken token)
         {
+            var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
             var context = _provider.GetService<DataContext>();
+            if (packageConsumerNames != null)
+            {
+                // Remove old package in the project
+                context.Entry(Project).Collection(p => p.PackageConsumers).Load();
+                context.PackageConsumer.RemoveRange(Project.PackageConsumers);
 
-            context.Entry(Project).Collection(p => p.Packages).Load();
-            context.RemoveRange(Project.Packages); // Remove the old result
-            Project.Packages = list;
-            context.Packages.AddRange(list);
+                // Add new packages found
+                List<PackageConsumer> consumers = new List<PackageConsumer>();
+                foreach (var packageConsumerName in packageConsumerNames)
+                {
+                    var packageConsummer = new PackageConsumer();
+                    packageConsummer.Project = Project;
+                    packageConsummer.Packages = new List<PackageConsumerPackage>();
+                    packageConsummer.Name = packageConsumerName.Name;
+                    consumers.Add(packageConsummer);
+                    foreach (var packageName in packageConsumerName.Packages)
+                    {
+                        // Search package in cache
+                        packageCache.TryGetValue(packageName.GetSerialized(), out var packageInDatabase);
+                        // Search package in database
+                        packageInDatabase = packageInDatabase ?? context.Packages.Where(p => p.PackageId == packageName.PackageId && p.Version == packageName.Version).FirstOrDefault();
+                        if (packageInDatabase == null)
+                        {
+                            // Create a package
+                            packageInDatabase = GetPackageWithMetadata(packageName, checkoutDirectory);
+                            context.Packages.Add(packageInDatabase);
+                        }
+                        // Add package in cache
+                        packageCache.TryAdd(packageName.GetSerialized(), packageInDatabase);
+                        var packageReference = new PackageConsumerPackage() { Package = packageInDatabase, PackageConsumer = packageConsummer };
+                        packageConsummer.Packages.Add(packageReference);
+                        context.PackageConsumerPackages.Add(packageReference);
+                        context.PackageConsumer.Add(packageConsummer);
+                    }
+                }
+            }
             context.Projects.Update(Project);
-            await context.SaveChangesAsync(token);
+            context.SaveChanges();
         }
 
-        private async Task<Package[]> SearchNpmPackages(string directory)
+        /// <summary>
+        /// Return the package with found metadata
+        /// </summary>
+        /// <param name="packageName">The package to search</param>
+        /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
+        /// <returns></returns>
+        private Package GetPackageWithMetadata(PackageName packageName, string checkoutDirectory)
         {
-            List<Package> packages = new List<Package>();
+            switch(packageName.PackageType)
+            {
+                case PackageType.Nuget:
+                    return _searchNugetPackageMetada.SearchMetadata(packageName.PackageId, packageName.Version, new[] { Project.NugetServerUrl });
+                    
+                case PackageType.Npm:
+                    return _searchNpmPackageMetadata.SearchMetadata(packageName.PackageId, packageName.Version, checkoutDirectory);
+                default: throw new ApplicationException($"Packages type {packageName.PackageType} is not supported!");
+            }
+        }
+
+        private Package GetNpmPackageWithMetadata(string packageId, string version, string checkoutDirectory)
+        {
+            return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
+        }
+
+        /// <summary>
+        /// Search metadata on nuget server
+        /// </summary>
+        /// <param name="packageId">Id of the package to search</param>
+        /// <param name="version">The version of the package to search</param>
+        /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
+        /// <returns></returns>
+        private Package GetNugetPackageWithMetadata(string packageId, string version, string checkoutDirectory)
+        {
+            // Retrieve package source in
+            //string xml = null;
+            //try
+            //{
+            //   xml = GetWebClient().DownloadString($"{Project.NugetServerUrl}/Packages(Id='{packageId}',Version='{version}')");
+            //}
+            //catch(Exception)
+            //{
+            //}
+            //var document = XDocument.Parse(xml);
+            //var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
+            //var licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl");
+            //return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl?.Value, PackageType = PackageType.Nuget };
+            return new Package() { PackageId = packageId, Version = version, Licence = "coucou licence", PackageType = PackageType.Nuget };
+        }
+
+        /// <summary>
+        /// Search npm package metadata
+        /// </summary>
+        /// <param name="directory">The directory where the repository is checkout</param>
+        /// <returns>The package with metadata</returns>
+        private async Task<PackageConsumerName[]> SearchNpmPackages(string directory)
+        {
+            HashSet<PackageName> packages = new HashSet<PackageName>();
+            List<PackageConsumerName> packageConsumers = new List<PackageConsumerName>();
             var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             // Search all lock files
             foreach (var lockFile in Directory.GetFiles(directory, "package-lock.json", SearchOption.AllDirectories))
@@ -124,48 +224,53 @@ namespace SoupDiscover.Common
                     if (!isDev && !alreadyParsed.Contains(key))
                     {
                         alreadyParsed.Add(key);
-                        packages.Add(new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm });
+                        packages.Add(new PackageName(packageId, version, PackageType.Npm));
                     }
                 }
             }
-            return packages.ToArray();
+            return packageConsumers.ToArray();
         }
 
-        private async Task<Package[]> SearchNugetPackages(string directory)
+        private async Task<PackageConsumerName[]> SearchNugetPackages(string directory)
         {
             // Search and parse files packages.assets.props and packages.config
             return SearchNugetPackagesFiles(directory).ToArray();
         }
 
-        private Package CreateNugetPackageDescription(string id, string version)
+        private IEnumerable<PackageConsumerName> SearchNugetPackagesFiles(string path)
         {
-            return new Package() { PackageId = id, Version = version };
-        }
-
-        private IEnumerable<Package> SearchNugetPackagesFiles(string path)
-        {
-            HashSet<string> alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            List<Package> allPackages = new List<Package>();
+            var result = new List<PackageConsumerName>();
+            var alreadyParsed = new Dictionary<string, PackageName>();
+            var allPackages = new List<PackageName>();
             foreach (var jsonFile in Directory.GetFiles(path, "project.assets.json", SearchOption.AllDirectories))
             {
+                string csproj = null;
+                var packagesOfCurrentProject = new HashSet<PackageName>();
                 try
                 {
                     // Parse project.assets.json, to extract all packages
                     var jsonString = File.ReadAllText(jsonFile);
                     using (var json = JsonDocument.Parse(jsonString))
                     {
+                        csproj = json.RootElement.GetProperty("project").GetProperty("restore").GetString("packagesPath");
                         var targets = json.RootElement.GetProperty("targets");
                         foreach (var package in targets.EnumerateObject().SelectMany(e => e.Value.EnumerateObject()))
                         {
                             var idAndVersion = package.Name;
-                            if (!alreadyParsed.Contains(idAndVersion))
+                            if (alreadyParsed.TryGetValue(idAndVersion, out var foundPackage))
                             {
-                                alreadyParsed.Add(idAndVersion);
+                                packagesOfCurrentProject.Add(foundPackage);
+                            }
+                            else
+                            {
                                 var splited = idAndVersion.Split('/');
-                                allPackages.Add(CreateNugetPackageDescription(splited[0], splited[1]));
+                                var packageName = new PackageName(splited[0], splited[1], PackageType.Nuget);
+                                packagesOfCurrentProject.Add(packageName);
+                                alreadyParsed.Add(idAndVersion, packageName);
                             }
                         }
                     }
+                    result.Add(new PackageConsumerName(csproj, packagesOfCurrentProject.ToArray()));
                 }
                 catch (Exception e)
                 {
@@ -173,6 +278,7 @@ namespace SoupDiscover.Common
                 }
             }
 
+            var packages = new HashSet<PackageName>();
             // Parse packages.config
             foreach (var packageConfigFile in Directory.GetFiles(path, "packages.config", SearchOption.AllDirectories))
             {
@@ -181,14 +287,23 @@ namespace SoupDiscover.Common
                 {
                     var id = pack.Attribute("id")?.Value;
                     var version = pack.Attribute("version")?.Value;
-                    if (!alreadyParsed.Contains($"{id}/{version}"))
+                    if (alreadyParsed.TryGetValue($"{id}/{version}", out var package))
                     {
-                        alreadyParsed.Add($"{id}/{version}");
-                        allPackages.Add(CreateNugetPackageDescription(id, version));
+                        packages.Add(package);
+                    }
+                    else
+                    {
+                        var packageName = new PackageName(id, version, PackageType.Nuget);
+                        alreadyParsed.Add($"{id}/{version}", packageName);
+                        packages.Add(packageName);
                     }
                 }
             }
-            return allPackages;
+            if(packages.Any())
+            {
+                result.Add(new PackageConsumerName("", packages.ToArray()));
+            }
+            return result;
         }
 
         private void ExecuteCommandLinesBefore(string path)
@@ -242,6 +357,42 @@ namespace SoupDiscover.Common
             var wrapperRepository = Project.Repository.GetRepositoryWrapper(_provider);
             wrapperRepository.CopyTo(workDir);
             return workDir;
+        }
+
+        Task IJob.StartAsync(CancellationToken token)
+        {
+            return StartAsync(token);
+        }
+    }
+
+    public class SearchNugetPackageMetada
+    {
+        private Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
+        public Package SearchMetadata(string packageId, string version, string[] sources)
+        {
+            // Retrieve package source in
+            //string xml = null;
+            //try
+            //{
+            //   xml = GetWebClient().DownloadString($"{Project.NugetServerUrl}/Packages(Id='{packageId}',Version='{version}')");
+            //}
+            //catch(Exception)
+            //{
+            //}
+            //var document = XDocument.Parse(xml);
+            //var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
+            //var licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl");
+            //return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl?.Value, PackageType = PackageType.Nuget };
+            return new Package() { PackageId = packageId, Version = version, Licence = "coucou licence", PackageType = PackageType.Nuget };
+        }
+    }
+
+    public class SearchNpmPackageMetadata
+    {
+        
+        public Package SearchMetadata(string packageId, string version, string checkoutDirectory)
+        {
+            return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
         }
     }
 }

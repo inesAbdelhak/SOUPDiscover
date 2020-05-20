@@ -181,7 +181,11 @@ namespace SoupDiscover.Core.Respository
                 Directory.CreateDirectory(path);
             }
             var repositoryToClone = $@"git@{SubstituteHostname}:{Organization}/{Repository}.git";
-            ProcessHelper.ExecuteAndLog(_logger, _gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path);
+            var exitCode = ProcessHelper.ExecuteAndLog(_logger, _gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path);
+            if(exitCode != 0)
+            {
+                throw new ApplicationException($"Error on cloning the Git repository {_urlRepository} in path {path}");
+            }
         }
     }
 }

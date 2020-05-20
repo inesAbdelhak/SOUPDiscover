@@ -1,39 +1,25 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SoupDiscover.Common;
-using SoupDiscover.Core.Respository;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
+﻿using System.Collections.Generic;
+using SoupDiscover.Controllers.Dto;
+using SoupDiscover.ORM;
 
-namespace SoupDiscover.ORM
+namespace SoupDiscover.Controllers
 {
-    /// <summary>
-    /// A repository to process or processed
-    /// </summary>
-    public class SOUPSearchProject
+    public class ProjectDto
     {
         /// <summary>
         /// The primary  key of the project
         /// </summary>
-        [Key]
         public string Name { get; set; }
 
         /// <summary>
         /// The repository where search files
         /// </summary>
-        public virtual Repository Repository { get; set; }
+        public virtual RepositoryDto Repository { get; set; }
 
         /// <summary>
         /// The foreign key to the repository definition
         /// </summary>
-        [Required]
         public string RepositoryId { get; set; }
-
-        /// <summary>
-        /// The packages associated with a package consumer (package used by a project)
-        /// </summary>
-        public virtual ICollection<PackageConsumer> PackageConsumers { get;set;}
 
         /// <summary>
         /// The current status of the project
@@ -49,6 +35,5 @@ namespace SoupDiscover.ORM
         /// List of Url nuget server where find metadata of packages
         /// </summary>
         public string NugetServerUrl { get; set; }
-
     }
 }

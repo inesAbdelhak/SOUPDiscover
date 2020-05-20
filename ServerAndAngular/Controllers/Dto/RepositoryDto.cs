@@ -19,7 +19,7 @@ namespace SoupDiscover.Controllers.Dto
         public string url { get; set; }
 
         /// <summary>
-        /// The name of sh key to clone the repository
+        /// The name of ssh key to clone the repository
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string sshKeyName { get; set; }

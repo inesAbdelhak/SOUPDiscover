@@ -23,10 +23,10 @@ namespace SoupDiscover.ORM
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // modelBuilder.Entity<Package>().HasOne(p => p.SOUPSearchProject).WithMany(p => p.Packages).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Package>().HasIndex(p => p.PackageId);
         }
 
-        public DbSet<GitRepository> Repositories { get; set; }
+        public DbSet<GitRepository> GitRepositories { get; set; }
 
         public DbSet<Credential> Credentials { get; set; }
 
@@ -34,6 +34,10 @@ namespace SoupDiscover.ORM
 
         public DbSet<SOUPSearchProject> Projects { get; set; }
 
-        public DbSet<Repository> Repository { get; set; }
+        public DbSet<Repository> Repositories { get; set; }
+
+        public DbSet<PackageConsumer> PackageConsumer { get; set; }
+
+        public DbSet<PackageConsumerPackage> PackageConsumerPackages { get; set; }
     }
 }

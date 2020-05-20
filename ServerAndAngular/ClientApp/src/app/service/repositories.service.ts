@@ -27,9 +27,7 @@ export class RepositoriesService {
    */
   AddRepository(repository: RepositoryDto): Observable<RepositoryDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    let request = this.httpClient.post<RepositoryDto>(this.baseUrl + 'api/repositories', JSON.stringify(repository), { headers: headerOptions });
-    // request.subscribe(res => console.log(res), error => console.error(error));
-    return request;
+    return this.httpClient.post<RepositoryDto>(this.baseUrl + 'api/repositories', JSON.stringify(repository), { headers: headerOptions });
   }
 
   /**
@@ -44,9 +42,7 @@ export class RepositoriesService {
    * @param id
    */
   GetRepository(id: string): Observable<RepositoryDto>{
-    let request = this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
-    // request.subscribe(res => console.log(res), error => console.error(error));
-    return request;
+    return this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
   }
 
   /**
@@ -55,8 +51,6 @@ export class RepositoriesService {
    */
   UpdateRepository(repository: RepositoryDto) {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    let request = this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories/" + repository.name, JSON.stringify(repository), { headers: headerOptions });
-    request.subscribe(res => console.log(res), error => console.error(error));
-    return request;
+    return this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories/" + repository.name, JSON.stringify(repository), { headers: headerOptions });
   }
 }

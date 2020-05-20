@@ -1,4 +1,6 @@
-﻿using SoupDiscover.ORM;
+﻿using SoupDiscover.Common;
+using SoupDiscover.ORM;
+using System;
 
 namespace SoupDiscover.Core
 {

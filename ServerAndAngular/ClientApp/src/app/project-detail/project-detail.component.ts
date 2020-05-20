@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../service/project.service';
-import { ProjectWithDetailsDto } from '../model/project';
+import { ProjectDto } from '../model/project';
 import { RepositoryDto } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
 import { PackageDto, PackageType } from '../model/package';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { PackagesService } from '../service/packages.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -18,10 +19,11 @@ export class ProjectDetailComponent implements OnInit {
   /** The id of the project to view details */
   currentProjectId: string;
   /** The project to display */
-  project: ProjectWithDetailsDto;
+  project: ProjectDto;
 
   repositories: RepositoryDto[];
-  packages: MatTableDataSource<PackageDto>;
+  packagesTableSource: MatTableDataSource<PackageDto>;
+  packages: PackageDto[];
   displayedColumns: string[] = ['packageId', 'version'];
   edit: boolean = false;
 
@@ -29,6 +31,7 @@ export class ProjectDetailComponent implements OnInit {
 
   constructor(private projectService: ProjectService,
     private repositoriesService: RepositoriesService,
+    private packageService: PackagesService,
     private route: ActivatedRoute,
     private router: Router) { }
 
@@ -41,12 +44,17 @@ export class ProjectDetailComponent implements OnInit {
       this.currentProjectId = params.get('id');
       console.log(params.get('id'));
       this.projectService.GetProject(this.currentProjectId).subscribe(res => {
-        this.project = res
-        this.packages = new MatTableDataSource<PackageDto>(res.packages);
-        this.packages.paginator = this.paginator;
-      });
+        this.project = res;
+      })
+      this.packageService.GetPackageFromProjectName(this.currentProjectId)
+        .subscribe(res => {
+          this.packages = res;
+          this.packagesTableSource = new MatTableDataSource<PackageDto>(this.packages);
+          this.packagesTableSource.paginator = this.paginator;
+        });
     });
-    this.repositoriesService.GetRepositories().subscribe(res => this.repositories = res);
+    this.repositoriesService.GetRepositories()
+      .subscribe(res => this.repositories = res);
   }
 
   /**
@@ -85,13 +93,14 @@ export class ProjectDetailComponent implements OnInit {
    */
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.packages.filter = filterValue.trim().toLowerCase();
+    this.packagesTableSource.filter = filterValue.trim().toLowerCase();
   }
 
   /**
    * Launch the analysis of the project
    * */
   Analyse(): void {
-    this.projectService.LaunchProject(this.currentProjectId);
+    this.projectService.LaunchProject(this.currentProjectId)
+      .subscribe(res => { });
   }
 }

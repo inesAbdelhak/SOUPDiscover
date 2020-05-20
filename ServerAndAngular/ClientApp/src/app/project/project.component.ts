@@ -25,7 +25,8 @@ export class ProjectComponent implements OnInit {
    * @param project
    */
   LaunchAnalyse(projectName: string): void {
-    this.projectService.LaunchProject(projectName);
+    this.projectService.LaunchProject(projectName)
+      .subscribe(res => { });
   }
 
   ngOnInit() {

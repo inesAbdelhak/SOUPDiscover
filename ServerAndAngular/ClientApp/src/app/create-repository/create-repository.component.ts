@@ -33,8 +33,7 @@ export class CreateRepositoryComponent implements OnInit {
       // result.repositoryType = RepositoryType.Git;
       this.data = result;
       this.repositoryService.AddRepository(this.data)
-        .subscribe(res => this.repositoryCreated.emit(res),
-          error => this.error = error);
+        .subscribe(res => this.repositoryCreated.emit(res));
     });
   }
 

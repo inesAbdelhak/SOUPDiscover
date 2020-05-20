@@ -1,4 +1,6 @@
-﻿namespace SoupDiscover.Core
+﻿using System.Threading.Tasks;
+
+namespace SoupDiscover.Core
 {
     /// <summary>
     /// Represent a job manager.
@@ -11,6 +13,6 @@
         /// </summary>
         /// <param name="job">The job to add</param>
         /// <returns>true : The job is added to the jobManager, false : the job is already running</returns>
-        bool StartTask(IJob job);
+        Task<TJob> StartTask<TJob>(TJob job) where TJob : IJob;
     }
 }

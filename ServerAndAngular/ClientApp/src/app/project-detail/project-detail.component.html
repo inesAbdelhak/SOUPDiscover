@@ -45,7 +45,7 @@
     </mat-form-field><br />
 
     <!-- Display list of packages found -->
-    <table *ngIf="project != null" mat-table [dataSource]="packages" matSort class="mat-elevation-z8">
+    <table *ngIf="project != null" mat-table [dataSource]="packagesTableSource" matSort class="mat-elevation-z8">
       <!-- Package Id -->
       <ng-container matColumnDef="packageId">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
