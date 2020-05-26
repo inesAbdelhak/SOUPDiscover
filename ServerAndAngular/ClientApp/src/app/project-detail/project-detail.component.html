@@ -1,49 +1,81 @@
-<div class="title"><h1>Projet {{currentProjectId}}</h1> <button mat-button (click)="Analyse()">Analyser</button></div>
+<section class="title">
+  <div class="buttons">
+    <h1>Projet {{currentProjectId}}</h1>
+    <button mat-raised-button color="accent" (click)="Analyse()">Analyser</button>
+    <button mat-raised-button color="warn" (click)="DeleteProject()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</section>
+<mat-divider></mat-divider>
 <section class="configuration">
-  <br />
-  <div *ngIf="edit === true">
+  <h2>Configuration</h2>
+  <!-- Editing the configuration -->
+  <div class="editconfig" *ngIf="edit === true">
     <!-- The repository to use -->
     <mat-form-field *ngIf="project != null">
       <mat-select [(ngModel)]="project.repositoryId">
         <mat-option>--Dépot--</mat-option>
         <mat-option *ngFor="let repo of repositories" [value]="repo.name">{{repo.name}}</mat-option>
       </mat-select>
-    </mat-form-field><br />
+    </mat-form-field>
     <!-- Command to prepare files -->
     <mat-form-field *ngIf="project != null">
       <mat-label>Commande de préparation</mat-label>
       <textarea matInput [(ngModel)]="project.commandLinesBeforeParse"></textarea>
     </mat-form-field>
+
+    <mat-form-field *ngIf="project != null">
+      <mat-label>Server nuget pour rechercher les métadonnées</mat-label>
+      <textarea matInput [(ngModel)]="project.nugetServerUrl"></textarea>
+    </mat-form-field>
   </div>
+  <!-- Display the configuration-->
   <div *ngIf="edit === false && project != null">
     <table class="biutifulTable">
       <tr>
-        <th>Dépot</th>
+        <th> Dépot </th>
         <th>{{project.repositoryId}}</th>
       </tr>
       <tr>
-        <th>Commande de préparation</th>
+        <th> Commande de préparation </th>
         <th>{{project.commandLinesBeforeParse}}</th>
+      </tr>
+      <tr>
+        <th> Nuget server </th>
+        <th>{{project.nugetServerUrl}}</th>
       </tr>
     </table>
   </div>
   <div class="buttons">
-    <button mat-button *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
-    <button mat-button *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
-    <button (click)="DeleteProject()">Supprimer</button>
+    <button mat-raised-button color="accent" *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
+    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
   </div>
 </section>
-<hr/>
+<hr />
 <section>
   <h2>Packages trouvés pour le projet</h2>
   <div>
-    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv</a><br />
+    <!-- To download csv fle that contains all package of the project -->
+    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a><br />
 
+    <!-- Select the csproj-->
     <mat-form-field>
-      <mat-label>Filter</mat-label>
-      <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
+      <mat-label>Filtre sur le projet associé</mat-label>
+      <input type="text" matInput placeholder="monprojet.csproj" [formControl]="selectProjectControl" [matAutocomplete]="auto" />
+      <mat-autocomplete #auto="matAutocomplete" matInput (optionSelected)="applyCsProjFilter($event)">
+        <mat-option *ngFor="let csproj of filteredConsumers | async" [value]="csproj">
+          {{csproj}}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field><br />
 
+    <mat-form-field>
+      <mat-label>Filtre sur l'id</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Ex. log4net">
+    </mat-form-field><br />
+  </div>
+  <div class="fillelements">
     <!-- Display list of packages found -->
     <table *ngIf="project != null" mat-table [dataSource]="packagesTableSource" matSort class="mat-elevation-z8">
       <!-- Package Id -->
@@ -56,6 +88,12 @@
       <ng-container matColumnDef="version">
         <th mat-header-cell *matHeaderCellDef> Version </th>
         <td mat-cell *matCellDef="let element"> {{element.version}} </td>
+      </ng-container>
+
+      <!-- Package licence -->
+      <ng-container matColumnDef="licence">
+        <th mat-header-cell *matHeaderCellDef> Licence </th>
+        <td mat-cell *matCellDef="let element"> {{element.licence}} </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

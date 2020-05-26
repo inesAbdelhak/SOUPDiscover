@@ -49,6 +49,7 @@ import { RepositoryDetailComponent } from './repository-detail/repository-detail
     FormsModule,
     MatDialogModule,
     MaterialModule,
+    ReactiveFormsModule,
     RouterModule.forRoot([
       { path: '', pathMatch: 'full', redirectTo: 'project' }, 
       { path: 'project', component: ProjectComponent, },
@@ -63,7 +64,8 @@ import { RepositoryDetailComponent } from './repository-detail/repository-detail
     MatButtonModule,
     MatSidenavModule,
     MatIconModule,
-    MatListModule
+    MatListModule,
+    MaterialModule,
   ],
   entryComponents: [
     CreateCredentialComponent,

@@ -19,7 +19,6 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using SoupDiscover.Core;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using Microsoft.CodeAnalysis;
 
 namespace SoupDiscover.Common
@@ -32,15 +31,19 @@ namespace SoupDiscover.Common
         private readonly ILogger<ProjectJob> _logger;
         private readonly IServiceProvider _provider;
         
-        private SearchNugetPackageMetada _searchNugetPackageMetada = new SearchNugetPackageMetada();
-        private SearchNpmPackageMetadata _searchNpmPackageMetadata = new SearchNpmPackageMetadata();
+        private ISearchNugetPackageMetada _searchNugetPackageMetada;
+        private ISearchNpmPackageMetadata _searchNpmPackageMetadata;
 
-        public ProjectJob(ILogger<ProjectJob> logger, IServiceProvider provider)
+        public ProjectJob(ILogger<ProjectJob> logger, 
+            IServiceProvider provider, 
+            ISearchNugetPackageMetada searchNugetPackageMetada, 
+            ISearchNpmPackageMetadata searchNpmPackageMetadata)
         {
+            _searchNpmPackageMetadata = searchNpmPackageMetadata;
+            _searchNugetPackageMetada = searchNugetPackageMetada;
             _logger = logger;
             _provider = provider;
         }
-
 
         /// <summary>
         /// The project to process
@@ -165,31 +168,6 @@ namespace SoupDiscover.Common
         private Package GetNpmPackageWithMetadata(string packageId, string version, string checkoutDirectory)
         {
             return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
-        }
-
-        /// <summary>
-        /// Search metadata on nuget server
-        /// </summary>
-        /// <param name="packageId">Id of the package to search</param>
-        /// <param name="version">The version of the package to search</param>
-        /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
-        /// <returns></returns>
-        private Package GetNugetPackageWithMetadata(string packageId, string version, string checkoutDirectory)
-        {
-            // Retrieve package source in
-            //string xml = null;
-            //try
-            //{
-            //   xml = GetWebClient().DownloadString($"{Project.NugetServerUrl}/Packages(Id='{packageId}',Version='{version}')");
-            //}
-            //catch(Exception)
-            //{
-            //}
-            //var document = XDocument.Parse(xml);
-            //var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
-            //var licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl");
-            //return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl?.Value, PackageType = PackageType.Nuget };
-            return new Package() { PackageId = packageId, Version = version, Licence = "coucou licence", PackageType = PackageType.Nuget };
         }
 
         /// <summary>
@@ -362,37 +340,6 @@ namespace SoupDiscover.Common
         Task IJob.StartAsync(CancellationToken token)
         {
             return StartAsync(token);
-        }
-    }
-
-    public class SearchNugetPackageMetada
-    {
-        private Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
-        public Package SearchMetadata(string packageId, string version, string[] sources)
-        {
-            // Retrieve package source in
-            //string xml = null;
-            //try
-            //{
-            //   xml = GetWebClient().DownloadString($"{Project.NugetServerUrl}/Packages(Id='{packageId}',Version='{version}')");
-            //}
-            //catch(Exception)
-            //{
-            //}
-            //var document = XDocument.Parse(xml);
-            //var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
-            //var licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl");
-            //return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl?.Value, PackageType = PackageType.Nuget };
-            return new Package() { PackageId = packageId, Version = version, Licence = "coucou licence", PackageType = PackageType.Nuget };
-        }
-    }
-
-    public class SearchNpmPackageMetadata
-    {
-        
-        public Package SearchMetadata(string packageId, string version, string checkoutDirectory)
-        {
-            return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
         }
     }
 }

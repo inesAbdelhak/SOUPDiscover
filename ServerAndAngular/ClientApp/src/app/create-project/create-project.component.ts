@@ -17,7 +17,7 @@ export class CreateProjectComponent implements OnInit {
   constructor(public dialog: MatDialog, public projectService: ProjectService) { }
 
   openDialog(): void {
-    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', packegeTypes: [] };
+    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', packegeTypes: [], nugetServerUrl: '' };
     const dialogRef = this.dialog.open(CreateProjectDialog, {
       //width: '250px',
       //height: '400px',

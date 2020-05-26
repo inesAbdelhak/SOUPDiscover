@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SoupDiscover.Controllers.Dto
 {
     public class RepositoryDto
     {
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public RepositoryType repositoryType { get; set; }
 
         /// <summary>

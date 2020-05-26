@@ -5,5 +5,6 @@ export class ProjectDto {
   name: string;
   commandLinesBeforeParse: string;
   repositoryId: string;
+  nugetServerUrl: string;
   packegeTypes: PackageType[];
 }

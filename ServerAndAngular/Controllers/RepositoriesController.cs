@@ -34,7 +34,7 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Repositories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Repository>> GetRepository(string id)
+        public async Task<ActionResult<RepositoryDto>> GetRepository(string id)
         {
             var repository = await _context.Repositories.FindAsync(id);
 
@@ -43,7 +43,7 @@ namespace SoupDiscover.Controllers
                 return NotFound();
             }
 
-            return repository;
+            return repository.ToDto();
         }
 
         // PUT: api/Repositories/5

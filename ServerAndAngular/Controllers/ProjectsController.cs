@@ -149,6 +149,17 @@ namespace SoupDiscover.Controllers
             return project;
         }
 
+        /// <summary>
+        /// Get all project consumer of oa project
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("projectConsumers/{projectName}")]
+        public async Task<ActionResult<string[]>> GetProjectConsumers(string projectName)
+        {
+            var toto = _context.PackageConsumer.Where(p => p.ProjectId == projectName).Select(p => p.Name).Distinct().ToArray();
+            return toto;
+        }
+
         private bool ProjectExists(string projectId)
         {
             return _context.Projects.Any(e => e.Name == projectId);

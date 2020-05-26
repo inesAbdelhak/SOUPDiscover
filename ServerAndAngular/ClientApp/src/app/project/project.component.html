@@ -1,9 +1,12 @@
 <div>
-  <app-create-project (projectCreated)="projectListUpdate($event)"></app-create-project>
-  <br />
+  <div class="buttons">
+    <h1>Les projets</h1>
+    <app-create-project (projectCreated)="projectListUpdate($event)"></app-create-project>
+  </div>
   <ul>
-    <li *ngFor="let project of projects"><a [routerLink]="['/project', project.name]">{{project.name}}</a>
-      <button mat-raised-button (click)="LaunchAnalyse(project.name)">Analyser</button>
+    <li *ngFor="let project of projects">
+      <a [routerLink]="['/project', project.name]">{{project.name}}</a>: {{project.repositoryId}}
+      <button mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">Analyser</button>
     </li>
   </ul>
 </div>

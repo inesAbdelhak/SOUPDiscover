@@ -1,22 +1,26 @@
-<div class="title"><h1>Dépot {{repositoryId}}</h1></div>
+<section>
+  <div class="title">
+  <h1>Dépot {{repositoryId}}</h1>
+    </div>
+</section>
 <!-- div display where repository loaded -->
-<div *ngIf="repository != null">
-  <div *ngIf="edit === true">
+<section *ngIf="repository != null">
+  <div>
     <p>Type de dépot : {{repository?.repositoryType}}</p>
 
     <!-- Div for Git repository -->
-    <div *ngIf="edit === true && repository?.repositoryType === 'Git'">
+    <div class="editconfig" *ngIf="edit === true && repository.repositoryType === 'Git'">
       <!-- the git url in ssh format -->
       <mat-form-field>
         <mat-label>Url ssh</mat-label>
         <input matInput [(ngModel)]="repository.url">
-      </mat-form-field><br />
+      </mat-form-field>
 
       <!-- The git branch name -->
       <mat-form-field>
         <mat-label>Branch</mat-label>
         <input matInput [(ngModel)]="repository.branch">
-      </mat-form-field><br />
+      </mat-form-field>
 
       <!-- The ssh key to clone the repository -->
       <mat-form-field>
@@ -27,7 +31,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div *ngIf="edit === false && repository?.repositoryType === 'Git'">
+    <div *ngIf="edit === false && repository.repositoryType === 'Git'">
       <table class="biutifulTable">
         <tr>
           <th>Url ssh</th>
@@ -44,8 +48,10 @@
       </table>
     </div>
   </div>
-  <button *ngIf="edit === true" (click)="UpdateRepository()">Sauvegarder</button>
-  <button *ngIf="edit === false" (click)="EditRepository()">Modifier</button>
-</div>
+  <div class="buttons">
+    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateRepository()">Sauvegarder</button>
+    <button mat-raised-button *ngIf="edit === false" (click)="EditRepository()">Modifier</button>
+  </div>
+</section>
 
 

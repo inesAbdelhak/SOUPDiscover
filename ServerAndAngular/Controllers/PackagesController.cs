@@ -21,11 +21,20 @@ namespace SoupDiscover.Controllers
             _context = context;
         }
 
-        // GET: api/Packages/fromprojectName/MyProject
-        [HttpGet("fromprojectName/{projectName}")]
-        public async Task<ActionResult<IEnumerable<Package>>> GetPackages(string projectName)
+        // GET: api/Packages/Filter?projectName=Test
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<Package>>> GetPackages([FromQuery]string projectName, [FromQuery]string csproj)
         {
-            return await _context.PackageConsumerPackages.Where(p => p.PackageConsumer.Project.Name == projectName).Select(p => p.Package).Distinct().ToListAsync();
+            var packages = _context.PackageConsumerPackages.Where(p => true);
+            if(!string.IsNullOrEmpty(projectName))
+            {
+                packages = packages.Where(p => p.PackageConsumer.Project.Name == projectName);
+            }
+            if(!string.IsNullOrEmpty(csproj))
+            {
+                packages = packages.Where(p => p.PackageConsumer.Name == csproj);
+            }
+            return await packages.Select(p => p.Package).Distinct().ToListAsync();
         }
 
         // GET: api/Packages/5

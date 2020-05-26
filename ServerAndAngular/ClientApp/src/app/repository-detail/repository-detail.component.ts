@@ -27,7 +27,9 @@ export class RepositoryDetailComponent implements OnInit {
       this.repositoryId = params.get('id');
       console.log(this.repositoryId);
       this.repositoriesService.GetRepository(this.repositoryId)
-        .subscribe(res => this.repository = res);
+        .subscribe(res => {
+          this.repository = res;
+        });
     })
     // Retrieve all available credentials
     this.credentialService.GetCredentials()

@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SoupDiscover.ORM
 {
+    /// <summary>
+    /// A nuget package or an npm package
+    /// </summary>
     public class Package
     {
         /// <summary>
@@ -38,9 +41,5 @@ namespace SoupDiscover.ORM
         /// </summary>
         public virtual ICollection<PackageConsumer> PackageConsumers { get; set; }
 
-        /// <summary>
-        /// All project that reference this package without PackageConsumer
-        /// </summary>
-        //public virtual ICollection<SOUPSearchProject> SOUPSearchProjects { get; set; }
     }
 }

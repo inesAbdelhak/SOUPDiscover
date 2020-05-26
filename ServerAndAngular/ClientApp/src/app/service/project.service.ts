@@ -21,8 +21,6 @@ export class ProjectService {
     return this.httpClient.put<ProjectDto>(this.baseUrl + 'api/Projects/' + project.name, JSON.stringify(project), { headers: headerOptions })
   }
 
-
-
   /**
    * Launch the project analysis
    * @param name the name of the project to launch
@@ -61,5 +59,14 @@ export class ProjectService {
    */
   DeleteProject(currentProjectId: string): Observable<ProjectDto> {
     return this.httpClient.delete<ProjectDto>(this.baseUrl + 'api/Projects/' + currentProjectId);
+  }
+
+  /**
+   * Return all project consumers (csproj)
+   * @param projectName
+   */
+  public GetAllPackageConsummer(projectName: string): Observable<string[]> {
+    return this.httpClient.get<string[]>(this.baseUrl + "api/Projects/projectConsumers/" + projectName);
+
   }
 }

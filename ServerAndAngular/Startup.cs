@@ -33,6 +33,8 @@ namespace SoupDiscover
             services.AddDbContext<DataContext>(options => options.UseSqlite(@"Data Source=CustomerDB.db;"));
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
             services.AddTransient<IProjectJob, ProjectJob>();
+            services.AddSingleton<ISearchNpmPackageMetadata, SearchNpmPackageMetadata>();
+            services.AddSingleton<ISearchNugetPackageMetada, SearchNugetPackageMetada>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

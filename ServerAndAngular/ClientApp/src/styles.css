@@ -30,12 +30,25 @@ body {
   width: 100%;
 }
 
-  .biutifulTable td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-  }
+.biutifulTable td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
 
-  .biutifulTable tr:nth-child(even) {
-    background-color: #dddddd;
-  }
+.biutifulTable tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.editconfig {
+  display: table-caption;
+}
+
+.buttons {
+  margin: 20px 0px;
+  display: inline-flex;
+}
+
+.buttons button {
+  margin-right: 20px;
+}

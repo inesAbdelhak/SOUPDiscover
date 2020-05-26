@@ -15,8 +15,15 @@ export class PackagesService {
    * Return all package of the project defined
    * @param projectName
    */
-  public GetPackageFromProjectName(projectName: string): Observable<PackageDto[]> {
-    return this.httpClient.get<PackageDto[]>(this.baseUrl + "api/Packages/fromprojectName/" + projectName);
+  public GetPackageFromProjectName(projectName: string, csproj: string = null): Observable<PackageDto[]> {
+    if (projectName == null) {
+      throw new Error("projectName must be not null!");
+    }
+    let request = this.baseUrl + "api/Packages/filter?projectName=" + projectName;
+    if (csproj != null) {
+      request += "&csproj=" + csproj;
+    }
+    return this.httpClient.get<PackageDto[]>(request);
   }
 
   /**

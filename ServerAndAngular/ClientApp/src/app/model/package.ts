@@ -21,6 +21,11 @@ export class PackageDto {
   version: string;
 
   /**
+   * The package licence. 
+   * */
+  licence: string;
+
+  /**
     * Nuget package or npm package
     */
   packageType: PackageType;
