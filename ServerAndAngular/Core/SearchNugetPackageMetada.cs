@@ -56,7 +56,7 @@ namespace SoupDiscover.Common
             {
                 _logger.LogInformation($"Unable to find Meta-data on package {packageId} version {version} on sources {string.Join(";", sources)}");
             }
-            return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl, PackageType = PackageType.Nuget };
+            return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl, PackageType = PackageType.Nuget, Description = description };
         }
     }
 }

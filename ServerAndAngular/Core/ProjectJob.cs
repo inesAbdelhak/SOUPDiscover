@@ -56,7 +56,7 @@ namespace SoupDiscover.Common
         /// Start synchronously the process, to find all SOUP in the repository
         /// </summary>
         /// <param name="token">The token to stop the processing</param>
-        public void Start(CancellationToken token)
+        public void Execute(CancellationToken token)
         {
             StartAsync(token).Wait();
         }
@@ -176,12 +176,12 @@ namespace SoupDiscover.Common
         /// <returns>The package with metadata</returns>
         private async Task<PackageConsumerName[]> SearchNpmPackages(string directory)
         {
-            HashSet<PackageName> packages = new HashSet<PackageName>();
-            List<PackageConsumerName> packageConsumers = new List<PackageConsumerName>();
-            var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var packageConsumers = new List<PackageConsumerName>();
             // Search all lock files
             foreach (var lockFile in Directory.GetFiles(directory, SearchNpmPackageMetadata.PackageLockJsonFilename, SearchOption.AllDirectories))
             {
+                var packages = new HashSet<PackageName>();
+                var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 var fileContent = File.ReadAllText(lockFile, Encoding.UTF8);
                 var json = JsonDocument.Parse(fileContent);
                 foreach (var dep in json.RootElement.GetProperty("dependencies").EnumerateObject())
@@ -204,6 +204,7 @@ namespace SoupDiscover.Common
                         packages.Add(new PackageName(packageId, version, PackageType.Npm));
                     }
                 }
+                packageConsumers.Add(new PackageConsumerName(Path.GetRelativePath(directory, Path.GetDirectoryName(lockFile)), packages.ToArray()));
             }
             return packageConsumers.ToArray();
         }

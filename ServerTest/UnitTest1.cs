@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using SoupDiscover.Common;
 using SoupDiscover.Core;
 using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
+using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 
 namespace ServerTest
@@ -34,10 +38,44 @@ namespace ServerTest
         }
 
         [Test]
+        public void TestNugetMetadata()
+        {
+            var search = new SearchNugetPackageMetada(NullLogger<SearchNugetPackageMetada>.Instance);
+            var package = search.SearchMetadata("log4net", "2.0.8", new[] { @"https://www.nuget.org/api/v2" });
+            Assert.AreEqual("log4net", package.PackageId);
+            Assert.AreEqual("2.0.8", package.Version);
+            Assert.AreEqual("http://logging.apache.org/log4net/license.html", package.Licence);
+            Assert.IsTrue(package.Description.StartsWith("log4net is a tool to help the programmer output "));
+        }
+
+        [Test]
+        public void TestNpmMetadata()
+        {
+            var search = new SearchNpmPackageMetadata(NullLogger<SearchNpmPackageMetadata>.Instance);
+            var assemblyLocation = typeof(SearchNpmPackageMetadata).Assembly.Location;
+            var index = assemblyLocation.IndexOf(Path.DirectorySeparatorChar + "ServerTest" + Path.DirectorySeparatorChar);
+            if(index == -1)
+            {
+                return; // Inconclusive test
+            }
+            var checkoutDir = assemblyLocation.Substring(0, index);
+            var packagesDir = Path.Combine(checkoutDir, "ServerAndAngular", "ClientApp");
+            var package = search.SearchMetadata("@angular/core", "8.2.12", packagesDir);
+            Assert.AreEqual("@angular/core", package.PackageId);
+            Assert.AreEqual("8.2.12", package.Version);
+            Assert.AreEqual("MIT", package.Licence);
+            Assert.AreEqual(PackageType.Npm, package.PackageType);
+            Assert.AreEqual("Angular - the core framework", package.Description);
+        }
+        
+        [Test]
         public void Test2()
         {
+            File.Delete("CustomerDB.db");
             var services = new ServiceCollection();
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
+            services.AddSingleton<ISearchNugetPackageMetada, FakeSearchNugetPackageMetada>();
+            services.AddSingleton<ISearchNpmPackageMetadata, SearchNpmPackageMetadata>();
             services.AddTransient<IProjectJob, ProjectJob>();
             services.AddLogging();
             services.AddDbContext<DataContext>(optionBuilder => optionBuilder.UseSqlite(@"Data Source=CustomerDBTest.db;"));
@@ -51,7 +89,7 @@ namespace ServerTest
             job.Project = new SOUPSearchProject()
             {
                 Name="ProjetDeTest",
-                CommandLinesBeforeParse = "dotnet restore --ignore-failed-sources",
+                CommandLinesBeforeParse = "dotnet restore --ignore-failed-sources\r\ncd ServerAndAngular\\ClientApp\r\nnpm i",
                 ProcessStatus = ProcessStatus.Waiting,
                 NugetServerUrl = @"https://www.nuget.org/api/v2",
                 Repository = new GitRepository()
@@ -70,7 +108,7 @@ namespace ServerTest
             context = provider.GetService<DataContext>();
             context.Projects.Add(job.Project);
             context.SaveChanges();
-            job.Start(CancellationToken.None);
+            job.Execute(CancellationToken.None);
         }
 
         public string GetSShPrivetKey()

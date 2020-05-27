@@ -13,7 +13,7 @@ namespace SoupDiscover.Common
     /// </summary>
     public class SearchNpmPackageMetadata : ISearchNpmPackageMetadata
     {
-        public SearchNpmPackageMetadata(Logger<SearchNpmPackageMetadata> logger)
+        public SearchNpmPackageMetadata(ILogger<SearchNpmPackageMetadata> logger)
         {
             _logger = logger;
         }
@@ -25,7 +25,7 @@ namespace SoupDiscover.Common
         public const string NodeModulesDirName = "node_modules";
 
         private (string CheckoutDirectory, string[] packageLockJson) _lastSearch;
-        private Logger<SearchNpmPackageMetadata> _logger;
+        private ILogger<SearchNpmPackageMetadata> _logger;
 
         /// <summary>
         /// Search a nuget package MetaData
@@ -56,7 +56,9 @@ namespace SoupDiscover.Common
                 {
                     packageMetadataFile = Path.Combine(packageMetadataFile, packageElementName);
                 }
-                
+                packageMetadataFile = Path.Combine(packageMetadataFile, "package.json");
+
+
                 if (File.Exists(packageMetadataFile))
                 {
                     var json = JsonDocument.Parse(File.ReadAllText(packageMetadataFile, Encoding.UTF8));
@@ -71,11 +73,11 @@ namespace SoupDiscover.Common
                         Version = version, 
                         Licence = json.RootElement.GetProperty("license").GetString(), 
                         PackageType = PackageType.Npm, 
-                        Description = json.RootElement.GetProperty("license").GetString(),
+                        Description = json.RootElement.GetProperty("description").GetString(),
                     };
                 }
             }
-            _logger.LogDebug($"Unable to find metada for npm package {packageId}@{version}");
+            _logger.LogDebug($"Unable to find metadata for npm package {packageId}@{version}");
             return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
         }
     }

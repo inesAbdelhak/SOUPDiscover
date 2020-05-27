@@ -19,7 +19,7 @@ namespace SoupDiscover.Core
         /// Start the processing, and wait its finished
         /// </summary>
         /// <param name="token">The token that permit to stop the processing</param>
-        void Start(CancellationToken token);
+        void Execute(CancellationToken token);
 
         /// <summary>
         /// Start asynchronously the processing
