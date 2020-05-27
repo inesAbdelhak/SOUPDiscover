@@ -3,7 +3,7 @@
 namespace SoupDiscover.Common
 {
     /// <summary>
-    /// Search nuget packages metadata
+    /// Search npm packages metadata
     /// </summary>
     public interface ISearchNpmPackageMetadata
     {

@@ -136,6 +136,13 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
+   * Cancel editing the configuration
+   * */
+  CancelUpdateProject(): void {
+    this.edit = false;
+  }
+
+  /**
    * Start editing project properties
    * */
   EditProject(): void {

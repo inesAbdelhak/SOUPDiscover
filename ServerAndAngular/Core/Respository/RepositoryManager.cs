@@ -6,16 +6,16 @@ using System;
 
 namespace SoupDiscover.Core.Respository
 {
-    public abstract class RepositoryWrapper
+    public abstract class RepositoryManager
     {
         public abstract void CopyTo(string path);
 
-        public static RepositoryWrapper CreateWrapperFrom(Repository repository, IServiceProvider provider)
+        public static RepositoryManager CreateManagerFrom(Repository repository, IServiceProvider provider)
         {
             switch (repository)
             {
                 case GitRepository git:
-                    return new GitRepositoryWrapper(provider.GetService<ILogger<GitRepositoryWrapper>>(), git.Url, git.Branch, git.SshKeyId, git.SshKey?.key, $"sshgitkey{git.SshKeyId}");
+                    return new GitRepositoryManager(provider.GetService<ILogger<GitRepositoryManager>>(), git.Url, git.Branch, git.SshKeyId, git.SshKey?.key, $"sshgitkey{git.SshKeyId}");
                 default:
                     throw new ApplicationException($"The repository type {repository.GetType()} is not supported!");
             }

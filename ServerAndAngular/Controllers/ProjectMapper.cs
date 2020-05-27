@@ -2,6 +2,9 @@
 
 namespace SoupDiscover.Controllers
 {
+    /// <summary>
+    /// Mapping between <see cref="SOUPSearchProject"/> and <see cref="ProjectDto"/>
+    /// </summary>
     public static class ProjectMapper
     {
         /// <summary>

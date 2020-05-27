@@ -9,14 +9,14 @@ using System.Text.RegularExpressions;
 namespace SoupDiscover.Core.Respository
 {
     /// <summary>
-    /// Wrapper to Git to clone files to a directory
+    /// To clone Git files to a directory
     /// </summary>
-    internal class GitRepositoryWrapper : RepositoryWrapper
+    internal class GitRepositoryManager : RepositoryManager
     {
         private const string _gitSSHUrlStringRegex = @"^git@(?<hostname>[^:]+):(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$";
         private static Regex _gitSSHUrlRegex;
         private const string _gitCommand = "git";
-        private readonly ILogger<GitRepositoryWrapper> _logger;
+        private readonly ILogger<GitRepositoryManager> _logger;
         private readonly string _urlRepository;
         private readonly string _branch;
         private readonly string _sshKeyId;
@@ -26,12 +26,12 @@ namespace SoupDiscover.Core.Respository
         private string _organization;
         private string _repository;
 
-        static GitRepositoryWrapper()
+        static GitRepositoryManager()
         {
             _gitSSHUrlRegex = new Regex(_gitSSHUrlStringRegex);
         }
 
-        public GitRepositoryWrapper(ILogger<GitRepositoryWrapper> logger, string urlRepository, string branch, string sshKeyId, string sshKey, string sshKeyFilename)
+        public GitRepositoryManager(ILogger<GitRepositoryManager> logger, string urlRepository, string branch, string sshKeyId, string sshKey, string sshKeyFilename)
         {
             _logger = logger;
             _urlRepository = urlRepository;
@@ -44,7 +44,6 @@ namespace SoupDiscover.Core.Respository
         /// <summary>
         /// Check if Git is installed
         /// </summary>
-        /// <returns></returns>
         private bool CheckGitInstalled()
         {
             return true;
@@ -78,26 +77,32 @@ namespace SoupDiscover.Core.Respository
             }
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                // Update permission to the ssh key
+                // Update permission to the ssh key (Just for Linux)
             }
             return sshFilename;
         }
 
+        /// <summary>
+        /// Update the ssh config file to define the key to used to clone the repository
+        /// </summary>
+        /// <returns></returns>
         private bool AddSshKey()
         {
             // https://medium.com/@xiaolishen/use-multiple-ssh-keys-for-different-github-accounts-on-the-same-computer-7d7103ca8693
             var sshConfigFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ssh", "config");
             var config = new SshConfigFile(sshConfigFile);
 
+            // define a substitute hostname to define an ssh private key for each repository. Even if there are several repositories on a same hotname.
             config.Add($"Host {SubstituteHostname}", "StrictHostKeyChecking no");
-            config.Add($"Host {SubstituteHostname}", $"HostName {HostName}");
-            config.Add($"Host {SubstituteHostname}", $"User git");
+            config.Add($"Host {SubstituteHostname}", $"HostName {HostName}"); // The real hostname
+            config.Add($"Host {SubstituteHostname}", $"User git"); // always git user, for git repositories
             config.Add($"Host {SubstituteHostname}", $"IdentityFile ~/.ssh/{_sshKeyFilename}");
             return config.Save();
         }
 
         /// <summary>
         /// Return the hostname of the url
+        /// Ex : git@github.com:NonoDS/SOUPDiscover.git -> github.com
         /// </summary>
         protected string HostName
         {
@@ -109,7 +114,8 @@ namespace SoupDiscover.Core.Respository
         }
 
         /// <summary>
-        /// The organization parsed in gir url
+        /// The organization parsed in git url.
+        /// Ex : git@github.com:NonoDS/SOUPDiscover.git -> NonoDS
         /// </summary>
         protected string Organization
         {
@@ -120,6 +126,10 @@ namespace SoupDiscover.Core.Respository
             }
         }
 
+        /// <summary>
+        /// The Repository name parsed in the url, without ".git"
+        /// Ex: Ex : git@github.com:NonoDS/SOUPDiscover.git -> SOUPDiscover
+        /// </summary>
         protected string Repository
         {
             get
@@ -129,6 +139,11 @@ namespace SoupDiscover.Core.Respository
             }
         }
 
+        /// <summary>
+        /// The hostname to use to clone the repository.
+        /// It is not the same that given by user.
+        /// This permit to define a ssh private key for each repository of a same real hostname.
+        /// </summary>
         protected string SubstituteHostname
         {
             get
@@ -139,7 +154,7 @@ namespace SoupDiscover.Core.Respository
         }
 
         /// <summary>
-        /// Parse the url to extract hostename organization name and repository name
+        /// Parse the url to extract hostname organization name and repository name
         /// </summary>
         private void ParseUrl()
         {
@@ -174,6 +189,11 @@ namespace SoupDiscover.Core.Respository
             CloneRepository(path);
         }
 
+        /// <summary>
+        /// Execute the clone command, and checkout the defined branch.
+        /// Clone with depth 1. Don't clone all history.
+        /// </summary>
+        /// <param name="path">The directory where clone the repository</param>
         private void CloneRepository(string path)
         {
             if (!Directory.Exists(path))

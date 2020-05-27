@@ -4,6 +4,9 @@ using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
 {
+    /// <summary>
+    /// Mapping between <see cref="RepositoryDto"/> and <see cref="Repository"/>
+    /// </summary>
     public static class RespositoryMapper
     {
         public static RepositoryDto ToDto(this Repository repositoryModel)

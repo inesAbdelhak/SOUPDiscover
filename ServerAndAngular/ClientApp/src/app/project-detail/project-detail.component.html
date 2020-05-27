@@ -1,5 +1,5 @@
 <section class="title">
-  <div class="buttons">
+  <div class="childrenInline">
     <h1>Projet {{currentProjectId}}</h1>
     <button mat-raised-button color="accent" (click)="Analyse()">Analyser</button>
     <button mat-raised-button color="warn" (click)="DeleteProject()">
@@ -47,18 +47,22 @@
       </tr>
     </table>
   </div>
-  <div class="buttons">
+  <div class="childrenInline">
     <button mat-raised-button color="accent" *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
     <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
+    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateProject()">Annuler</button>
   </div>
 </section>
 <hr />
 <section>
   <h2>Packages trouvés pour le projet</h2>
+  <!-- For downloading csv file -->
   <div>
-    <!-- To download csv fle that contains all package of the project -->
-    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a><br />
-
+    <!-- To download csv file that contains all package of the project -->
+    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
+  </div>
+  <!-- Filters -->
+  <div class="childrenInline">
     <!-- Select the csproj-->
     <mat-form-field>
       <mat-label>Filtre sur le projet associé</mat-label>
@@ -68,12 +72,12 @@
           {{csproj}}
         </mat-option>
       </mat-autocomplete>
-    </mat-form-field><br />
+    </mat-form-field>
 
     <mat-form-field>
       <mat-label>Filtre sur l'id</mat-label>
       <input matInput (keyup)="applyFilter($event)" placeholder="Ex. log4net">
-    </mat-form-field><br />
+    </mat-form-field>
   </div>
   <div class="fillelements">
     <!-- Display list of packages found -->
