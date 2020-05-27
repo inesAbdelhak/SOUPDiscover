@@ -101,7 +101,6 @@ namespace SoupDiscover.Common
         /// Save result to database
         /// </summary>
         /// <param name="projectJob">The job that finished</param>
-        /// <returns></returns>
         private async Task SaveSearchResult(List<PackageConsumerName> packageConsumerNames, string checkoutDirectory, CancellationToken token)
         {
             var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
@@ -181,7 +180,7 @@ namespace SoupDiscover.Common
             List<PackageConsumerName> packageConsumers = new List<PackageConsumerName>();
             var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             // Search all lock files
-            foreach (var lockFile in Directory.GetFiles(directory, "package-lock.json", SearchOption.AllDirectories))
+            foreach (var lockFile in Directory.GetFiles(directory, SearchNpmPackageMetadata.PackageLockJsonFilename, SearchOption.AllDirectories))
             {
                 var fileContent = File.ReadAllText(lockFile, Encoding.UTF8);
                 var json = JsonDocument.Parse(fileContent);

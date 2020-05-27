@@ -44,11 +44,13 @@ namespace SoupDiscover.Common
                 }
             }
             string licenceUrl = null;
+            string description = null;
             if (xml != null)
             {
                 var document = XDocument.Parse(xml);
                 var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
                 licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl").Value;
+                description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
             }
             else
             {

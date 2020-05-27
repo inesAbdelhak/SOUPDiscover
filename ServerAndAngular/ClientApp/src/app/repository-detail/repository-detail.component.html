@@ -50,6 +50,7 @@
   </div>
   <div class="buttons">
     <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateRepository()">Sauvegarder</button>
+    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateRepository()">Annuler</button>
     <button mat-raised-button *ngIf="edit === false" (click)="EditRepository()">Modifier</button>
   </div>
 </section>

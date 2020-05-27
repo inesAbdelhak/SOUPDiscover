@@ -72,7 +72,7 @@ export class ProjectDetailComponent implements OnInit {
       // Get details of the project
       this.projectService.GetProject(this.currentProjectId).subscribe(res => {
         this.project = res;
-      })
+      });
 
       // Get all packages of the project
       this.packageService.GetPackageFromProjectName(this.currentProjectId)
@@ -140,6 +140,9 @@ export class ProjectDetailComponent implements OnInit {
    * */
   CancelUpdateProject(): void {
     this.edit = false;
+    this.projectService.GetProject(this.currentProjectId).subscribe(res => {
+      this.project = res;
+    });
   }
 
   /**

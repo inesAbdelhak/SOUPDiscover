@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SoupDiscover.ORM
 {
@@ -28,18 +29,25 @@ namespace SoupDiscover.ORM
 
         /// <summary>
         /// On nuget package, the url to the license
+        /// For npm package, the type of license
         /// </summary>
         public string Licence { get; set; }
 
         /// <summary>
         /// Nuget package or npm package
         /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public PackageType PackageType { get; set; }
 
         /// <summary>
         /// All package consumer to use this package
         /// </summary>
+        [JsonIgnore]
         public virtual ICollection<PackageConsumer> PackageConsumers { get; set; }
-
+        
+        /// <summary>
+        /// Description found in metadata
+        /// </summary>
+        public string Description { get; set; }
     }
 }

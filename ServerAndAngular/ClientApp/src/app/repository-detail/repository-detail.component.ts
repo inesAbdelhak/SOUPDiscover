@@ -49,4 +49,15 @@ export class RepositoryDetailComponent implements OnInit {
   EditRepository(): void {
     this.edit = true;
   }
+
+  /**
+   * Cancel editing repository configuration
+   * */
+  CancelUpdateRepository(): void {
+    this.edit = false;
+    this.repositoriesService.GetRepository(this.repositoryId)
+      .subscribe(res => {
+        this.repository = res;
+      });
+  }
 }
