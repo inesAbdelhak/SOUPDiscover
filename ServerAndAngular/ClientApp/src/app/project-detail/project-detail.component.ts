@@ -50,7 +50,6 @@ export class ProjectDetailComponent implements OnInit {
   // indicate if the user wants to edit project configurations
   edit: boolean = false;
 
-
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
   constructor(private projectService: ProjectService,
@@ -69,41 +68,8 @@ export class ProjectDetailComponent implements OnInit {
       this.currentProjectId = params.get('id');
       console.log(params.get('id'));
 
-      // Get details of the project
-      this.projectService.GetProject(this.currentProjectId).subscribe(res => {
-        this.project = res;
-      });
-
-      // Get all packages of the project
-      this.packageService.GetPackageFromProjectName(this.currentProjectId)
-        .subscribe(res => {
-          this.packages = res;
-          this.packagesTableSource = new MatTableDataSource<PackageDto>(this.packages);
-          this.packagesTableSource.paginator = this.paginator;
-        });
-
-      // Get packages consumer of the project (csproj file names)
-      this.projectService.GetAllPackageConsummer(this.currentProjectId)
-        .subscribe(res => {
-          this.packageConsumers = res;
-          // Filter
-          this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
-            startWith(''),
-            map(value => this.filterPackageConsumer(value))
-          );
-        });
+      this.Refresh();
     });
-
-    this.repositoriesService.GetRepositories()
-      .subscribe(res => {
-        this.repositories = res;
-      });
-
-    // Filter
-    this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this.filterPackageConsumer(value))
-    );
   }
 
   /**
@@ -120,11 +86,56 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
+   * Refresh
+   * */
+  Refresh(): void {
+    // Get details of the project
+    this.projectService.GetProject(this.currentProjectId).subscribe(res => {
+      this.project = res;
+    },
+      error => console.error(error));
+
+    // Get all packages of the project
+    this.packageService.GetPackageFromProjectName(this.currentProjectId)
+      .subscribe(res => {
+        this.packages = res;
+        this.packagesTableSource = new MatTableDataSource<PackageDto>(this.packages);
+        this.packagesTableSource.paginator = this.paginator;
+      },
+        error => console.error(error));
+
+    // Get packages consumer of the project (csproj file names)
+    this.projectService.GetAllPackageConsummer(this.currentProjectId)
+      .subscribe(resultat => {
+        this.packageConsumers = resultat;
+        // Filter
+        this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
+          startWith(''),
+          map(value => this.filterPackageConsumer(value))
+        );
+      },
+        error => console.error(error));
+
+    this.repositoriesService.GetRepositories()
+      .subscribe(res => {
+        this.repositories = res;
+      },
+        error => console.error(error));
+
+    // Filter
+    this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterPackageConsumer(value))
+    );
+  }
+
+  /**
    * Delete the project
    * */
   DeleteProject(): void {
     this.projectService.DeleteProject(this.currentProjectId)
-      .subscribe(res => this.router.navigate(['..'], { relativeTo: this.route }));
+      .subscribe(_ => this.router.navigate(['..'], { relativeTo: this.route })
+        ,error => console.error(error));
   }
 
   /**
@@ -132,7 +143,8 @@ export class ProjectDetailComponent implements OnInit {
    * */
   UpdateProject(): void {
     this.projectService.UpdateProject(this.project)
-      .subscribe(res => this.edit = false);
+      .subscribe(_ => this.edit = false,
+        error => console.error(error));
   }
 
   /**
@@ -142,7 +154,8 @@ export class ProjectDetailComponent implements OnInit {
     this.edit = false;
     this.projectService.GetProject(this.currentProjectId).subscribe(res => {
       this.project = res;
-    });
+    },
+      error => console.error(error));
   }
 
   /**
@@ -172,10 +185,11 @@ export class ProjectDetailComponent implements OnInit {
     this.packageConsumerSelected = event.option.viewValue;
     // Update package List
     this.packageService.GetPackageFromProjectName(this.currentProjectId, this.packageConsumerSelected)
-      .subscribe(res => {
-        this.packages = res;
-        this.packagesTableSource.data = res;
-      });
+      .subscribe(resultat => {
+        this.packages = resultat;
+        this.packagesTableSource.data = resultat;
+      },
+        error => console.error(error));
   }
 
   /**
@@ -183,6 +197,7 @@ export class ProjectDetailComponent implements OnInit {
    * */
   Analyse(): void {
     this.projectService.LaunchProject(this.currentProjectId)
-      .subscribe(res => { });
+      .subscribe(_ => { },
+        error => console.warn(error));
   }
 }

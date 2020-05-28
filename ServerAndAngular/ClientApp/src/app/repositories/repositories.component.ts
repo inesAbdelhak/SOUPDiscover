@@ -24,7 +24,7 @@ export class RepositoriesComponent implements OnInit {
   ngOnInit() {
     /* Read all repositories */
     this.repositoriesService.GetRepositories()
-      .subscribe(res => this.repositories = res,
+      .subscribe(resultat => this.repositories = resultat,
         error => console.error(error));
   }
 }

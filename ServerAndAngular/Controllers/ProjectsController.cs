@@ -34,23 +34,30 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Projects
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SOUPSearchProject>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
         {
             // Return only project, without found SOUP
-            return await _context.Projects.ToListAsync();
+            var projectsTask = _context.Projects.ToListAsync();
+            var processingProjects = _projectJobManager.GetProcessingJobIds();
+            var projects = await projectsTask;
+            projects.ForEach(e => e.ProcessStatus = processingProjects.Contains(e.Name) ? ProcessStatus.Running : e.GetProcessStatus());
+            return Ok(projects.ToDto());
         }
 
         // GET: api/Projects/5
         [HttpGet("{projectId}")]
         public async Task<ActionResult<ProjectDto>> GetProject(string projectId)
         {
-            var project = await _context.Projects.FindAsync(projectId);
+            var projectTask = _context.Projects.FindAsync(projectId);
+            var isRunning = _projectJobManager.GetProcessingJobIds().Contains(projectId);
+            var project = await projectTask;
             _context.Entry(project);
             if (project == null)
             {
                 return NotFound();
             }
-
+            // The status is not on database
+            project.ProcessStatus = isRunning ? ProcessStatus.Running : project.GetProcessStatus();
             return project.ToDto();
         }
 
@@ -107,10 +114,10 @@ namespace SoupDiscover.Controllers
         /// <param name="projectId">Id of the project to Start</param>
         /// <returns></returns>
         [HttpPost("Start/{projectId}")]
-        public async Task<ActionResult<SOUPSearchProject>> StartProject(string projectId)
+        public ActionResult<SOUPSearchProject> StartProject(string projectId)
         {
             // Retrieve the project to start
-            var project = await _context.Projects.FindAsync(projectId);
+            var project = _context.Projects.Find(projectId);
             _context.Entry(project).Reference(r => r.Repository).Load();
             switch (project.Repository)
             {
@@ -122,9 +129,10 @@ namespace SoupDiscover.Controllers
             // Create the job to process the project
             var projectJob = _serviceProvider.GetService<IProjectJob>();
             projectJob.Project = project;
-            // Add the Job to the JobManager
-            var task = _projectJobManager.StartTask(projectJob);
-            if (task == null)
+            
+            // Add the Job to the JobManager          
+            var processJobTask = _projectJobManager.StartTask(projectJob);
+            if (processJobTask == null)
             {
                 return Problem($"The project {project.Name} is already processing !");
             }
@@ -150,14 +158,13 @@ namespace SoupDiscover.Controllers
         }
 
         /// <summary>
-        /// Get all project consumer of oa project
+        /// Get all project consumer of a project (all csproj of a project)
         /// </summary>
         /// <returns></returns>
         [HttpGet("projectConsumers/{projectName}")]
         public async Task<ActionResult<string[]>> GetProjectConsumers(string projectName)
         {
-            var toto = _context.PackageConsumer.Where(p => p.ProjectId == projectName).Select(p => p.Name).Distinct().ToArray();
-            return toto;
+            return _context.PackageConsumer.Where(p => p.ProjectId == projectName).Select(p => p.Name).Distinct().ToArray();
         }
 
         private bool ProjectExists(string projectId)

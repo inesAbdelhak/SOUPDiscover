@@ -2,11 +2,17 @@
   <div class="childrenInline">
     <h1>Les projets</h1>
     <app-create-project (projectCreated)="projectListUpdate($event)"></app-create-project>
+    <button mat-raised-button (Click)="RefreshProjects()">
+      <mat-icon>refresh</mat-icon>
+    </button>
   </div>
   <ul>
     <li *ngFor="let project of projects">
       <a [routerLink]="['/project', project.name]">{{project.name}}</a>: {{project.repositoryId}}
-      <button mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">Analyser</button>
+      <mat-icon color="warn" *ngIf="project.processStatus === 'Error'">error_outline</mat-icon>
+      <button *ngIf="project.processStatus != 'Running'" mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">
+        <mat-icon>launch</mat-icon>
+      </button>
     </li>
   </ul>
 </div>

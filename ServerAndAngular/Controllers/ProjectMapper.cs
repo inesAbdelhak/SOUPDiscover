@@ -1,4 +1,5 @@
 ﻿using SoupDiscover.ORM;
+using System.Collections.Generic;
 
 namespace SoupDiscover.Controllers
 {
@@ -14,7 +15,7 @@ namespace SoupDiscover.Controllers
         /// <returns></returns>
         public static ProjectDto ToDto(this SOUPSearchProject project)
         {
-            if(project == null)
+            if (project == null)
             {
                 return null;
             }
@@ -26,7 +27,25 @@ namespace SoupDiscover.Controllers
                 ProcessStatus = project.ProcessStatus,
                 Repository = project.Repository.ToDto(),
                 RepositoryId = project.RepositoryId,
+                LastAnalysisError = project.LastAnalysisError,
             };
+        }
+
+        /// <summary>
+        /// Convert a <see cref="SOUPSearchProject"/> to a <see cref="ProjectDto"/> 
+        /// </summary>
+        /// <param name="project"></param>
+        /// <returns></returns>
+        public static IEnumerable<ProjectDto> ToDto(this IEnumerable<SOUPSearchProject> project)
+        {
+            if (project == null)
+            {
+                yield break;
+            }
+            foreach (var p in project)
+            {
+                yield return p.ToDto();
+            }
         }
 
         /// <summary>
@@ -34,7 +53,7 @@ namespace SoupDiscover.Controllers
         /// </summary>
         public static SOUPSearchProject ToModel(this ProjectDto projectDto)
         {
-            if(projectDto == null)
+            if (projectDto == null)
             {
                 return null;
             }
@@ -46,6 +65,7 @@ namespace SoupDiscover.Controllers
                 ProcessStatus = projectDto.ProcessStatus,
                 Repository = projectDto.Repository.ToModel(),
                 RepositoryId = projectDto.RepositoryId,
+                LastAnalysisError = projectDto.LastAnalysisError,
             };
         }
     }

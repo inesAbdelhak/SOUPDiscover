@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication;
 using SoupDiscover.Core;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace SoupDiscover.Common
 {
@@ -67,6 +68,23 @@ namespace SoupDiscover.Common
         /// <param name="token">The token to stop the processing</param>
         public async Task<ProjectJob> StartAsync(CancellationToken token)
         {
+            try
+            {
+                return await ProcessProjectAnalyse(token);
+            }
+            catch(Exception e) // Catch the first exception, not all parallel exceptions
+            {
+                // Save error on database
+                var context = _provider.GetService<DataContext>();
+                Project.LastAnalysisError = e.Message;
+                context.Projects.Update(Project);
+                context.SaveChanges();
+                throw e;
+            }
+        }
+
+        private async Task<ProjectJob> ProcessProjectAnalyse(CancellationToken token)
+        {
             if (Project == null)
             {
                 throw new ApplicationException($"The property {nameof(Project)} must be not null!");
@@ -74,16 +92,16 @@ namespace SoupDiscover.Common
             _logger.LogInformation($"Start processing Project {Project.Name}");
 
             // Search nuget SOUP
-            PackageConsumerName[] nugetPackages = null;
-            PackageConsumerName[] npmPackages = null;
             // Copy content files of the repository to a temporary directory
-            var directory = await RetrieveSourceFiles();
+            var directory = RetrieveSourceFiles();
             // Execute command line defined in Packages.CommandLineBeforeParse
             ExecuteCommandLinesBefore(directory);
-            nugetPackages = await SearchNugetPackages(directory);
-            npmPackages = await SearchNpmPackages(directory);
+            var nugetPackagesTask = SearchNugetPackages(directory);
+            var npmPackagesTask = SearchNpmPackages(directory);
 
             var list = new List<PackageConsumerName>();
+            var nugetPackages = await nugetPackagesTask;
+            var npmPackages = await npmPackagesTask;
             if (nugetPackages != null)
             {
                 list.AddRange(nugetPackages);
@@ -141,6 +159,7 @@ namespace SoupDiscover.Common
                     }
                 }
             }
+            Project.LastAnalysisError = null;
             context.Projects.Update(Project);
             context.SaveChanges();
         }
@@ -162,11 +181,6 @@ namespace SoupDiscover.Common
                     return _searchNpmPackageMetadata.SearchMetadata(packageName.PackageId, packageName.Version, checkoutDirectory);
                 default: throw new ApplicationException($"Packages type {packageName.PackageType} is not supported!");
             }
-        }
-
-        private Package GetNpmPackageWithMetadata(string packageId, string version, string checkoutDirectory)
-        {
-            return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
         }
 
         /// <summary>
@@ -328,7 +342,7 @@ namespace SoupDiscover.Common
         /// <summary>
         /// Return the temporary directory where files are copied
         /// </summary>
-        private async Task<string> RetrieveSourceFiles()
+        private string RetrieveSourceFiles()
         {
             var workDir = GetWorkDirectory();
             PathHelper.DeleteDirectory(workDir);

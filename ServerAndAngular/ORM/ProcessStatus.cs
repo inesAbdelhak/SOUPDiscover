@@ -8,9 +8,9 @@
         Waiting,
 
         /// <summary>
-        /// Added to queue to be processed
+        /// The last processing return an error
         /// </summary>
-        Pending,
+        Error,
 
         /// <summary>
         /// Processing

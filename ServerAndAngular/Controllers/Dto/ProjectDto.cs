@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SoupDiscover.Controllers.Dto;
 using SoupDiscover.ORM;
 
@@ -24,6 +25,7 @@ namespace SoupDiscover.Controllers
         /// <summary>
         /// The current status of the project
         /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProcessStatus ProcessStatus { get; set; }
 
         /// <summary>
@@ -35,5 +37,10 @@ namespace SoupDiscover.Controllers
         /// List of Url nuget server where find metadata of packages
         /// </summary>
         public string NugetServerUrl { get; set; }
+
+        /// <summary>
+        /// The last analysis error
+        /// </summary>
+        public string LastAnalysisError { get; set; }
     }
 }

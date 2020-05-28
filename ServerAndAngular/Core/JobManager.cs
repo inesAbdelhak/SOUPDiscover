@@ -13,17 +13,10 @@ namespace SoupDiscover.Core
     /// </summary>
     public abstract class JobManager : IJobManager
     {
-        private class TaskParameter
-        {
-            public Task Task;
-            public CancellationTokenSource CancellationTokenSource;
-            public IJob Job;
-        }
-
         /// <summary>
         /// The list of processing projects
         /// </summary>
-        private readonly Dictionary<object, TaskParameter> _processingJobs = new Dictionary<object, TaskParameter>();
+        private readonly Dictionary<object, ExecutingTask> _processingJobs = new Dictionary<object, ExecutingTask>();
 
         /// <summary>
         /// The object that permit to sync tasks to <see cref="_processingJobs"/>
@@ -46,7 +39,7 @@ namespace SoupDiscover.Core
         public Task<TJob> StartTask<TJob>(TJob job)
             where TJob : IJob
         {
-            var task = new TaskParameter();
+            var task = new ExecutingTask();
             // Check if this project is not currently processing
             lock (_syncObject)
             {
@@ -103,6 +96,17 @@ namespace SoupDiscover.Core
             lock (_syncObject)
             {
                 return _processingJobs.Keys.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Return the list of processing project id
+        /// </summary>
+        public ExecutingTask[] GetProcessingJob()
+        {
+            lock (_syncObject)
+            {
+                return _processingJobs.Values.ToArray();
             }
         }
     }

@@ -1,10 +1,16 @@
 <section class="title">
   <div class="childrenInline">
     <h1>Projet {{currentProjectId}}</h1>
-    <button mat-raised-button color="accent" (click)="Analyse()">Analyser</button>
+    <button mat-raised-button (click)="Refresh()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-raised-button color="accent" (click)="Analyse()">
+      <mat-icon>launch</mat-icon>
+    </button>
     <button mat-raised-button color="warn" (click)="DeleteProject()">
       <mat-icon>delete</mat-icon>
     </button>
+
   </div>
 </section>
 <mat-divider></mat-divider>
@@ -54,7 +60,8 @@
   </div>
 </section>
 <hr />
-<section>
+<!-- Display packages -->
+<section *ngIf="project.processStatus === 'Waiting'">
   <h2>Packages trouvés pour le projet</h2>
   <!-- For downloading csv file -->
   <div>
@@ -105,4 +112,8 @@
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
   </div>
+</section>
+<section *ngIf="project.processStatus === 'Error'">
+  <h2>Erreur de traitement</h2>
+  <pre>{{project.lastAnalysisError}}</pre>
 </section>

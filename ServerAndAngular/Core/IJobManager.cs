@@ -14,5 +14,9 @@ namespace SoupDiscover.Core
         /// <param name="job">The job to add</param>
         /// <returns>true : The job is added to the jobManager, false : the job is already running</returns>
         Task<TJob> StartTask<TJob>(TJob job) where TJob : IJob;
+
+        ExecutingTask[] GetProcessingJob();
+
+        object[] GetProcessingJobIds();
     }
 }

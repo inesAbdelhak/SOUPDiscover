@@ -24,9 +24,8 @@ namespace SoupDiscover.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Credential>>> GetCredentials()
         {
-            var list = await _context.Credentials.ToListAsync();
-            list.ForEach(e => e.key = "*****"); // doesn't return the key value
-            return list;
+            var list = await _context.Credentials.Select(e => e.name).ToArrayAsync();
+            return list.Select(e => new Credential() { name = e, key = "*****" }).ToArray(); // doesn't return the key value
         }
 
         // GET: api/Credentials/5
@@ -103,13 +102,22 @@ namespace SoupDiscover.Controllers
         }
 
         // DELETE: api/Credentials/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Credential>> DeleteCredential(string id)
+        [HttpDelete("{credentialId}")]
+        public async Task<ActionResult<Credential>> DeleteCredential(string credentialId)
         {
-            var credential = await _context.Credentials.FindAsync(id);
+            var credentialTask = _context.Credentials.FindAsync(credentialId);
+            var repoOfTheCredentialTask = _context.Repositories.OfType<GitRepository>().Where(e => e.SshKeyId == credentialId).Select(e => e.Name).ToArrayAsync();
+            var credential = await credentialTask;
             if (credential == null)
             {
                 return NotFound();
+            }
+
+            var repoOfTheCredential = await repoOfTheCredentialTask;
+
+            if (repoOfTheCredential.Length > 0)
+            {
+                return Problem($"Supprimer les dépots {string.Join(",", repoOfTheCredential)} avant de pouvoir supprimer la clée ssh {credentialId}.");
             }
 
             _context.Credentials.Remove(credential);

@@ -17,18 +17,19 @@ export class CreateProjectComponent implements OnInit {
   constructor(public dialog: MatDialog, public projectService: ProjectService) { }
 
   openDialog(): void {
-    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', packegeTypes: [], nugetServerUrl: '' };
+    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', nugetServerUrl: '' };
     const dialogRef = this.dialog.open(CreateProjectDialog, {
-      //width: '250px',
-      //height: '400px',
       data: this.data
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      this.data = result;
-      this.projectService.AddProject(result)
-        .subscribe(res => this.projectCreated.emit(res));
+      if (result != undefined) {
+        this.data = result;
+        this.projectService.AddProject(result)
+          .subscribe(res => this.projectCreated.emit(res),
+            error => console.error(error));
+      }
     });
   }
 

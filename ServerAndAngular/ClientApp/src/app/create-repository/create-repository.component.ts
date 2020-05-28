@@ -23,17 +23,18 @@ export class CreateRepositoryComponent implements OnInit {
   openDialog(): void {
     this.data = {};
     const dialogRef = this.dialog.open(CreateRepositoryDialog, {
-      // width: '250px',
-      // height: '400px',
       data: this.data
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
-      // result.repositoryType = RepositoryType.Git;
-      this.data = result;
-      this.repositoryService.AddRepository(this.data)
-        .subscribe(res => this.repositoryCreated.emit(res));
+      if (result != undefined) {
+        this.data = result;
+        this.repositoryService.AddRepository(this.data)
+          .subscribe(res => {
+            this.repositoryCreated.emit(res)
+          });
+      }
     });
   }
 
@@ -54,8 +55,7 @@ export class CreateRepositoryDialog implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<CreateRepositoryDialog>,
     @Inject(MAT_DIALOG_DATA) public data: RepositoryDto,
-    private credentialService: CredentialService,
-    private repositoryService: RepositoriesService) { }
+    private credentialService: CredentialService) { }
 
   public onNoClick(): void {
     this.dialogRef.close();
@@ -63,16 +63,12 @@ export class CreateRepositoryDialog implements OnInit {
 
   public onOkClick(): void {
     this.data.repositoryType = this.selected.index;
-    this.repositoryService.AddRepository(this.data)
-      .subscribe(res => this.dialogRef.close());
   }
 
   public ngOnInit(): void {
-    //this.registredForms = this.formBuilder.group({
-    //  url: ['', Validators.required],
-    //});
     // Retrieve all available credentials
     this.credentialService.GetCredentials()
-      .subscribe(res => this.availableCredentials = res);
+      .subscribe(res => this.availableCredentials = res
+        ,error => console.error(error));
   }
 }

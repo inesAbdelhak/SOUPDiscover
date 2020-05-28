@@ -1,7 +1,10 @@
-<section>
-  <div class="title">
-  <h1>Dépot {{repositoryId}}</h1>
-    </div>
+<section class=" Title">
+  <div class="childrenInline">
+    <h1>Dépot {{repositoryId}}</h1>
+    <button mat-raised-button color="warn" (click)="DeleteRepository()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
 </section>
 <!-- div display where repository loaded -->
 <section *ngIf="repository != null">

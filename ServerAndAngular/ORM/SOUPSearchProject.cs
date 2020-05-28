@@ -38,7 +38,17 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The current status of the project
         /// </summary>
+        [NotMapped]
         public ProcessStatus ProcessStatus { get; set; }
+
+        public ProcessStatus GetProcessStatus()
+        {
+            if (string.IsNullOrEmpty(LastAnalysisError))
+            {
+                return ProcessStatus.Waiting;
+            }
+            return ProcessStatus.Error;
+        }
 
         /// <summary>
         /// The command lines to execute before search and parse files
@@ -50,5 +60,9 @@ namespace SoupDiscover.ORM
         /// </summary>
         public string NugetServerUrl { get; set; }
 
+        /// <summary>
+        /// The last analysis error
+        /// </summary>
+        public string LastAnalysisError { get; set; }
     }
 }

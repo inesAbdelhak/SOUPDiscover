@@ -99,10 +99,17 @@ namespace SoupDiscover.Controllers
         [HttpDelete("{repositoryId}")]
         public async Task<ActionResult<RepositoryDto>> DeleteRepository(string repositoryId)
         {
-            var repository = await _context.Repositories.FindAsync(repositoryId);
+            var repositoryTask = _context.Repositories.FindAsync(repositoryId);
+            var projectOfTheRepositoryTask = _context.Projects.Where(p => p.RepositoryId == repositoryId).ToArrayAsync();
+            var repository = await repositoryTask;
             if (repository == null)
             {
                 return NotFound();
+            }
+            var projectOfTheRepository = await projectOfTheRepositoryTask;
+            if (projectOfTheRepository.Length > 0)
+            {
+                return Problem($"Il faut suprimer les projets {string.Join(",", projectOfTheRepository.Select(e => e.RepositoryId))} avant de supprimer le dépot {repositoryId}.");
             }
 
             _context.Repositories.Remove(repository);

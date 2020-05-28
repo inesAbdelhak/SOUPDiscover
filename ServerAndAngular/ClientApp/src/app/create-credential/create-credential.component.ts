@@ -1,7 +1,8 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
 import { CredentialDto } from '../model/credential';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface DialogData {
   name: string;
@@ -17,20 +18,33 @@ export class CreateCredentialComponent implements OnInit {
 
   data: CredentialDto;
 
+  @Output() credentialCreated: EventEmitter<CredentialDto> = new EventEmitter<CredentialDto>();
+
   constructor(public dialog: MatDialog, public credentalService: CredentialService) { }
 
+  /**
+   * Open the dialog box to create a new credential
+  */
   openDialog(): void {
     this.data = { name: '', key: '' };
     const dialogRef = this.dialog.open(CreateCredentialDialog, {
-      //width: '250px',
-      //height: '400px',
       data: this.data
     });
 
     dialogRef.afterClosed().subscribe(result => {
       this.data = result;
-      this.credentalService.AddCredential(result).subscribe(res => { });
+      this.credentalService.AddCredential(result)
+        .subscribe(_ => { },
+          error => this.HandelError(error));
     });
+  }
+
+  /**
+   * Display error to client
+   * @param error the error to display
+   */
+  HandelError(error: HttpErrorResponse): void {
+    window.alert(error.error.detail);
   }
 
   ngOnInit() {

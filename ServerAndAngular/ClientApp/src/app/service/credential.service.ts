@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { CredentialDto } from '../model/credential';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,14 @@ export class CredentialService {
   AddCredential(credential: CredentialDto): Observable<CredentialDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.httpClient.post<CredentialDto>(this.baseUrl + 'api/Credentials', JSON.stringify(credential), { headers: headerOptions });
+  }
+
+  /**
+   * Delete the credential
+   * @param crednetialId Id of the credential to delete
+   */
+  DeleteCredential(crednetialId: string): Observable<object> {
+    return this.httpClient.delete(this.baseUrl + 'api/Credentials/' + crednetialId);
   }
 
   /**

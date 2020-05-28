@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RepositoryDto } from '../model/repository';
 import { RepositoriesService } from '../service/repositories.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CredentialDto } from '../model/credential';
 import { CredentialService } from '../service/credential.service';
 
@@ -19,6 +19,7 @@ export class RepositoryDetailComponent implements OnInit {
 
   constructor(private repositoriesService: RepositoriesService,
     private route: ActivatedRoute,
+    private router: Router,
     private credentialService: CredentialService) { }
 
   ngOnInit() {
@@ -40,7 +41,7 @@ export class RepositoryDetailComponent implements OnInit {
    * Update the server with the current state of the repository configuration
    * */
   UpdateRepository(): void {
-    this.repositoriesService.UpdateRepository(this.repository).subscribe(res => this.edit = false);
+    this.repositoriesService.UpdateRepository(this.repository).subscribe(_ => this.edit = false);
   }
 
   /**
@@ -51,13 +52,29 @@ export class RepositoryDetailComponent implements OnInit {
   }
 
   /**
+   * Try to delete the repository
+   * */
+  DeleteRepository(): void {
+    this.repositoriesService.DeleteRepository(this.repositoryId)
+      .subscribe(_ => {
+        // Navigate to the repository list
+        this.router.navigate(['/repositories']);
+      },
+        error => this.HandelError(error));
+  }
+
+  HandelError(error: any): void {
+    window.alert(error);
+  }
+
+  /**
    * Cancel editing repository configuration
    * */
   CancelUpdateRepository(): void {
     this.edit = false;
     this.repositoriesService.GetRepository(this.repositoryId)
-      .subscribe(res => {
-        this.repository = res;
+      .subscribe(resultat => {
+        this.repository = resultat;
       });
   }
 }
