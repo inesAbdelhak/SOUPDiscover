@@ -13,7 +13,13 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="job">The job to add</param>
         /// <returns>true : The job is added to the jobManager, false : the job is already running</returns>
-        Task<TJob> StartTask<TJob>(TJob job) where TJob : IJob;
+        void StartTask<TJob>(TJob job) where TJob : IJob;
+
+        /// <summary>
+        /// Cancel the executing project
+        /// </summary>
+        /// <param name="jobId">Id of the job to stop</param>
+        bool Cancel(string jobId);
 
         ExecutingTask[] GetProcessingJob();
 

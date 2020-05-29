@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SoupDiscover.Core.Respository
 {
@@ -78,6 +79,7 @@ namespace SoupDiscover.Core.Respository
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update permission to the ssh key (Just for Linux)
+                ProcessHelper.ExecuteAndLog(_logger, "chmod", $"600 {sshFilename}");
             }
             return sshFilename;
         }
@@ -97,7 +99,7 @@ namespace SoupDiscover.Core.Respository
             config.Add($"Host {SubstituteHostname}", $"HostName {HostName}"); // The real hostname
             config.Add($"Host {SubstituteHostname}", $"User git"); // always git user, for git repositories
             config.Add($"Host {SubstituteHostname}", $"IdentityFile ~/.ssh/{_sshKeyFilename}");
-            return config.Save();
+            return config.Save(_logger);
         }
 
         /// <summary>
@@ -177,7 +179,7 @@ namespace SoupDiscover.Core.Respository
         /// Clone the repository to the given path
         /// </summary>
         /// <param name="path">The path where clone the repository</param>
-        public override void CopyTo(string path)
+        public override void CopyTo(string path, CancellationToken token = default)
         {
             // Create the ssh key to clone the repository
             CreateSshKeyFile();
@@ -186,7 +188,7 @@ namespace SoupDiscover.Core.Respository
             {
                 throw new ApplicationException($"Unable to find command {_gitCommand}");
             }
-            CloneRepository(path);
+            CloneRepository(path, token);
         }
 
         /// <summary>
@@ -194,14 +196,14 @@ namespace SoupDiscover.Core.Respository
         /// Clone with depth 1. Don't clone all history.
         /// </summary>
         /// <param name="path">The directory where clone the repository</param>
-        private void CloneRepository(string path)
+        private void CloneRepository(string path, CancellationToken token = default)
         {
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
             var repositoryToClone = $@"git@{SubstituteHostname}:{Organization}/{Repository}.git";
-            var result = ProcessHelper.ExecuteAndLog(_logger, _gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path);
+            var result = ProcessHelper.ExecuteAndLog(_logger, _gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path, token);
             if(result.ExitCode != 0)
             {
                 throw new ApplicationException($"Error on cloning the Git repository {_urlRepository} in path {path}. Error :\r\n {result.ErrorMessage}");

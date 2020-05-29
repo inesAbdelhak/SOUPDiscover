@@ -1,19 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
 using SoupDiscover.ORM;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SoupDiscover.Common
 {
 
     /// <summary>
-    /// Search nuget packages metadata
+    /// Search nuget packages
     /// </summary>
-    public class SearchNpmPackageMetadata : ISearchNpmPackageMetadata
+    public class SearchNpmPackage : ISearchNpmPackage
     {
-        public SearchNpmPackageMetadata(ILogger<SearchNpmPackageMetadata> logger)
+        public SearchNpmPackage(ILogger<SearchNpmPackage> logger)
         {
             _logger = logger;
         }
@@ -25,7 +29,7 @@ namespace SoupDiscover.Common
         public const string NodeModulesDirName = "node_modules";
 
         private (string CheckoutDirectory, string[] packageLockJson) _lastSearch;
-        private ILogger<SearchNpmPackageMetadata> _logger;
+        private ILogger<SearchNpmPackage> _logger;
 
         /// <summary>
         /// Search a nuget package MetaData
@@ -33,7 +37,7 @@ namespace SoupDiscover.Common
         /// <param name="packageId">The package id to search</param>
         /// <param name="version">The version of the package to search</param>
         /// <param name="checkoutDirectory">The directory where the sources files are checkout</param>
-        public Package SearchMetadata(string packageId, string version, string checkoutDirectory)
+        public Package SearchMetadata(string packageId, string version, string checkoutDirectory, CancellationToken token = default)
         {
             string[] packageLockJson = null;
             if (_lastSearch.CheckoutDirectory == checkoutDirectory)
@@ -50,6 +54,7 @@ namespace SoupDiscover.Common
             // Search npm Package in "node_modules" directories
             foreach (var e in packageLockJson)
             {
+                token.ThrowIfCancellationRequested();
                 var nodeModuleDir = Path.Combine(Path.GetDirectoryName(e), NodeModulesDirName);
                 var packageMetadataFile = nodeModuleDir;
                 foreach (var packageElementName in packageId.Split('/'))
@@ -79,6 +84,47 @@ namespace SoupDiscover.Common
             }
             _logger.LogDebug($"Unable to find metadata for npm package {packageId}@{version}");
             return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
+        }
+
+        /// <summary>
+        /// Search npm package metadata
+        /// </summary>
+        /// <param name="directory">The directory where the repository is checkout</param>
+        /// <returns>The package with metadata</returns>
+        public async Task<PackageConsumerName[]> SearchPackages(string directory, CancellationToken token = default)
+        {
+            var packageConsumers = new List<PackageConsumerName>();
+            // Search all lock files
+            foreach (var lockFile in Directory.GetFiles(directory, SearchNpmPackage.PackageLockJsonFilename, SearchOption.AllDirectories))
+            {
+                token.ThrowIfCancellationRequested();
+                var packages = new HashSet<PackageName>();
+                var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var fileContent = File.ReadAllText(lockFile, Encoding.UTF8);
+                var json = JsonDocument.Parse(fileContent);
+                foreach (var dep in json.RootElement.GetProperty("dependencies").EnumerateObject())
+                {
+                    var packageId = dep.Name;
+                    var version = dep.Value.GetProperty("version").GetString();
+                    var key = $"{packageId}/{version}";
+
+                    // Check if its a dev dependency
+                    var isDev = dep.Value.TryGetProperty("dev", out var dev);
+                    if (isDev)
+                    {
+                        isDev = dev.ValueKind == JsonValueKind.True;
+                    }
+
+                    // Doesn't add dev dependencies
+                    if (!isDev && !alreadyParsed.Contains(key))
+                    {
+                        alreadyParsed.Add(key);
+                        packages.Add(new PackageName(packageId, version, PackageType.Npm));
+                    }
+                }
+                packageConsumers.Add(new PackageConsumerName(Path.GetRelativePath(directory, Path.GetDirectoryName(lockFile)), packages.ToArray()));
+            }
+            return packageConsumers.ToArray();
         }
     }
 }

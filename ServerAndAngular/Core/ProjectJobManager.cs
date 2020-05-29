@@ -14,14 +14,5 @@ namespace SoupDiscover.Core
             : base(logger)
         {
         }
-
-        /// <summary>
-        /// Return the list of processing project id
-        /// </summary>
-        public int[] GetProjectIds()
-        {
-            // The Job Id are the project Id
-            return GetProcessingJobIds().Cast<int>().ToArray();
-        }
     }
 }

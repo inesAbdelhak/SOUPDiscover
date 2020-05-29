@@ -32,9 +32,11 @@ export class CreateCredentialComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      if (result == null)
+        return;
       this.data = result;
       this.credentalService.AddCredential(result)
-        .subscribe(_ => { },
+        .subscribe(_ => this.credentialCreated.emit(result),
           error => this.HandelError(error));
     });
   }

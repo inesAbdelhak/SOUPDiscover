@@ -1,7 +1,9 @@
 <div>
   <div class="childrenInline">
     <h1>Les dépots</h1>
-    <app-create-repository (repositoryCreated)="repositoryListUpdate($event)"></app-create-repository>
+    <app-create-repository (repositoryCreated)="repositoryListUpdate($event)">
+      <mat-icon>add</mat-icon>
+    </app-create-repository>
   </div>
     <ul>
       <li *ngFor="let repo of repositories"><a [routerLink]="['/repository', repo.name]">{{repo.name}}</a>: {{repo.url}}</li>

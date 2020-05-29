@@ -10,14 +10,16 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./credentials.component.css']
 })
 export class CredentialsComponent implements OnInit {
+
   public credentials: CredentialDto[];
+
   constructor(private credentialService: CredentialService) {
   }
 
   /**
   * To update credential list, when a credential is added or deleted
   */
-  projectListUpdate = function (credential: CredentialDto): void {
+  credentialListUpdate = function (credential: CredentialDto): void {
     this.credentialService.GetCredentials().subscribe(result => {
       this.credentials = result;
     }, error => console.error(error));

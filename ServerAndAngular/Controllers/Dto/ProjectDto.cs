@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using SoupDiscover.Controllers.Dto;
 using SoupDiscover.ORM;
@@ -42,5 +43,7 @@ namespace SoupDiscover.Controllers
         /// The last analysis error
         /// </summary>
         public string LastAnalysisError { get; set; }
+
+        public DateTime? LastAnalysisDate { get; set; }
     }
 }

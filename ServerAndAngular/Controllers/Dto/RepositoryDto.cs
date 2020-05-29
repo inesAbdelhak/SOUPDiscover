@@ -27,6 +27,9 @@ namespace SoupDiscover.Controllers.Dto
         [Required(AllowEmptyStrings = false)]
         public string sshKeyName { get; set; }
 
+        [JsonIgnore]
+        public CredentialDto sshKey { get; set; }
+
         /// <summary>
         /// The name of the branch to process
         /// </summary>

@@ -1,16 +1,21 @@
 <div>
   <div class="childrenInline">
     <h1>Les projets</h1>
-    <app-create-project (projectCreated)="projectListUpdate($event)"></app-create-project>
-    <button mat-raised-button (Click)="RefreshProjects()">
+    <app-create-project (projectCreated)="projectListUpdate($event)">
+      <mat-icon>add</mat-icon>
+    </app-create-project>
+    <button mat-raised-button (click)="RefreshProjects()">
       <mat-icon>refresh</mat-icon>
     </button>
   </div>
   <ul>
     <li *ngFor="let project of projects">
       <a [routerLink]="['/project', project.name]">{{project.name}}</a>: {{project.repositoryId}}
+      <pre *ngIf="project.lastAnalysisDate != null">{{project.lastAnalysisDate}}</pre>
       <mat-icon color="warn" *ngIf="project.processStatus === 'Error'">error_outline</mat-icon>
-      <button *ngIf="project.processStatus != 'Running'" mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">
+      <mat-icon *ngIf="project.processStatus === 'Running'">moped</mat-icon>
+      <mat-icon *ngIf="project.processStatus === 'Waiting'">done</mat-icon>
+      <button mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">
         <mat-icon>launch</mat-icon>
       </button>
     </li>

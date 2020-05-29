@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using SoupDiscover.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +22,7 @@ namespace SoupDiscover.Core.Respository
 
         public SshConfigFile(string path)
         {
-            Path = path;
+            ConfigFilePath = path;
             if (!File.Exists(path))
             {
                 File.WriteAllText(path, "");
@@ -54,13 +57,17 @@ namespace SoupDiscover.Core.Respository
         /// Save the current state to the file
         /// </summary>
         /// <returns>true: An update is pending ad saved. False : no pending modification.</returns>
-        public bool Save()
+        public bool Save(ILogger logger = null)
         {
+            if(logger == null)
+            {
+                logger = NullLogger.Instance;
+            }
             if (!_isUpdated)
             {
                 return false; // No need to update
             }
-            using (var file = new StreamWriter(Path, false))
+            using (var file = new StreamWriter(ConfigFilePath, false))
             {
                 foreach (var r in _rootElements)
                 {
@@ -75,6 +82,7 @@ namespace SoupDiscover.Core.Respository
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update permission to the file
+                ProcessHelper.ExecuteAndLog(logger, "chmod", $"600 {ConfigFilePath}");
             }
             _isUpdated = false;
             return true;
@@ -83,7 +91,7 @@ namespace SoupDiscover.Core.Respository
         /// <summary>
         /// The path to the config file
         /// </summary>
-        public string Path { get; }
+        public string ConfigFilePath { get; }
 
         /// <summary>
         /// To read all rootElement of the ssh config file

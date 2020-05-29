@@ -1,4 +1,5 @@
 ﻿using SoupDiscover.Common;
+using SoupDiscover.Controllers;
 using SoupDiscover.ORM;
 using System;
 
@@ -12,6 +13,8 @@ namespace SoupDiscover.Core
         /// <summary>
         /// The project to process
         /// </summary>
-        SOUPSearchProject Project { get; set; }
+        ProjectDto Project { get; }
+
+        void SetProject(ProjectDto project, IServiceProvider provider);
     }
 }

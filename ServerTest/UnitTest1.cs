@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using SoupDiscover.Common;
+using SoupDiscover.Controllers;
 using SoupDiscover.Core;
 using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
@@ -40,7 +41,7 @@ namespace ServerTest
         [Test]
         public void TestNugetMetadata()
         {
-            var search = new SearchNugetPackageMetada(NullLogger<SearchNugetPackageMetada>.Instance);
+            var search = new SearchNugetPackage(NullLogger<SearchNugetPackage>.Instance);
             var package = search.SearchMetadata("log4net", "2.0.8", new[] { @"https://www.nuget.org/api/v2" });
             Assert.AreEqual("log4net", package.PackageId);
             Assert.AreEqual("2.0.8", package.Version);
@@ -51,8 +52,8 @@ namespace ServerTest
         [Test]
         public void TestNpmMetadata()
         {
-            var search = new SearchNpmPackageMetadata(NullLogger<SearchNpmPackageMetadata>.Instance);
-            var assemblyLocation = typeof(SearchNpmPackageMetadata).Assembly.Location;
+            var search = new SearchNpmPackage(NullLogger<SearchNpmPackage>.Instance);
+            var assemblyLocation = typeof(SearchNpmPackage).Assembly.Location;
             var index = assemblyLocation.IndexOf(Path.DirectorySeparatorChar + "ServerTest" + Path.DirectorySeparatorChar);
             if(index == -1)
             {
@@ -74,8 +75,8 @@ namespace ServerTest
             File.Delete("CustomerDB.db");
             var services = new ServiceCollection();
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
-            services.AddSingleton<ISearchNugetPackageMetada, FakeSearchNugetPackageMetada>();
-            services.AddSingleton<ISearchNpmPackageMetadata, SearchNpmPackageMetadata>();
+            services.AddSingleton<ISearchNugetPackage, FakeSearchNugetPackageMetada>();
+            services.AddSingleton<ISearchNpmPackage, SearchNpmPackage>();
             services.AddTransient<IProjectJob, ProjectJob>();
             services.AddLogging();
             services.AddDbContext<DataContext>(optionBuilder => optionBuilder.UseSqlite(@"Data Source=CustomerDBTest.db;"));
@@ -86,7 +87,7 @@ namespace ServerTest
             context.Database.EnsureCreated();
 
             Assert.IsNotNull(job);
-            job.Project = new SOUPSearchProject()
+            var project = new SOUPSearchProject()
             {
                 Name="ProjetDeTest",
                 CommandLinesBeforeParse = "dotnet restore --ignore-failed-sources\r\ncd ServerAndAngular\\ClientApp\r\nnpm i",
@@ -106,7 +107,7 @@ namespace ServerTest
                 },
             };
             context = provider.GetService<DataContext>();
-            context.Projects.Add(job.Project);
+            context.Projects.Add(job.Project.ToModel());
             context.SaveChanges();
             job.Execute(CancellationToken.None);
         }

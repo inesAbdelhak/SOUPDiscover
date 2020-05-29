@@ -1,16 +1,20 @@
 <section class="title">
   <div class="childrenInline">
     <h1>Projet {{currentProjectId}}</h1>
-    <button mat-raised-button (click)="Refresh()">
-      <mat-icon>refresh</mat-icon>
-    </button>
-    <button mat-raised-button color="accent" (click)="Analyse()">
-      <mat-icon>launch</mat-icon>
-    </button>
-    <button mat-raised-button color="warn" (click)="DeleteProject()">
-      <mat-icon>delete</mat-icon>
-    </button>
-
+    <div *ngIf="project != null" class="childrenInline">
+      <button mat-raised-button matTooltip="Rafraichir les données affichées" (click)="Refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-raised-button color="accent" [disabled]="project.processStatus === 'Running'" matTooltip="Démarrer la recherche des packages" (click)="Analyse()">
+        <mat-icon>launch</mat-icon>
+      </button>
+      <button mat-raised-button color="accent" [disabled]="project.processStatus != 'Running'" matTooltip="Arrêter la recherche en cours" (click)="Stop()">
+        <mat-icon>stop</mat-icon>
+      </button>
+      <button mat-raised-button color="warn" [disabled]="project.processStatus === 'Running'" matTooltip="Supprimer le projet" (click)="DeleteProject()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
   </div>
 </section>
 <mat-divider></mat-divider>
@@ -45,7 +49,7 @@
       </tr>
       <tr>
         <th> Commande de préparation </th>
-        <th>{{project.commandLinesBeforeParse}}</th>
+        <th><pre>{{project.commandLinesBeforeParse}}</pre></th>
       </tr>
       <tr>
         <th> Nuget server </th>
@@ -54,9 +58,11 @@
     </table>
   </div>
   <div class="childrenInline">
-    <button mat-raised-button color="accent" *ngIf="edit === false" (click)="EditProject()">Modifier la configuration de {{currentProjectId}}</button>
-    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()">Sauvegarder</button>
-    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateProject()">Annuler</button>
+    <button mat-raised-button color="accent" *ngIf="edit === false" [disabled]="project.processStatus === 'Running'" (click)="EditProject()">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()"><mat-icon>save</mat-icon></button>
+    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateProject()"><mat-icon>cancel</mat-icon></button>
   </div>
 </section>
 <hr />

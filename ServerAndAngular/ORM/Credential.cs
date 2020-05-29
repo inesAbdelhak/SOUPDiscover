@@ -3,7 +3,7 @@
 namespace SoupDiscover.ORM
 {
     /// <summary>
-    /// A token used to anthenticate from an api
+    /// A token used to authenticate from an api
     /// </summary>
     public class Credential : EntityObject
     {
@@ -17,11 +17,5 @@ namespace SoupDiscover.ORM
         /// The token
         /// </summary>
         public string key { get; set; }
-    }
-
-    public enum CredentialType
-    {
-        Token,
-        SshKey,
     }
 }

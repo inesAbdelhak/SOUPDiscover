@@ -38,7 +38,9 @@ export class ProjectComponent implements OnInit {
    * */
   RefreshProjects() {
     this.projectService.GetProjects()
-      .subscribe(result => this.projects = result,
+      .subscribe(result => {
+        this.projects = result;
+      },
         error => console.error(error));
   }
 

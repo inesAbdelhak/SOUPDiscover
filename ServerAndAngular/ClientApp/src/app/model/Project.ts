@@ -31,6 +31,11 @@ export class ProjectDto {
    * The status of executing
    */
   processStatus?: ProcessStatus;
+
+  /**
+   * Date of the last analysis
+   */
+  lastAnalysisDate?: Date;
 }
 
 export enum ProcessStatus {

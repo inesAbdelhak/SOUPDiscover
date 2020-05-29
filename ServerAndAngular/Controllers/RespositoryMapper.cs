@@ -24,6 +24,7 @@ namespace SoupDiscover.Controllers
                     repositoryDto.branch = git.Branch;
                     repositoryDto.sshKeyName = git.SshKeyId;
                     repositoryDto.url = git.Url;
+                    repositoryDto.sshKey = git.SshKey.ToDto();
                     break;
                 default:
                     return null;
@@ -48,10 +49,40 @@ namespace SoupDiscover.Controllers
                         Url = repositoryDto.url,
                         Name = repositoryDto.name,
                         SshKeyId = repositoryDto.sshKeyName,
+                        SshKey = repositoryDto.sshKey.ToModel(),
                     };
                     break;
             }
             return repository;
+        }
+    }
+
+    public static class CredentialMapper
+    {
+        public static Credential ToModel(this CredentialDto dto)
+        {
+            if (dto == null)
+            {
+                return null;
+            }
+            return new Credential()
+            {
+                name = dto.name,
+                key = dto.key,
+            };
+        }
+
+        public static CredentialDto ToDto(this Credential model)
+        {
+            if(model == null)
+            {
+                return null;
+            }
+            return new CredentialDto()
+            {
+                name = model.name,
+                key = model.key,
+            };
         }
     }
 }

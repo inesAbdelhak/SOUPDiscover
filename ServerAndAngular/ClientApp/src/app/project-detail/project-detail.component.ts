@@ -10,8 +10,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { PackagesService } from '../service/packages.service';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
+import { startWith, map, delay } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-project-detail',
@@ -192,12 +193,35 @@ export class ProjectDetailComponent implements OnInit {
         error => console.error(error));
   }
 
+  needUpdate: Observable<any> = new Observable<any>();
+
   /**
    * Launch the analysis of the project
    * */
   Analyse(): void {
     this.projectService.LaunchProject(this.currentProjectId)
+      .subscribe(_ => { this.Refresh(); },
+        error => {
+          this.HandelError(error);
+        });
+  }
+
+  /**
+  * Display error to client
+  * @param error the error to display
+  */
+  HandelError(error: HttpErrorResponse): void {
+    window.alert(error.error.detail);
+  }
+
+  /**
+   * Stop the executing project
+   * */
+  Stop(): void {
+    this.projectService.StopProject(this.currentProjectId)
       .subscribe(_ => { },
-        error => console.warn(error));
+        error => {
+          this.HandelError(error);
+        });
   }
 }

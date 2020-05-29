@@ -28,6 +28,7 @@ namespace SoupDiscover.Controllers
                 Repository = project.Repository.ToDto(),
                 RepositoryId = project.RepositoryId,
                 LastAnalysisError = project.LastAnalysisError,
+                LastAnalysisDate = project.LastAnalysisDate,
             };
         }
 
@@ -66,6 +67,7 @@ namespace SoupDiscover.Controllers
                 Repository = projectDto.Repository.ToModel(),
                 RepositoryId = projectDto.RepositoryId,
                 LastAnalysisError = projectDto.LastAnalysisError,
+                LastAnalysisDate = projectDto.LastAnalysisDate,
             };
         }
     }

@@ -36,29 +36,36 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="project">The project to process</param>
         /// <returns>false : The project is already processing else true</returns>
-        public Task<TJob> StartTask<TJob>(TJob job)
+        public void StartTask<TJob>(TJob job)
             where TJob : IJob
         {
             var task = new ExecutingTask();
-            // Check if this project is not currently processing
-            lock (_syncObject)
+            ThreadPool.QueueUserWorkItem((o) =>
             {
-                if (_processingJobs.ContainsKey(job.IdJob))
+                Task finalTask = null;
+                // Check if this project is not currently processing
+                lock (_syncObject)
                 {
-                    _logger.LogDebug($"Try to start a job that is already running");
-                    return null; // Already processing
+                    if (_processingJobs.ContainsKey(job.IdJob))
+                    {
+                        _logger.LogDebug($"Try to start a job that is already running");
+                        return; // Already processing
+                    }
+                    // Create a task to start the processing
+                    var tokenSource = new CancellationTokenSource();
+                    task.CancellationTokenSource = tokenSource;
+                    _logger.LogInformation($"Start the Job {job.IdJob}");
+                    finalTask = job.StartAsync(task.CancellationTokenSource.Token)
+                        .ContinueWith(t => EndProcessingJob(job));
+                    _processingJobs.Add(job.IdJob, task);
+                    task.Task = finalTask;
                 }
-                // Create a task to start the processing
-                var tokenSource = new CancellationTokenSource();
-                task.CancellationTokenSource = tokenSource;
-                _logger.LogInformation($"Start the Job {job.IdJob}");
-                var finalTask = job.StartAsync(task.CancellationTokenSource.Token)
-                    .ContinueWith(t => EndProcessingJob(job), task.CancellationTokenSource.Token)
-                    .ContinueWith(t => job, task.CancellationTokenSource.Token);
-                _processingJobs.Add(job.IdJob, task);
-                task.Task = finalTask;
-                return finalTask;
-            }
+                try
+                {
+                    finalTask?.Wait();
+                }catch
+                { }
+            });
         }
 
         /// <summary>
@@ -108,6 +115,24 @@ namespace SoupDiscover.Core
             {
                 return _processingJobs.Values.ToArray();
             }
+        }
+
+        /// <summary>
+        /// Cancel the executing project
+        /// </summary>
+        /// <param name="jobId">Id of the job to stop</param>
+        public bool Cancel(string jobId)
+        {
+            ExecutingTask executingTask;
+            lock (_syncObject)
+            {
+                if (!_processingJobs.TryGetValue(jobId, out executingTask))
+                {
+                    return false;
+                }
+            }
+            executingTask.CancellationTokenSource.Cancel();
+            return true;
         }
     }
 }

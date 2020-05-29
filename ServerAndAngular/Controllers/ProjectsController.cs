@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -65,14 +66,18 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{projectId}")]
-        public async Task<IActionResult> PutProject(string projectId, SOUPSearchProject project)
+        public async Task<IActionResult> PutProject(string projectId, ProjectDto project)
         {
             if (projectId != project.Name)
             {
                 return BadRequest();
             }
 
-            _context.Entry(project).State = EntityState.Modified;
+            var projectModel = _context.Projects.Find(project.Name);
+            projectModel.NugetServerUrl = project.NugetServerUrl;
+            projectModel.RepositoryId = project.RepositoryId;
+            projectModel.CommandLinesBeforeParse = project.CommandLinesBeforeParse;
+            _context.Projects.Update(projectModel);
 
             try
             {
@@ -114,30 +119,42 @@ namespace SoupDiscover.Controllers
         /// <param name="projectId">Id of the project to Start</param>
         /// <returns></returns>
         [HttpPost("Start/{projectId}")]
-        public ActionResult<SOUPSearchProject> StartProject(string projectId)
+        public ActionResult<bool> StartProject(string projectId)
         {
             // Retrieve the project to start
             var project = _context.Projects.Find(projectId);
             _context.Entry(project).Reference(r => r.Repository).Load();
             switch (project.Repository)
             {
-                case GitRepository git :
+                case GitRepository git:
                     _context.Entry((GitRepository)project.Repository).Reference(r => r.SshKey).Load();
-                break;
+                    break;
                 default: throw new ApplicationException($"The repository Type {project.Repository?.GetType()} is not supported!");
             }
             // Create the job to process the project
-            var projectJob = _serviceProvider.GetService<IProjectJob>();
-            projectJob.Project = project;
-            
-            // Add the Job to the JobManager          
-            var processJobTask = _projectJobManager.StartTask(projectJob);
-            if (processJobTask == null)
+            var projectJob = _serviceProvider.GetRequiredService<IProjectJob>();
+            projectJob.SetProject(project.ToDto(), _serviceProvider);
+
+            // Add the Job to the JobManager
+            if (_projectJobManager.GetProcessingJobIds().Contains(projectId))
             {
                 return Problem($"The project {project.Name} is already processing !");
             }
+            _projectJobManager.StartTask(projectJob);
 
-            return CreatedAtAction("Process Project", new { id = projectId }, project);
+            return CreatedAtAction("Process Project", new { id = projectId }, true);
+        }
+
+        /// <summary>
+        /// Stop the executing project
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        [HttpPost("Stop/{projectId}")]
+        public ActionResult<bool> StopProject(string projectId)
+        {
+            var isCanceled = _projectJobManager.Cancel(projectId);
+            return CreatedAtAction("Stop process Project", new { id = projectId }, isCanceled);
         }
 
         // DELETE: api/Projects/5

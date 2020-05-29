@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProjectService {
-  
 
   constructor(private httpClient: HttpClient,
     @Inject('BASE_URL') private baseUrl: string) { }
@@ -23,10 +22,19 @@ export class ProjectService {
 
   /**
    * Launch the project analysis
-   * @param name the name of the project to launch
+   * @param projectName the name of the project to launch
    */
-  LaunchProject(name: string) {
-    return this.httpClient.post<ProjectDto>(this.baseUrl + "api/Projects/Start/" + name, null);
+  LaunchProject(projectName: string) {
+    return this.httpClient.post<boolean>(this.baseUrl + "api/Projects/Start/" + projectName, null);
+  }
+
+
+  /**
+   * Stop the executing project
+   * @param projectName the name of the project to Stop
+   */
+  public StopProject(projectName: string): Observable<boolean> {
+    return this.httpClient.post<boolean>(this.baseUrl + "api/Projects/Stop/" + projectName, null);
   }
 
   /**
@@ -67,6 +75,6 @@ export class ProjectService {
    */
   public GetAllPackageConsummer(projectName: string): Observable<string[]> {
     return this.httpClient.get<string[]>(this.baseUrl + "api/Projects/projectConsumers/" + projectName);
-
   }
+
 }
