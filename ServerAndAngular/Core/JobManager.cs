@@ -55,7 +55,7 @@ namespace SoupDiscover.Core
                     var tokenSource = new CancellationTokenSource();
                     task.CancellationTokenSource = tokenSource;
                     _logger.LogInformation($"Start the Job {job.IdJob}");
-                    finalTask = job.StartAsync(task.CancellationTokenSource.Token)
+                    finalTask = Task.Run(() => job.StartAsync(task.CancellationTokenSource.Token).Wait())
                         .ContinueWith(t => EndProcessingJob(job));
                     _processingJobs.Add(job.IdJob, task);
                     task.Task = finalTask;
