@@ -107,7 +107,7 @@ namespace ServerTest
                 },
             };
             context = provider.GetService<DataContext>();
-            context.Projects.Add(job.Project.ToModel());
+            context.Projects.Add(job.ProjectDto.ToModel());
             context.SaveChanges();
             job.Execute(CancellationToken.None);
         }

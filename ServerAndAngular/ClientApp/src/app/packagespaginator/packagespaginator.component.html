@@ -1,0 +1,44 @@
+<!-- Filters -->
+<div class="childrenInline">
+  <!-- Select the csproj-->
+  <mat-form-field>
+    <mat-label>Filtre sur le projet associé</mat-label>
+    <input type="text" matInput placeholder="monprojet.csproj" [formControl]="selectProjectControl" [matAutocomplete]="auto" />
+    <mat-autocomplete #auto="matAutocomplete" matInput (optionSelected)="applyCsProjFilter($event)">
+      <mat-option *ngFor="let csproj of filteredConsumers | async" [value]="csproj">
+        {{csproj}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Filtre sur l'id</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. log4net">
+  </mat-form-field>
+</div>
+<div class="fillelements">
+  <!-- Display list of packages found -->
+  <table mat-table [dataSource]="packagesTableSource" matSort class="mat-elevation-z8">
+    <!-- Package Id -->
+    <ng-container matColumnDef="packageId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
+      <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
+    </ng-container>
+
+    <!-- Package Version -->
+    <ng-container matColumnDef="version">
+      <th mat-header-cell *matHeaderCellDef> Version </th>
+      <td mat-cell *matCellDef="let element"> {{element.version}} </td>
+    </ng-container>
+
+    <!-- Package licence -->
+    <ng-container matColumnDef="licence">
+      <th mat-header-cell *matHeaderCellDef> Licence </th>
+      <td mat-cell *matCellDef="let element"> {{element.licence}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

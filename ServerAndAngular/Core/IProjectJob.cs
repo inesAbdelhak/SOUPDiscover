@@ -13,7 +13,7 @@ namespace SoupDiscover.Core
         /// <summary>
         /// The project to process
         /// </summary>
-        ProjectDto Project { get; }
+        ProjectDto ProjectDto { get; }
 
         void SetProject(ProjectDto project, IServiceProvider provider);
     }

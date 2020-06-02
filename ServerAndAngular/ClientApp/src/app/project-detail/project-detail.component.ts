@@ -28,25 +28,8 @@ export class ProjectDetailComponent implements OnInit {
 
   selectProjectControl : FormControl = new FormControl();
 
-  // The selected csproj
-  packageConsumerSelected: string;
-
-  // all available csproj
-  packageConsumers: string[] = [''];
-
-  filteredConsumers: Observable<string[]>;
-
   // all repositories
   repositories: RepositoryDto[];
-
-  // object to filter package from their name
-  packagesTableSource: MatTableDataSource<PackageDto>;
-
-  // package filtered with csproj file name
-  packages: PackageDto[];
-
-  // the columns to display
-  displayedColumns: string[] = ['packageId', 'version', 'licence'];
 
   // indicate if the user wants to edit project configurations
   edit: boolean = false;
@@ -74,19 +57,6 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
-   * filter package consumer client side
-   * @param value
-   */
-  private filterPackageConsumer(value: string): string[] {
-    const filterValue = this._normalizeValue(value);
-    return this.packageConsumers.filter(p => this._normalizeValue(p).includes(filterValue));
-  }
-
-  private _normalizeValue(value: string): string {
-    return value.toLowerCase().replace(/\s/g, '');
-  }
-
-  /**
    * Refresh
    * */
   Refresh(): void {
@@ -96,38 +66,11 @@ export class ProjectDetailComponent implements OnInit {
     },
       error => console.error(error));
 
-    // Get all packages of the project
-    this.packageService.GetPackageFromProjectName(this.currentProjectId)
-      .subscribe(res => {
-        this.packages = res;
-        this.packagesTableSource = new MatTableDataSource<PackageDto>(this.packages);
-        this.packagesTableSource.paginator = this.paginator;
-      },
-        error => console.error(error));
-
-    // Get packages consumer of the project (csproj file names)
-    this.projectService.GetAllPackageConsummer(this.currentProjectId)
-      .subscribe(resultat => {
-        this.packageConsumers = resultat;
-        // Filter
-        this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
-          startWith(''),
-          map(value => this.filterPackageConsumer(value))
-        );
-      },
-        error => console.error(error));
-
     this.repositoriesService.GetRepositories()
       .subscribe(res => {
         this.repositories = res;
       },
         error => console.error(error));
-
-    // Filter
-    this.filteredConsumers = this.selectProjectControl.valueChanges.pipe(
-      startWith(''),
-      map(value => this.filterPackageConsumer(value))
-    );
   }
 
   /**
@@ -172,28 +115,6 @@ export class ProjectDetailComponent implements OnInit {
   GetCsvUrl(): string {
     return this.packageService.GetCsvUrl(this.currentProjectId);
   }
-
-  /**
-   * Filter list of packages
-   * @param event the event that contains the filter request
-   */
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.packagesTableSource.filter = filterValue.trim().toLowerCase();
-  }
-
-  applyCsProjFilter(event: MatAutocompleteSelectedEvent) {
-    this.packageConsumerSelected = event.option.viewValue;
-    // Update package List
-    this.packageService.GetPackageFromProjectName(this.currentProjectId, this.packageConsumerSelected)
-      .subscribe(resultat => {
-        this.packages = resultat;
-        this.packagesTableSource.data = resultat;
-      },
-        error => console.error(error));
-  }
-
-  needUpdate: Observable<any> = new Observable<any>();
 
   /**
    * Launch the analysis of the project

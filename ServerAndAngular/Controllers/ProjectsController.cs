@@ -74,10 +74,10 @@ namespace SoupDiscover.Controllers
             }
 
             var projectModel = _context.Projects.Find(project.Name);
+            _context.Projects.Update(projectModel);
             projectModel.NugetServerUrl = project.NugetServerUrl;
             projectModel.RepositoryId = project.RepositoryId;
             projectModel.CommandLinesBeforeParse = project.CommandLinesBeforeParse;
-            _context.Projects.Update(projectModel);
 
             try
             {

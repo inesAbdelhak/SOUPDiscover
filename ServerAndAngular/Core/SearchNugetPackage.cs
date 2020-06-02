@@ -36,7 +36,7 @@ namespace SoupDiscover.Common
             }
             // Retrieve package source in
             string metadataAsXml = null;
-            foreach (var source in sources)
+            foreach (var source in sources.Where(e => !string.IsNullOrEmpty(e)))
             {
                 try
                 {

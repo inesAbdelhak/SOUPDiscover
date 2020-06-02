@@ -52,9 +52,15 @@
     </div>
   </div>
   <div class="buttons">
-    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateRepository()">Sauvegarder</button>
-    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateRepository()">Annuler</button>
-    <button mat-raised-button *ngIf="edit === false" (click)="EditRepository()">Modifier</button>
+    <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateRepository()">
+      <mat-icon>save</mat-icon>
+    </button>
+    <button mat-raised-button *ngIf="edit === true" (click)="CancelUpdateRepository()">
+      <mat-icon>cancel</mat-icon>
+    </button>
+    <button mat-raised-button *ngIf="edit === false" (click)="EditRepository()">
+      <mat-icon>edit</mat-icon>
+    </button>
   </div>
 </section>
 

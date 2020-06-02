@@ -45,7 +45,7 @@ namespace SoupDiscover.Common
         /// <summary>
         /// The project to process
         /// </summary>
-        public ProjectDto Project
+        public ProjectDto ProjectDto
         {
             get
             {
@@ -56,10 +56,10 @@ namespace SoupDiscover.Common
         public void SetProject(ProjectDto project, IServiceProvider provider)
         {
             _project = project;
-            _repositoryManager = Project.Repository.GetRepositoryManager(provider);
+            _repositoryManager = ProjectDto.Repository.GetRepositoryManager(provider);
         }
 
-        public object IdJob => Project.Name;
+        public object IdJob => ProjectDto.Name;
 
         /// <summary>
         /// Start synchronously the process, to find all SOUP in the repository
@@ -76,7 +76,7 @@ namespace SoupDiscover.Common
         /// <param name="token">The token to stop the processing</param>
         public async Task<ProjectJob> StartAsync(CancellationToken token)
         {
-            if(Project?.Repository == null)
+            if(ProjectDto?.Repository == null)
             {
                 throw new ApplicationException("The project to process must be defined");
             }
@@ -90,7 +90,7 @@ namespace SoupDiscover.Common
                 {
                     // Save error on database
                     var context = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
-                    var project = context.Projects.Find(Project.Name);
+                    var project = context.Projects.Find(ProjectDto.Name);
                     if (token.IsCancellationRequested)
                     {
                         project.LastAnalysisError = "Dernière analyse annulée.";
@@ -109,11 +109,11 @@ namespace SoupDiscover.Common
 
         private async Task<ProjectJob> ProcessProjectAnalyse(CancellationToken token)
         {
-            if (Project == null)
+            if (ProjectDto == null)
             {
-                throw new ApplicationException($"The property {nameof(Project)} must be not null!");
+                throw new ApplicationException($"The property {nameof(ProjectDto)} must be not null!");
             }
-            _logger.LogInformation($"Start processing Project {Project.Name}");
+            _logger.LogInformation($"Start processing Project {ProjectDto.Name}");
 
             // Copy content files of the repository to a temporary directory
             var directory = RetrieveSourceFiles(token);
@@ -162,7 +162,7 @@ namespace SoupDiscover.Common
         private async Task SaveSearchResult(List<PackageConsumerName> packageConsumerNames, string checkoutDirectory, DataContext context, CancellationToken token)
         {
             var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
-            var project = context.Projects.Find(Project.Name);
+            var project = context.Projects.Find(ProjectDto.Name);
             if (packageConsumerNames != null)
             {
                 // Remove old package in the project
@@ -199,8 +199,8 @@ namespace SoupDiscover.Common
                     }
                 }
             }
-            Project.LastAnalysisError = null;
-            Project.LastAnalysisDate = DateTime.Now;
+            project.LastAnalysisError = "";
+            project.LastAnalysisDate = DateTime.Now;
             context.Projects.Update(project);
             context.SaveChanges();
         }
@@ -216,7 +216,7 @@ namespace SoupDiscover.Common
             switch(packageName.PackageType)
             {
                 case PackageType.Nuget:
-                    return _searchNugetPackage.SearchMetadata(packageName.PackageId, packageName.Version, new[] { Project.NugetServerUrl }, token);
+                    return _searchNugetPackage.SearchMetadata(packageName.PackageId, packageName.Version, new[] { ProjectDto.NugetServerUrl }, token);
                     
                 case PackageType.Npm:
                     return _searchNpmPackage.SearchMetadata(packageName.PackageId, packageName.Version, checkoutDirectory, token);
@@ -227,7 +227,7 @@ namespace SoupDiscover.Common
 
         private void ExecuteCommandLinesBefore(string path, CancellationToken token)
         {
-            if (string.IsNullOrEmpty(Project.CommandLinesBeforeParse))
+            if (string.IsNullOrEmpty(ProjectDto.CommandLinesBeforeParse))
             {
                 return; // No command line before parse is defined
             }
@@ -241,7 +241,7 @@ namespace SoupDiscover.Common
             {
                 filename = Path.Combine(path, "CommandLinesBeforeParse.bat");
             }
-            File.WriteAllText(filename, Project.CommandLinesBeforeParse);
+            File.WriteAllText(filename, ProjectDto.CommandLinesBeforeParse);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update ACL to be executable
@@ -263,7 +263,7 @@ namespace SoupDiscover.Common
                 workDir = Path.GetTempPath();
             }
             // Create a directory where working
-            return Path.Combine(workDir, "Projects", $"Project{Project.Name}");
+            return Path.Combine(workDir, "Projects", $"Project{ProjectDto.Name}");
         }
 
         /// <summary>

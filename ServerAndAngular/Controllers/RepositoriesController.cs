@@ -50,14 +50,15 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRepository(string id, Repository repository)
+        public async Task<IActionResult> PutRepository(string id, RepositoryDto repositorydto)
         {
-            if (id != repository.Name)
+            if (id != repositorydto.name)
             {
                 return BadRequest();
             }
 
-            _context.Entry(repository).State = EntityState.Modified;
+            var repository = repositorydto.ToModel();
+            _context.Repositories.Update(repository);
 
             try
             {

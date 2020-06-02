@@ -24,6 +24,7 @@ import { CreateRepositoryComponent, CreateRepositoryDialog } from './create-repo
 import { CreateProjectComponent, CreateProjectDialog } from './create-project/create-project.component';
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { RepositoryDetailComponent } from './repository-detail/repository-detail.component';
+import { PackagespaginatorComponent } from './packagespaginator/packagespaginator.component';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { RepositoryDetailComponent } from './repository-detail/repository-detail
     CreateProjectDialog,
     ProjectDetailComponent,
     RepositoryDetailComponent,
+    PackagespaginatorComponent,
   ],
   imports: [
     CommonModule,
