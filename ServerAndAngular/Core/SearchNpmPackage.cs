@@ -39,23 +39,23 @@ namespace SoupDiscover.Common
         /// <param name="checkoutDirectory">The directory where the sources files are checkout</param>
         public Package SearchMetadata(string packageId, string version, string checkoutDirectory, CancellationToken token = default)
         {
-            string[] packageLockJson = null;
+            string[] packageLockJsonFiles;
             if (_lastSearch.CheckoutDirectory == checkoutDirectory)
             {
-                packageLockJson = _lastSearch.packageLockJson;
+                packageLockJsonFiles = _lastSearch.packageLockJson;
             }
             else
             {
                 // Search files packageLockJson
-                packageLockJson = Directory.GetFiles(checkoutDirectory, PackageLockJsonFilename);
-                _lastSearch = (checkoutDirectory, packageLockJson);
+                packageLockJsonFiles = Directory.GetFiles(checkoutDirectory, PackageLockJsonFilename, SearchOption.AllDirectories);
+                _lastSearch = (checkoutDirectory, packageLockJsonFiles);
             }
 
             // Search npm Package in "node_modules" directories
-            foreach (var e in packageLockJson)
+            foreach (var packageLockJson in packageLockJsonFiles)
             {
                 token.ThrowIfCancellationRequested();
-                var nodeModuleDir = Path.Combine(Path.GetDirectoryName(e), NodeModulesDirName);
+                var nodeModuleDir = Path.Combine(Path.GetDirectoryName(packageLockJson), NodeModulesDirName);
                 var packageMetadataFile = nodeModuleDir;
                 foreach (var packageElementName in packageId.Split('/'))
                 {
@@ -73,12 +73,12 @@ namespace SoupDiscover.Common
                         continue; // Search version in another "node_module" directory
                     }
                     return new Package()
-                    { 
-                        PackageId = packageId, 
-                        Version = version, 
-                        Licence = json.RootElement.GetProperty("license").GetString(), 
-                        PackageType = PackageType.Npm, 
-                        Description = json.RootElement.GetProperty("description").GetString(),
+                    {
+                        PackageId = packageId,
+                        Version = version,
+                        Licence = json.RootElement.TryGetValueAsString("license", "type"), 
+                        PackageType = PackageType.Npm,
+                        Description = json.RootElement.TryGetValueAsString("description"),
                     };
                 }
             }

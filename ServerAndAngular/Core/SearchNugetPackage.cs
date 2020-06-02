@@ -30,7 +30,7 @@ namespace SoupDiscover.Common
 
         public Package SearchMetadata(string packageId, string version, string[] sources, CancellationToken token = default)
         {
-            if(sources == null || sources.Length == 0)
+            if (sources == null || sources.Length == 0)
             {
                 return new Package() { PackageId = packageId, Version = version, Licence = null, PackageType = PackageType.Nuget };
             }
@@ -45,7 +45,7 @@ namespace SoupDiscover.Common
                 catch (Exception)
                 {
                 }
-                if(metadataAsXml != null)
+                if (metadataAsXml != null)
                 {
                     break;
                 }
@@ -72,9 +72,94 @@ namespace SoupDiscover.Common
         /// </summary>
         public async Task<IEnumerable<PackageConsumerName>> SearchPackages(string path, CancellationToken token)
         {
-            var result = new List<PackageConsumerName>();
+            var allPackagesConsumers = new List<PackageConsumerName>();
             var alreadyParsed = new Dictionary<string, PackageName>();
-            var allPackages = new List<PackageName>();
+            var packagesWithoutConsumer = new HashSet<PackageName>();
+
+            // Search in project.assets.json
+            allPackagesConsumers.AddRange(SearchPackagesFromAssetJson(path, alreadyParsed, token));
+
+            // Search packages.config
+            SearchPackagesFromPackageConfig(path, alreadyParsed, packagesWithoutConsumer, token);
+
+            // Search in csproj files
+            SearchPackagesFromCsproj(path, alreadyParsed, packagesWithoutConsumer, allPackagesConsumers, token);
+
+            if (packagesWithoutConsumer.Any())
+            {
+                allPackagesConsumers.Add(new PackageConsumerName("", packagesWithoutConsumer.ToArray()));
+            }
+            return allPackagesConsumers;
+        }
+
+        /// <summary>
+        /// Search in all csproj files
+        /// </summary>
+        /// <param name="path">The directory where checkout the repository</param>
+        /// <param name="alreadyParsed"></param>
+        /// <param name="packagesWithoutConsumer"></param>
+        /// <param name="packageConsumers"></param>
+        /// <param name="token"></param>
+        private static void SearchPackagesFromCsproj(string path, Dictionary<string, PackageName> alreadyParsed, HashSet<PackageName> packagesWithoutConsumer, List<PackageConsumerName> packageConsumers, CancellationToken token)
+        {
+            foreach (var csprojFile in Directory.GetFiles(path, "*.csproj", SearchOption.AllDirectories))
+            {
+                var consumerName = Path.GetRelativePath(path, csprojFile);
+                if (packageConsumers.Any(e => e.Name == consumerName))
+                {
+                    continue;
+                }
+                token.ThrowIfCancellationRequested();
+                var doc = XDocument.Load(csprojFile);
+                foreach (var pack in doc.Root.Descendants("PackageReference"))
+                {
+                    var id = pack.Attribute("Include")?.Value;
+                    var version = pack.Attribute("Version")?.Value;
+                    if (id == null || version == null)
+                    {
+                        continue; // ignore PackageReference without "include" or "version"
+                    }
+                    if (alreadyParsed.TryGetValue($"{id}/{version}", out var package))
+                    {
+                        packagesWithoutConsumer.Add(package);
+                    }
+                    else
+                    {
+                        var packageName = new PackageName(id, version, PackageType.Nuget);
+                        alreadyParsed.Add($"{id}/{version}", packageName);
+                        packagesWithoutConsumer.Add(packageName);
+                    }
+                }
+            }
+        }
+
+        private static void SearchPackagesFromPackageConfig(string path, Dictionary<string, PackageName> alreadyParsed, HashSet<PackageName> packagesWithoutConsumer, CancellationToken token)
+        {
+            foreach (var packageConfigFile in Directory.GetFiles(path, "packages.config", SearchOption.AllDirectories))
+            {
+                token.ThrowIfCancellationRequested();
+                var doc = XDocument.Load(packageConfigFile);
+                foreach (var pack in doc.Root.Element("packages")?.Elements())
+                {
+                    var id = pack.Attribute("id")?.Value;
+                    var version = pack.Attribute("version")?.Value;
+                    if (alreadyParsed.TryGetValue($"{id}/{version}", out var package))
+                    {
+                        packagesWithoutConsumer.Add(package);
+                    }
+                    else
+                    {
+                        var packageName = new PackageName(id, version, PackageType.Nuget);
+                        alreadyParsed.Add($"{id}/{version}", packageName);
+                        packagesWithoutConsumer.Add(packageName);
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<PackageConsumerName> SearchPackagesFromAssetJson(string path, Dictionary<string, PackageName> alreadyParsed, CancellationToken token)
+        {
+            var result = new List<PackageConsumerName>();
             foreach (var jsonFile in Directory.GetFiles(path, "project.assets.json", SearchOption.AllDirectories))
             {
                 token.ThrowIfCancellationRequested();
@@ -86,8 +171,10 @@ namespace SoupDiscover.Common
                     var jsonString = File.ReadAllTextAsync(jsonFile, token).Result;
                     using (var json = JsonDocument.Parse(jsonString))
                     {
-                        csproj = json.RootElement.GetProperty("project").GetProperty("restore").GetProperty("packagesPath").GetString();
+                        csproj = json.RootElement.GetProperty("project").GetProperty("restore").GetProperty("projectPath").GetString();
+                        csproj = Path.GetRelativePath(path, csproj);
                         var targets = json.RootElement.GetProperty("targets");
+
                         foreach (var package in targets.EnumerateObject().SelectMany(e => e.Value.EnumerateObject()))
                         {
                             var idAndVersion = package.Name;
@@ -110,33 +197,6 @@ namespace SoupDiscover.Common
                 {
                     _logger.LogWarning($"Error on parsing the file {jsonFile}. Exception : {e}");
                 }
-            }
-
-            var packages = new HashSet<PackageName>();
-            // Parse packages.config
-            foreach (var packageConfigFile in Directory.GetFiles(path, "packages.config", SearchOption.AllDirectories))
-            {
-                token.ThrowIfCancellationRequested();
-                var doc = XDocument.Load(packageConfigFile);
-                foreach (var pack in doc.Root.Element("packages")?.Elements())
-                {
-                    var id = pack.Attribute("id")?.Value;
-                    var version = pack.Attribute("version")?.Value;
-                    if (alreadyParsed.TryGetValue($"{id}/{version}", out var package))
-                    {
-                        packages.Add(package);
-                    }
-                    else
-                    {
-                        var packageName = new PackageName(id, version, PackageType.Nuget);
-                        alreadyParsed.Add($"{id}/{version}", packageName);
-                        packages.Add(packageName);
-                    }
-                }
-            }
-            if (packages.Any())
-            {
-                result.Add(new PackageConsumerName("", packages.ToArray()));
             }
             return result;
         }

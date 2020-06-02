@@ -22,13 +22,15 @@
   <h2>Configuration</h2>
   <!-- Editing the configuration -->
   <div class="editconfig" *ngIf="edit === true">
-    <!-- The repository to use -->
+
+  <!-- The repository to use -->
     <mat-form-field *ngIf="project != null">
       <mat-select [(ngModel)]="project.repositoryId">
         <mat-option>--Dépot--</mat-option>
         <mat-option *ngFor="let repo of repositories" [value]="repo.name">{{repo.name}}</mat-option>
       </mat-select>
     </mat-form-field>
+
     <!-- Command to prepare files -->
     <mat-form-field *ngIf="project != null">
       <mat-label>Commande de préparation</mat-label>
@@ -40,6 +42,7 @@
       <textarea matInput [(ngModel)]="project.nugetServerUrl"></textarea>
     </mat-form-field>
   </div>
+
   <!-- Display the configuration-->
   <div *ngIf="edit === false && project != null">
     <table class="biutifulTable">

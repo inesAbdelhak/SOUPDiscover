@@ -30,18 +30,18 @@ body {
   width: 100%;
 }
 
-  .biutifulTable td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-  }
+.biutifulTable td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
 
-  .biutifulTable tr:nth-child(even) {
-    background-color: #dddddd;
-  }
+.biutifulTable tr:nth-child(even) {
+  background-color: #dddddd;
+}
 
 .editconfig {
-  display: table-caption;
+  display: grid;
 }
 
 div.title {
@@ -53,12 +53,15 @@ div.childrenInline {
   display: inline-flex;
 }
 
-  div.childrenInline > * {
-    margin-right: 20px;
-  }
+div.childrenInline > * {
+  margin-right: 20px;
+}
 
 app-create-project, app-create-credential, app-create-repository {
-  display: contents;
+  display: block;
+  width: auto;
+  height: auto;
 }
+
 
 

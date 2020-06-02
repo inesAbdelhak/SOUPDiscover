@@ -44,7 +44,7 @@ export class PackagespaginatorComponent implements OnInit {
   packages: PackageDto[];
 
   // the columns to display
-  displayedColumns: string[] = ['packageId', 'version', 'licence'];
+  displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'licence'];
 
   selectProjectControl: FormControl = new FormControl();
 

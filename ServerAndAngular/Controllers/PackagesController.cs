@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SoupDiscover.Common;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -136,6 +137,7 @@ namespace SoupDiscover.Controllers
             return File(csvStream, "text/plain", $"{projectId}.csv");
         }
 
+
         /// <summary>
         /// Create a stream that contains the csv file
         /// </summary>
@@ -152,14 +154,11 @@ namespace SoupDiscover.Controllers
             _context.Entry(project).Collection(p => p.PackageConsumers).Load();
 
             // Create header
-            stream.WriteLine($"PackageId{delimiter}Version");
-            foreach (var pc in project.PackageConsumers)
+            stream.WriteLine(CVSFileHlper.ConvertToCvsLine(new string[] { "PackageId", "Version", "Type", "Description", "License" }, delimiter));
+            var packages = _context.PackageConsumerPackages.Where(p => p.PackageConsumer.ProjectId == projectId).Select(p => p.Package).Distinct();
+            foreach (var p in packages)
             {
-                var packages = _context.PackageConsumerPackages.Where(p => p.PackageConsumer.ProjectId == projectId).Select(p => p.Package).Distinct();
-                foreach (var p in packages)
-                {
-                    stream.WriteLine($"{p.PackageId}{delimiter}{p.Version}");
-                }
+                stream.WriteLine(CVSFileHlper.ConvertToCvsLine(new string[] { p.PackageId, p.Version, p.PackageType.ToString(), p.Description, p.Licence }, delimiter));
             }
             stream.Flush(); // Empty the stream to the base stream
             // Don't close the StreamWriter, this will close the base stream
