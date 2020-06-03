@@ -260,10 +260,11 @@ namespace SoupDiscover.Common
             var workDir = Environment.GetEnvironmentVariable("TempWork");
             if (workDir == null)
             {
-                workDir = Path.GetTempPath();
+                // workDir = Path.GetTempPath();
+                workDir = @"c:\temp\";
             }
             // Create a directory where working
-            return Path.Combine(workDir, "Projects", $"Project{ProjectDto.Name}");
+            return Path.Combine(workDir, $"Project{ProjectDto.Name}");
         }
 
         /// <summary>

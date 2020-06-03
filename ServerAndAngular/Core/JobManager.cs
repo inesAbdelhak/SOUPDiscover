@@ -134,5 +134,13 @@ namespace SoupDiscover.Core
             executingTask.CancellationTokenSource.Cancel();
             return true;
         }
+
+        public bool IsRunning(string jobId)
+        {
+            lock(_syncObject)
+            {
+                return _processingJobs.ContainsKey(jobId);
+            }
+        }
     }
 }

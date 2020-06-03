@@ -24,5 +24,7 @@ namespace SoupDiscover.Core
         ExecutingTask[] GetProcessingJob();
 
         object[] GetProcessingJobIds();
+
+        bool IsRunning(string jobId);
     }
 }

@@ -139,7 +139,12 @@ namespace SoupDiscover.Common
             {
                 token.ThrowIfCancellationRequested();
                 var doc = XDocument.Load(packageConfigFile);
-                foreach (var pack in doc.Root.Element("packages")?.Elements())
+                var packages = doc.Root.Element("packages")?.Elements();
+                if(packages == null)
+                {
+                    continue;
+                }
+                foreach (var pack in packages)
                 {
                     var id = pack.Attribute("id")?.Value;
                     var version = pack.Attribute("version")?.Value;

@@ -50,7 +50,7 @@ namespace SoupDiscover.Controllers
         public async Task<ActionResult<ProjectDto>> GetProject(string projectId)
         {
             var projectTask = _context.Projects.FindAsync(projectId);
-            var isRunning = _projectJobManager.GetProcessingJobIds().Contains(projectId);
+            var isRunning = _projectJobManager.IsRunning(projectId);
             var project = await projectTask;
             _context.Entry(project);
             if (project == null)
@@ -71,6 +71,11 @@ namespace SoupDiscover.Controllers
             if (projectId != project.Name)
             {
                 return BadRequest();
+            }
+
+            if(_projectJobManager.IsRunning(projectId))
+            {
+                return Problem($"The project {projectId} is running. Stop the project before update it.");
             }
 
             var projectModel = _context.Projects.Find(project.Name);
@@ -166,6 +171,11 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
+            if(_projectJobManager.IsRunning(projectId))
+            {
+                return Problem($"The project {projectId} is running. Stop it before remove it.");
+            }
+
             _context.Entry(project).Collection(p => p.PackageConsumers).Load();
             _context.PackageConsumer.RemoveRange(project.PackageConsumers);
             _context.Projects.Remove(project);
