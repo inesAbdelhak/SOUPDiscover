@@ -11,15 +11,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 */
 export class RepositoriesService {
 
-  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
+  repositoryEndpoint: string = this.baseUrl + 'api/repositories/';
 
-  /**
-   * Delete a repository
-   * @param currentProjectId
-   */
-  DeleteRepository(repositoryId: string): Observable<RepositoryDto> {
-    return this.httpClient.delete("api/repositories/" + repositoryId);
-  }
+  constructor(private httpClient: HttpClient, @Inject('BASE_URL') private baseUrl: string) { }
 
   /**
    * Create a new repository
@@ -27,22 +21,22 @@ export class RepositoriesService {
    */
   AddRepository(repository: RepositoryDto): Observable<RepositoryDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.post<RepositoryDto>(this.baseUrl + 'api/repositories', JSON.stringify(repository), { headers: headerOptions });
+    return this.httpClient.post<RepositoryDto>(this.repositoryEndpoint, JSON.stringify(repository), { headers: headerOptions });
   }
 
   /**
-   *  Return all repositories on database
-   */
+  *  Return all repositories on database
+  */
   GetRepositories(): Observable<RepositoryDto[]> {
-    return this.httpClient.get<RepositoryDto[]>(this.baseUrl + 'api/repositories');
+    return this.httpClient.get<RepositoryDto[]>(this.repositoryEndpoint);
   }
 
   /**
    * Get a repository configuration
    * @param id
    */
-  GetRepository(id: string): Observable<RepositoryDto>{
-    return this.httpClient.get<RepositoryDto>(this.baseUrl + 'api/repositories/' + id);
+  GetRepository(id: string): Observable<RepositoryDto> {
+    return this.httpClient.get<RepositoryDto>(this.repositoryEndpoint + id);
   }
 
   /**
@@ -51,6 +45,14 @@ export class RepositoriesService {
    */
   UpdateRepository(repository: RepositoryDto) {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<RepositoryDto>(this.baseUrl + "api/repositories/" + repository.name, JSON.stringify(repository), { headers: headerOptions });
+    return this.httpClient.put<RepositoryDto>(this.repositoryEndpoint + repository.name, JSON.stringify(repository), { headers: headerOptions });
+  }
+
+  /**
+   * Delete a repository
+   * @param currentProjectId
+   */
+  DeleteRepository(repositoryId: string): Observable<RepositoryDto> {
+    return this.httpClient.delete(this.repositoryEndpoint + repositoryId);
   }
 }

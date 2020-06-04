@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿using SoupDiscover.ICore;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.ICore
 {
     public class ExecutingTask
     {

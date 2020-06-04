@@ -1,16 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SoupDiscover.ORM
+﻿namespace SoupDiscover.Dto
 {
-    /// <summary>
-    /// A token used to authenticate from an api
-    /// </summary>
-    public class Credential : EntityObject
+    public class CredentialDto
     {
         /// <summary>
         /// The name given to the credential
         /// </summary>
-        [Key]
         public string Name { get; set; }
 
         /// <summary>

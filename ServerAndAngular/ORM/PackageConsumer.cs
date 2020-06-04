@@ -5,16 +5,12 @@ namespace SoupDiscover.ORM
 {
     public class PackageConsumer
     {
-        public PackageConsumer()
-        {
-        }
-        
-        public SOUPSearchProject Project { get; set; }
-
-        public string ProjectId { get; set; }
-
         [Key]
         public int PackageConsumerId { get; set; }
+
+        public virtual SOUPSearchProject Project { get; set; }
+
+        public string ProjectId { get; set; }
 
         /// <summary>
         /// The name of the package Consumer (the csproj file)

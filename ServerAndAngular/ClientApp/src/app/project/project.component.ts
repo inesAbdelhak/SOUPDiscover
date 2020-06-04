@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProjectDto } from '../model/project';
 import { ProjectService } from '../service/project.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-project',
@@ -15,7 +16,8 @@ export class ProjectComponent implements OnInit {
    */
   projects: ProjectDto[];
 
-  constructor(public projectService: ProjectService) { }
+  constructor(public projectService: ProjectService,
+    private toastr: ToastrService) { }
 
   /**
    * To update project list, when a project is added or deleted
@@ -27,10 +29,10 @@ export class ProjectComponent implements OnInit {
    * Launch analysis on the project
    * @param project
    */
-  LaunchAnalyse(projectName: string): void {
+  LaunchAnalyze(projectName: string): void {
     this.projectService.LaunchProject(projectName)
-      .subscribe(_ => { },
-        error => this.HandelError(error));
+      .subscribe(_ => this.toastr.success("L'analyse du projet " + projectName + 'a été lancée', "Projet"),
+        error => this.HandleError(error));
   }
 
   /**
@@ -48,8 +50,8 @@ export class ProjectComponent implements OnInit {
   * Display error to client
   * @param error the error to display
   */
-  HandelError(error: HttpErrorResponse): void {
-    window.alert(error.error.detail);
+  HandleError(error: HttpErrorResponse): void {
+    this.toastr.error(error.error.detail, 'Projet');
   }
 
   ngOnInit() {

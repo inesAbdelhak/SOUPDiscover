@@ -4,6 +4,8 @@ import { RepositoriesService } from '../service/repositories.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CredentialDto } from '../model/credential';
 import { CredentialService } from '../service/credential.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-repository-detail',
@@ -18,6 +20,7 @@ export class RepositoryDetailComponent implements OnInit {
   edit: boolean = false;
 
   constructor(private repositoriesService: RepositoriesService,
+    private toastr: ToastrService,
     private route: ActivatedRoute,
     private router: Router,
     private credentialService: CredentialService) { }
@@ -41,7 +44,12 @@ export class RepositoryDetailComponent implements OnInit {
    * Update the server with the current state of the repository configuration
    * */
   UpdateRepository(): void {
-    this.repositoriesService.UpdateRepository(this.repository).subscribe(_ => this.edit = false);
+    this.repositoriesService.UpdateRepository(this.repository)
+      .subscribe(_ => {
+        this.edit = false;
+        this.toastr.success("Le dépot " + this.repositoryId + " a bien été mis à jour", "Dépot");
+      },
+        error => this.HandleError(error));
   }
 
   /**
@@ -57,14 +65,11 @@ export class RepositoryDetailComponent implements OnInit {
   DeleteRepository(): void {
     this.repositoriesService.DeleteRepository(this.repositoryId)
       .subscribe(_ => {
+        this.toastr.success("Le dépot " + this.repositoryId + " a bien été supprimé", "Dépot");
         // Navigate to the repository list
         this.router.navigate(['/repositories']);
       },
-        error => this.HandelError(error));
-  }
-
-  HandelError(error: any): void {
-    window.alert(error);
+        error => this.HandleError(error));
   }
 
   /**
@@ -76,5 +81,13 @@ export class RepositoryDetailComponent implements OnInit {
       .subscribe(resultat => {
         this.repository = resultat;
       });
+  }
+
+  /**
+   * Display error to user
+   * @param error the error to display
+   */
+  HandleError(error: HttpErrorResponse): void {
+    this.toastr.error(error.error.detail, 'Dépot');
   }
 }

@@ -100,22 +100,22 @@ namespace SoupDiscover.Core.Respository
         private static IEnumerable<RootElement> ReadConfigFile(string sshConfigFile)
         {
             RootElement currentRoot = null;
-            foreach (var l in File.ReadAllLines(sshConfigFile))
+            foreach (var currentLine in File.ReadAllLines(sshConfigFile))
             {
-                if (string.IsNullOrWhiteSpace(l))
+                if (string.IsNullOrWhiteSpace(currentLine))
                 {
                     continue; // Empty line
                 }
-                if (l.StartsWith(' '))
+                if (currentLine.StartsWith(' ')) // Start by ' ', but the line is not empty
                 {
                     if (currentRoot == null)
                     {
                         continue; // a sub-element but no rootElement
                     }
-                    currentRoot.AddSubElement(l.Trim());
+                    currentRoot.AddSubElement(currentLine.Trim());
                     continue;
                 }
-                yield return currentRoot = new RootElement(l.TrimEnd());
+                yield return currentRoot = new RootElement(currentLine.TrimEnd());
             }
         }
     }

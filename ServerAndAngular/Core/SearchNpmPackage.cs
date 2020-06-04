@@ -15,7 +15,7 @@ namespace SoupDiscover.Common
     /// <summary>
     /// Search nuget packages
     /// </summary>
-    public class SearchNpmPackage : ISearchNpmPackage
+    public class SearchNpmPackage : ISearchPackage
     {
         public SearchNpmPackage(ILogger<SearchNpmPackage> logger)
         {
@@ -31,24 +31,26 @@ namespace SoupDiscover.Common
         private (string CheckoutDirectory, string[] packageLockJson) _lastSearch;
         private ILogger<SearchNpmPackage> _logger;
 
+        public PackageType PackageType => PackageType.Npm;
+
         /// <summary>
         /// Search a nuget package MetaData
         /// </summary>
         /// <param name="packageId">The package id to search</param>
         /// <param name="version">The version of the package to search</param>
         /// <param name="checkoutDirectory">The directory where the sources files are checkout</param>
-        public Package SearchMetadata(string packageId, string version, string checkoutDirectory, CancellationToken token = default)
+        public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
             string[] packageLockJsonFiles;
-            if (_lastSearch.CheckoutDirectory == checkoutDirectory)
+            if (_lastSearch.CheckoutDirectory == configuration.CheckoutDirectory)
             {
                 packageLockJsonFiles = _lastSearch.packageLockJson;
             }
             else
             {
                 // Search files packageLockJson
-                packageLockJsonFiles = Directory.GetFiles(checkoutDirectory, PackageLockJsonFilename, SearchOption.AllDirectories);
-                _lastSearch = (checkoutDirectory, packageLockJsonFiles);
+                packageLockJsonFiles = Directory.GetFiles(configuration.CheckoutDirectory, PackageLockJsonFilename, SearchOption.AllDirectories);
+                _lastSearch = (configuration.CheckoutDirectory, packageLockJsonFiles);
             }
 
             // Search npm Package in "node_modules" directories
@@ -67,8 +69,8 @@ namespace SoupDiscover.Common
                 if (File.Exists(packageMetadataFile))
                 {
                     var json = JsonDocument.Parse(File.ReadAllText(packageMetadataFile, Encoding.UTF8));
-                    var foundversion = json.RootElement.GetProperty("version").GetString();
-                    if(foundversion != version)
+                    var foundVersion = json.RootElement.GetProperty("version").GetString();
+                    if (foundVersion != version)
                     {
                         continue; // Search version in another "node_module" directory
                     }
@@ -76,26 +78,32 @@ namespace SoupDiscover.Common
                     {
                         PackageId = packageId,
                         Version = version,
-                        Licence = json.RootElement.TryGetValueAsString("license", "type"), 
+                        Licence = json.RootElement.TryGetValueAsString("license", "type"),
                         PackageType = PackageType.Npm,
                         Description = json.RootElement.TryGetValueAsString("description"),
                     };
                 }
             }
             _logger.LogDebug($"Unable to find metadata for npm package {packageId}@{version}");
-            return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm };
+            return new Package()
+            {
+                PackageId = packageId,
+                Version = version,
+                PackageType =
+                PackageType.Npm
+            };
         }
 
         /// <summary>
         /// Search npm package metadata
         /// </summary>
-        /// <param name="directory">The directory where the repository is checkout</param>
+        /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
         /// <returns>The package with metadata</returns>
-        public async Task<PackageConsumerName[]> SearchPackages(string directory, CancellationToken token = default)
+        public async Task<PackageConsumerName[]> SearchPackages(string checkoutDirectory, CancellationToken token = default)
         {
             var packageConsumers = new List<PackageConsumerName>();
             // Search all lock files
-            foreach (var lockFile in Directory.GetFiles(directory, SearchNpmPackage.PackageLockJsonFilename, SearchOption.AllDirectories))
+            foreach (var lockFile in Directory.GetFiles(checkoutDirectory, PackageLockJsonFilename, SearchOption.AllDirectories))
             {
                 token.ThrowIfCancellationRequested();
                 var packages = new HashSet<PackageName>();
@@ -122,7 +130,7 @@ namespace SoupDiscover.Common
                         packages.Add(new PackageName(packageId, version, PackageType.Npm));
                     }
                 }
-                packageConsumers.Add(new PackageConsumerName(Path.GetRelativePath(directory, Path.GetDirectoryName(lockFile)), packages.ToArray()));
+                packageConsumers.Add(new PackageConsumerName(Path.GetRelativePath(checkoutDirectory, Path.GetDirectoryName(lockFile)), packages.ToArray()));
             }
             return packageConsumers.ToArray();
         }

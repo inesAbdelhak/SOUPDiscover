@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 import { startWith, map, delay } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-project-detail',
@@ -37,6 +38,7 @@ export class ProjectDetailComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
   constructor(private projectService: ProjectService,
+    private toastr: ToastrService,
     private repositoriesService: RepositoriesService,
     private packageService: PackagesService,
     private route: ActivatedRoute,
@@ -57,7 +59,7 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
-   * Refresh
+   * Refresh data to display
    * */
   Refresh(): void {
     // Get details of the project
@@ -78,8 +80,12 @@ export class ProjectDetailComponent implements OnInit {
    * */
   DeleteProject(): void {
     this.projectService.DeleteProject(this.currentProjectId)
-      .subscribe(_ => this.router.navigate(['..'], { relativeTo: this.route })
-        ,error => console.error(error));
+      .subscribe(_ => {
+        this.toastr.success("Le projet " + this.currentProjectId + " a bien été supprimé", "Projet");
+        this.router.navigate(['..'], { relativeTo: this.route });
+        
+      }
+        , error => this.HandleError(error));
   }
 
   /**
@@ -87,8 +93,11 @@ export class ProjectDetailComponent implements OnInit {
    * */
   UpdateProject(): void {
     this.projectService.UpdateProject(this.project)
-      .subscribe(_ => this.edit = false,
-        error => console.error(error));
+      .subscribe(_ => {
+        this.edit = false;
+        this.toastr.success("Les modifications du projet " + this.currentProjectId + "on bien été appliquées.", "Projet");
+      },
+        error => this.HandleError(error));
   }
 
   /**
@@ -119,11 +128,14 @@ export class ProjectDetailComponent implements OnInit {
   /**
    * Launch the analysis of the project
    * */
-  Analyse(): void {
+  Analyze(): void {
     this.projectService.LaunchProject(this.currentProjectId)
-      .subscribe(_ => { this.Refresh(); },
+      .subscribe(_ => {
+        this.Refresh();
+        this.toastr.success("L'analyse du projet " + this.currentProjectId + " a été stopée", "Projet");
+      },
         error => {
-          this.HandelError(error);
+          this.HandleError(error);
         });
   }
 
@@ -131,8 +143,8 @@ export class ProjectDetailComponent implements OnInit {
   * Display error to client
   * @param error the error to display
   */
-  HandelError(error: HttpErrorResponse): void {
-    window.alert(error.error.detail);
+  HandleError(error: HttpErrorResponse): void {
+    this.toastr.error(error.error.detail, 'Projet');
   }
 
   /**
@@ -142,7 +154,7 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.StopProject(this.currentProjectId)
       .subscribe(_ => { },
         error => {
-          this.HandelError(error);
+          this.HandleError(error);
         });
   }
 }

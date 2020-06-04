@@ -1,5 +1,6 @@
 ﻿using SoupDiscover.Controllers.Dto;
 using SoupDiscover.Core.Respository;
+using SoupDiscover.Dto;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -54,35 +55,6 @@ namespace SoupDiscover.Controllers
                     break;
             }
             return repository;
-        }
-    }
-
-    public static class CredentialMapper
-    {
-        public static Credential ToModel(this CredentialDto dto)
-        {
-            if (dto == null)
-            {
-                return null;
-            }
-            return new Credential()
-            {
-                name = dto.name,
-                key = dto.key,
-            };
-        }
-
-        public static CredentialDto ToDto(this Credential model)
-        {
-            if(model == null)
-            {
-                return null;
-            }
-            return new CredentialDto()
-            {
-                name = model.name,
-                key = model.key,
-            };
         }
     }
 }

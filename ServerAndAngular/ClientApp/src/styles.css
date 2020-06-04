@@ -24,19 +24,19 @@ body {
   font-family: Roboto,"Helvetica Neue", sans-serif;
 }
 
-.biutifulTable {
+.beautifulTable {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
 
-.biutifulTable td, th {
+.beautifulTable td, th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
 }
 
-.biutifulTable tr:nth-child(even) {
+.beautifulTable tr:nth-child(even) {
   background-color: #dddddd;
 }
 

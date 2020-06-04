@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SoupDiscover.Dto;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -22,15 +23,15 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Credentials
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Credential>>> GetCredentials()
+        public async Task<ActionResult<IEnumerable<CredentialDto>>> GetCredentials()
         {
-            var list = await _context.Credentials.Select(e => e.name).ToArrayAsync();
-            return list.Select(e => new Credential() { name = e, key = "*****" }).ToArray(); // doesn't return the key value
+            var list = await _context.Credentials.Select(e => e.Name).ToArrayAsync();
+            return list.Select(e => new CredentialDto() { Name = e, Key = "*****" }).ToArray(); // doesn't return the key value
         }
 
         // GET: api/Credentials/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Credential>> GetCredential(string id)
+        public async Task<ActionResult<CredentialDto>> GetCredential(string id)
         {
             var credential = await _context.Credentials.FindAsync(id);
 
@@ -38,9 +39,8 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
-            credential.key = "*****";
 
-            return credential;
+            return credential.ToDto();
         }
 
         // PUT: api/Credentials/5
@@ -49,7 +49,7 @@ namespace SoupDiscover.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCredential(string id, Credential credential)
         {
-            if (id != credential.name)
+            if (id != credential.Name)
             {
                 return BadRequest();
             }
@@ -88,7 +88,7 @@ namespace SoupDiscover.Controllers
             }
             catch (DbUpdateException)
             {
-                if (CredentialExists(credential.name))
+                if (CredentialExists(credential.Name))
                 {
                     return Conflict();
                 }
@@ -98,12 +98,12 @@ namespace SoupDiscover.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCredential", new { id = credential.name }, credential);
+            return CreatedAtAction("GetCredential", new { id = credential.Name }, credential);
         }
 
         // DELETE: api/Credentials/5
         [HttpDelete("{credentialId}")]
-        public async Task<ActionResult<Credential>> DeleteCredential(string credentialId)
+        public async Task<ActionResult<CredentialDto>> DeleteCredential(string credentialId)
         {
             var credentialTask = _context.Credentials.FindAsync(credentialId);
             var repoOfTheCredentialTask = _context.Repositories.OfType<GitRepository>().Where(e => e.SshKeyId == credentialId).Select(e => e.Name).ToArrayAsync();
@@ -123,13 +123,12 @@ namespace SoupDiscover.Controllers
             _context.Credentials.Remove(credential);
             await _context.SaveChangesAsync();
 
-            credential.key = "*****";
-            return credential;
+            return credential.ToDto();
         }
 
         private bool CredentialExists(string id)
         {
-            return _context.Credentials.Any(e => e.name == id);
+            return _context.Credentials.Any(e => e.Name == id);
         }
     }
 }

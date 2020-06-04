@@ -8,8 +8,11 @@ import { Observable } from 'rxjs';
 })
 export class PackagesService {
 
+  packagesApiEndpoint: string = this.baseUrl + 'api/Packages/';
+
   constructor(private httpClient: HttpClient,
-    @Inject('BASE_URL') private baseUrl: string) { }
+    @Inject('BASE_URL') private baseUrl: string) {
+  }
 
   /**
    * Return all package of the project defined
@@ -19,7 +22,7 @@ export class PackagesService {
     if (projectName == null) {
       throw new Error("projectName must be not null!");
     }
-    let request = this.baseUrl + "api/Packages/filter?projectName=" + projectName;
+    let request = this.packagesApiEndpoint + "filter?projectName=" + projectName;
     if (csproj != null) {
       request += "&csproj=" + csproj;
     }
@@ -30,6 +33,6 @@ export class PackagesService {
  * Return the url that permit to download csv file of the project
  * */
   GetCsvUrl(projectId: string): string {
-    return this.baseUrl + "api/Packages/exporttocsv/" + projectId;
+    return this.packagesApiEndpoint + 'exporttocsv/' + projectId;
   }
 }

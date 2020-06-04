@@ -12,20 +12,20 @@ namespace SoupDiscover.Core
         /// <param name="directory">The directory to delete</param>
         public static void DeleteDirectory(string directory, int timesToTry = 10)
         {
-            var r = new Random();
+            var randomizer = new Random();
             var nbRetry = timesToTry;
             if (!Directory.Exists(directory))
             {
                 return;
             }
 
-            var isDelete = false;
-            while (!isDelete && nbRetry > 0)
+            var isDeleted = false;
+            while (!isDeleted && nbRetry > 0)
             {
                 try
                 {
                     Directory.Delete(directory, true);
-                    isDelete = true;
+                    isDeleted = true;
                 }
                 catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
                 {
@@ -39,7 +39,7 @@ namespace SoupDiscover.Core
                     }
                     nbRetry--;
                     // Try to set all file in normal mode
-                    Thread.Sleep(r.Next(900) + 100);
+                    Thread.Sleep(randomizer.Next(900) + 100);
                 }
             }
         }

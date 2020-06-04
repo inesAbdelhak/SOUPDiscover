@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoupDiscover.Controllers.Dto;
+using SoupDiscover.Dto;
 using SoupDiscover.ORM;
 using System;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace SoupDiscover.Core.Respository
             switch (repository.repositoryType)
             {
                 case RepositoryType.Git:
-                    return new GitRepositoryManager(provider.GetService<ILogger<GitRepositoryManager>>(), repository.url, repository.branch, repository.sshKeyName, repository.sshKey?.key, $"sshgitkey{repository.sshKeyName}");
+                    return new GitRepositoryManager(provider.GetService<ILogger<GitRepositoryManager>>(), repository.url, repository.branch, repository.sshKeyName, repository.sshKey?.Key, $"sshgitkey{repository.sshKeyName}");
                 default:
                     throw new ApplicationException($"The repository type {repository.GetType()} is not supported!");
             }

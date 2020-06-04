@@ -1,17 +1,20 @@
 ﻿using SoupDiscover.Common;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-internal class FakeSearchNugetPackageMetada : ISearchNugetPackage
+internal class FakeSearchNugetPackageMetada : ISearchPackage
 {
-    public Package SearchMetadata(string packageId, string version, string[] sources, CancellationToken token)
+    public PackageType PackageType => PackageType.Nuget;
+
+    public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token)
     {
         return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm, Description = $"{packageId}@{version}" };
     }
 
-    public async Task<IEnumerable<PackageConsumerName>> SearchPackages(string path, CancellationToken token = default)
+    public async Task<PackageConsumerName[]> SearchPackages(string checkoutDirectory, CancellationToken token = default)
     {
         return new PackageConsumerName[]
         {

@@ -10,7 +10,7 @@ using System.Threading;
 namespace SoupDiscover.Core.Respository
 {
     /// <summary>
-    /// To clone Git files to a directory
+    /// To clone and checkout Git repository to a directory
     /// </summary>
     internal class GitRepositoryManager : RepositoryManager
     {
@@ -23,9 +23,6 @@ namespace SoupDiscover.Core.Respository
         private readonly string _sshKeyId;
         private readonly string _sshKey;
         private readonly string _sshKeyFilename;
-        private string _hostname;
-        private string _organization;
-        private string _repository;
 
         static GitRepositoryManager()
         {
@@ -40,6 +37,7 @@ namespace SoupDiscover.Core.Respository
             _sshKeyId = sshKeyId;
             _sshKey = sshKey;
             _sshKeyFilename = sshKeyFilename;
+            ParseRepositoryUrl();
         }
 
         /// <summary>
@@ -108,11 +106,8 @@ namespace SoupDiscover.Core.Respository
         /// </summary>
         protected string HostName
         {
-            get
-            {
-                ParseUrl();
-                return _hostname;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -121,11 +116,7 @@ namespace SoupDiscover.Core.Respository
         /// </summary>
         protected string Organization
         {
-            get
-            {
-                ParseUrl();
-                return _organization;
-            }
+            get; private set;
         }
 
         /// <summary>
@@ -134,11 +125,7 @@ namespace SoupDiscover.Core.Respository
         /// </summary>
         protected string Repository
         {
-            get
-            {
-                ParseUrl();
-                return _repository;
-            }
+            get; private set;
         }
 
         /// <summary>
@@ -150,29 +137,23 @@ namespace SoupDiscover.Core.Respository
         {
             get
             {
-                ParseUrl();
-                return $"{_hostname}-{_sshKeyId}";
+                return $"{HostName}-{_sshKeyId}";
             }
         }
 
         /// <summary>
         /// Parse the url to extract hostname organization name and repository name
         /// </summary>
-        private void ParseUrl()
+        private void ParseRepositoryUrl()
         {
-            if (_hostname != null)
-            {
-                // Is already parsed
-                return;
-            }
             var match = _gitSSHUrlRegex.Match(_urlRepository);
             if (!match.Success)
             {
                 throw new ApplicationException($"Unable to parse git url \"{_urlRepository}\"!");
             }
-            _hostname = match.Groups["hostname"].Value;
-            _organization = match.Groups["organization"].Value;
-            _repository = match.Groups["repository"].Value;
+            HostName = match.Groups["hostname"].Value;
+            Organization = match.Groups["organization"].Value;
+            Repository = match.Groups["repository"].Value;
         }
 
         /// <summary>

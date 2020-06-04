@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { CredentialService } from '../service/credential.service';
 import { CredentialDto } from '../model/credential';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 export interface DialogData {
   name: string;
@@ -35,18 +36,10 @@ export class CreateCredentialComponent implements OnInit {
       if (result == null)
         return;
       this.data = result;
-      this.credentalService.AddCredential(result)
-        .subscribe(_ => this.credentialCreated.emit(result),
-          error => this.HandelError(error));
-    });
-  }
-
-  /**
-   * Display error to client
-   * @param error the error to display
-   */
-  HandelError(error: HttpErrorResponse): void {
-    window.alert(error.error.detail);
+      this.credentialCreated.emit(result);
+    },
+      error => console.error(error)
+    );
   }
 
   ngOnInit() {
@@ -60,9 +53,34 @@ export class CreateCredentialComponent implements OnInit {
 export class CreateCredentialDialog  {
   constructor(
     public dialogRef: MatDialogRef<CreateCredentialDialog>,
+    public credentalService: CredentialService,
+    private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
 
+  /**
+   * The user cancel editing
+   * */
   onNoClick(): void {
     this.dialogRef.close();
+  }
+
+  /**
+   * Validate modifications
+   * */
+  OnOkClick(): void {
+    this.credentalService.AddCredential(this.data)
+      .subscribe(res => {
+        this.dialogRef.close(res)
+        this.toastr.success('La clé ssh ' + res.name + ' a été créée.', 'Clé SSH');
+      },
+        error => this.HandleError(error));
+  }
+
+  /**
+  * Display validation error to user
+  * @param error the error to display
+  */
+  HandleError(error: HttpErrorResponse) {
+    this.toastr.error(error.error.detail, "Clé SSH");
   }
 }

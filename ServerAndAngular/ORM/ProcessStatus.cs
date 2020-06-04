@@ -3,12 +3,12 @@
     public enum ProcessStatus
     {
         /// <summary>
-        /// No started
+        /// No started or finished
         /// </summary>
         Waiting,
 
         /// <summary>
-        /// The last processing return an error
+        /// The last processing return an error or was stopped before finished
         /// </summary>
         Error,
 

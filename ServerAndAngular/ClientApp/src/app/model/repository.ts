@@ -1,7 +1,4 @@
-export enum RepositoryType {
-  None,
-  Git,
-}
+import { RepositoryType } from "./RepositoryType";
 
 export interface RepositoryDto {
   /** The name of the repository to display and the primary key */

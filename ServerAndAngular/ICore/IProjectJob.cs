@@ -3,7 +3,7 @@ using SoupDiscover.Controllers;
 using SoupDiscover.ORM;
 using System;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.ICore
 {
     /// <summary>
     /// A job to process a project
