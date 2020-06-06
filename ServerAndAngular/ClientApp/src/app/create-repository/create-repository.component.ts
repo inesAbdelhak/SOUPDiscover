@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, Pipe, PipeTransform, Output, EventEmitter } 
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
 import { RepositoryDto } from '../model/repository';
-import { RepositoryType } from "../model/RepositoryType";
+import { RepositoryType } from "../model/repositoryType";
 import { RepositoriesService } from '../service/repositories.service';
 import { CredentialDto } from '../model/credential';
 import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';

@@ -1,6 +1,6 @@
 import { RepositoryDto } from "./repository";
 import { PackageDto, PackageType } from "./package";
-import { ProcessStatus } from "./ProcessStatus";
+import { ProcessStatus } from "./processStatus";
 
 export class ProjectDto {
   /**

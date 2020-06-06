@@ -8,15 +8,14 @@ Elle recherche les paquets Nuget et NPM.
 
 ## Avec Docker
 ```
-docker build -f dockerfileForTesting -
-docker run -d
+docker build . -t soupdicover:latest
+docker run -d -P soupdicover:latest
 ```
 
 ## En local
 ```
 dotnet build SoupDiscover.csproj
 dotnet ServerAndAngular\bin\Debug\netcoreapp3.1\SoupDiscover.dll
-start http://localhost:5000
 ```
 
 # Variables d'environement
@@ -30,3 +29,4 @@ Si l'application est exécuté dans un docker, ele peut être paramétrée par l
 | __DatabaseType__  | Le type de base de données. Les type de base de données supportées sont "SQLite" et "Postgres" | `SQLite` |
 
 # Paramétrages de appsetting.json
+:construction_worker:

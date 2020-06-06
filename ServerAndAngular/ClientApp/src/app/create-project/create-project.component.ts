@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { ProjectService } from '../service/project.service';
 import { ProjectDto } from '../model/project';
 import { RepositoryDto } from '../model/repository';
-import { RepositoryType } from "../model/RepositoryType";
+import { RepositoryType } from "../model/repositoryType";
 import { RepositoriesService } from '../service/repositories.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';

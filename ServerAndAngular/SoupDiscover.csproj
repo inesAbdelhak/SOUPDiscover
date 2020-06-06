@@ -40,10 +40,6 @@
   <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove="ClientApp\src\app\material-module.ts" />
-    <None Remove="ClientApp\src\app\model\credential.ts" />
-    <None Remove="ClientApp\src\app\model\package.ts" />
-    <None Remove="ClientApp\src\app\model\project.ts" />
-    <None Remove="ClientApp\src\app\model\repository.ts" />
     <None Remove="CustomerDB.db" />
   </ItemGroup>
 
