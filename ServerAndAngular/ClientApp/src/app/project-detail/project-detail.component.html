@@ -74,7 +74,7 @@
 </section>
 <hr />
 <!-- Display packages -->
-<section *ngIf="project.processStatus === 'Waiting'">
+<section *ngIf="project.processStatus === processStatus.Waiting">
   <h2>Packages trouvés pour le projet</h2>
   <!-- For downloading csv file -->
   <div>
@@ -83,7 +83,7 @@
   </div>
   <app-packagespaginator [currentProjectId]="currentProjectId"></app-packagespaginator>
 </section>
-<section *ngIf="project.processStatus === 'Error'">
+<section *ngIf="project.processStatus === processStatus.Error">
   <h2>Erreur de traitement</h2>
   <pre>{{project.lastAnalysisError}}</pre>
 </section>

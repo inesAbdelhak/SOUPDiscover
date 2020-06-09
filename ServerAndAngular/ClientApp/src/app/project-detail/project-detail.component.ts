@@ -14,6 +14,7 @@ import { startWith, map, delay } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { ProcessStatus } from '../model/processStatus';
 
 @Component({
   selector: 'app-project-detail',
@@ -26,6 +27,8 @@ export class ProjectDetailComponent implements OnInit {
   currentProjectId: string;
   /** The project to display */
   project: ProjectDto;
+
+  processStatus = ProcessStatus;
 
   selectProjectControl : FormControl = new FormControl();
 
