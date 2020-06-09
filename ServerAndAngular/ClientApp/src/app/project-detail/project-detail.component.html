@@ -5,7 +5,7 @@
       <button mat-raised-button matTooltip="Rafraichir les données affichées" (click)="Refresh()">
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-raised-button color="accent" [disabled]="project.processStatus === 'Running'" matTooltip="Démarrer la recherche des packages" (click)="Analyse()">
+      <button mat-raised-button color="accent" [disabled]="project.processStatus === 'Running'" matTooltip="Démarrer la recherche des packages" (click)="Analyze()">
         <mat-icon>launch</mat-icon>
       </button>
       <button mat-raised-button color="accent" [disabled]="project.processStatus != 'Running'" matTooltip="Arrêter la recherche en cours" (click)="Stop()">
@@ -45,7 +45,7 @@
 
   <!-- Display the configuration-->
   <div *ngIf="edit === false && project != null">
-    <table class="biutifulTable">
+    <table class="beautifulTable">
       <tr>
         <th> Dépot </th>
         <th>{{project.repositoryId}}</th>

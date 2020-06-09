@@ -151,14 +151,15 @@ namespace SoupDiscover.Controllers
             }
             var baseStream = new MemoryStream();
             var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8);
+            stream.NewLine = "\r\n";// RFC 4180
             _context.Entry(project).Collection(p => p.PackageConsumers).Load();
 
             // Create header
-            stream.WriteLine(CVSFileHlper.ConvertToCvsLine(new string[] { "PackageId", "Version", "Type", "Description", "License" }, delimiter));
+            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "Type", "Description", "License" }, delimiter));
             var packages = _context.PackageConsumerPackages.Where(p => p.PackageConsumer.ProjectId == projectId).Select(p => p.Package).Distinct();
             foreach (var p in packages)
             {
-                stream.WriteLine(CVSFileHlper.ConvertToCvsLine(new string[] { p.PackageId, p.Version, p.PackageType.ToString(), p.Description, p.Licence }, delimiter));
+                stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { p.PackageId, p.Version, p.PackageType.ToString(), p.Description, p.Licence }, delimiter));
             }
             stream.Flush(); // Empty the stream to the base stream
             // Don't close the StreamWriter, this will close the base stream

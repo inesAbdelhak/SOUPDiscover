@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.ICore
 {
     /// <summary>
     /// A job that can be added in a <see cref="JobManager"/>
@@ -19,12 +19,12 @@ namespace SoupDiscover.Core
         /// Start the processing, and wait its finished
         /// </summary>
         /// <param name="token">The token that permit to stop the processing</param>
-        void Execute(CancellationToken token);
+        void Execute();
 
         /// <summary>
         /// Start asynchronously the processing
         /// </summary>
         /// <param name="token">The token that permit to stop the processing</param>
-        Task StartAsync(CancellationToken token);
+        Task<IJob> ExecuteAsync(CancellationToken token);
     }
 }

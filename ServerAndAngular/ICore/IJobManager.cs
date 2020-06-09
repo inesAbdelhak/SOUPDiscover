@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.ICore
 {
     /// <summary>
     /// Represent a job manager.
@@ -13,7 +13,7 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="job">The job to add</param>
         /// <returns>true : The job is added to the jobManager, false : the job is already running</returns>
-        void StartTask<TJob>(TJob job) where TJob : IJob;
+        Task<TJob> ExecuteTask<TJob>(TJob job) where TJob : IJob;
 
         /// <summary>
         /// Cancel the executing project

@@ -1,6 +1,8 @@
 <h1 mat-dialog-title>Création d'un nouveau dépot</h1>
 <div mat-dialog-content>
   <div class="editconfig">
+
+    <!-- Select the repository type -->
     <mat-form-field>
       <mat-label>Type de dépot</mat-label>
       <mat-select [(value)]="selected">
@@ -8,10 +10,13 @@
         <mat-option *ngFor="let opt of repositoryTypes" [value]="opt">{{opt.name}}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <!-- The name of the repository -->
     <mat-form-field>
       <mat-label>Nom du dépot (pour affichage)</mat-label>
       <input matInput [(ngModel)]="data.name">
     </mat-form-field>
+
     <!-- for git repositories -->
     <!-- the git url in ssh format -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
@@ -33,9 +38,10 @@
         <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
       </mat-select>
     </mat-form-field>
+
   </div>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Annuler</button>
-  <button mat-button (click)="onOkClick()" [mat-dialog-close]="data" cdkFocusInitial>Créer</button>
+  <button mat-button (click)="onOkClick()" cdkFocusInitial>Créer</button>
 </div>

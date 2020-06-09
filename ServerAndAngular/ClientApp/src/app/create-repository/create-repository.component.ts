@@ -1,10 +1,13 @@
 import { Component, OnInit, Inject, Pipe, PipeTransform, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
-import { RepositoryDto, RepositoryType } from '../model/repository';
+import { RepositoryDto } from '../model/repository';
+import { RepositoryType } from "../model/repositoryType";
 import { RepositoriesService } from '../service/repositories.service';
 import { CredentialDto } from '../model/credential';
 import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-repository',
@@ -16,9 +19,7 @@ export class CreateRepositoryComponent implements OnInit {
   data: RepositoryDto;
   @Output() repositoryCreated: EventEmitter<RepositoryDto> = new EventEmitter<RepositoryDto>();
 
-  constructor(public dialog: MatDialog,
-    private credentialService: CredentialService,
-    private repositoryService: RepositoriesService) { }
+  constructor(public dialog: MatDialog) { }
 
   openDialog(): void {
     this.data = {};
@@ -27,13 +28,9 @@ export class CreateRepositoryComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
       if (result != undefined) {
-        this.data = result;
-        this.repositoryService.AddRepository(this.data)
-          .subscribe(res => {
-            this.repositoryCreated.emit(res)
-          });
+        this.data = result;  
+        this.repositoryCreated.emit(this.data)
       }
     });
   }
@@ -55,14 +52,28 @@ export class CreateRepositoryDialog implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<CreateRepositoryDialog>,
     @Inject(MAT_DIALOG_DATA) public data: RepositoryDto,
+    private toastr: ToastrService,
+    private repositoryService: RepositoriesService,
     private credentialService: CredentialService) { }
 
+  /**
+   * The user click to cancel
+   * */
   public onNoClick(): void {
     this.dialogRef.close();
   }
 
+  /**
+   *The user click on OK
+   * */
   public onOkClick(): void {
     this.data.repositoryType = this.selected.index;
+    this.repositoryService.AddRepository(this.data)
+      .subscribe(res => {
+        this.dialogRef.close(res);
+        this.toastr.success('Le dépot ' + res.name + ' a été créé');
+      },
+      error => this.HandleError(error));
   }
 
   public ngOnInit(): void {
@@ -70,5 +81,13 @@ export class CreateRepositoryDialog implements OnInit {
     this.credentialService.GetCredentials()
       .subscribe(res => this.availableCredentials = res
         ,error => console.error(error));
+  }
+
+  /**
+  * Display validation error to user
+  * @param error the error to display
+  */
+  HandleError(error: HttpErrorResponse) {
+    this.toastr.error(error.error.detail, "Dépot");
   }
 }

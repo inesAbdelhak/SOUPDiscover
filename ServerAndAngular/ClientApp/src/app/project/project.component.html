@@ -15,7 +15,7 @@
       <mat-icon color="warn" *ngIf="project.processStatus === 'Error'">error_outline</mat-icon>
       <mat-icon *ngIf="project.processStatus === 'Running'">moped</mat-icon>
       <mat-icon *ngIf="project.processStatus === 'Waiting'">done</mat-icon>
-      <button mat-raised-button color="accent" (click)="LaunchAnalyse(project.name)">
+      <button mat-raised-button color="accent" (click)="LaunchAnalyze(project.name)">
         <mat-icon>launch</mat-icon>
       </button>
     </li>

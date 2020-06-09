@@ -3,9 +3,15 @@ using System.Text;
 
 namespace SoupDiscover.Common
 {
-    public static class CVSFileHlper
+    public static class CSVFileHelper
     {
-        public static string ConvertToCvsLine(IEnumerable<string> row, char delimiter = ';')
+        /// <summary>
+        /// Convert a string array to a CSV line
+        /// </summary>
+        /// <param name="row">The array of value to convert</param>
+        /// <param name="delimiter">delimiter between each values</param>
+        /// <returns>The serialized array</returns>
+        public static string SerializeToCvsLine(IEnumerable<string> row, char delimiter = ',')
         {
             var builder = new StringBuilder();
             var firstColumn = true;
@@ -13,7 +19,9 @@ namespace SoupDiscover.Common
             {
                 // Add separator if this isn't the first value
                 if (!firstColumn)
+                {
                     builder.Append(delimiter);
+                }
                 if (string.IsNullOrEmpty(value))
                 {
                     continue;

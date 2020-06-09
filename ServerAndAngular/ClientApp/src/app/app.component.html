@@ -1,5 +1,5 @@
 <body>
-  <app-main-nav></app-main-nav> <!-- Display the main menu-->
+  <app-main-nav [applicationVersion]="version" [applicationTitle]="title"></app-main-nav> <!-- Display the main menu-->
   <div class="container">
     <router-outlet></router-outlet><!-- Display the contains of the selected menu -->
   </div>

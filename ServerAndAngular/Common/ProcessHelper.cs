@@ -10,11 +10,11 @@ namespace SoupDiscover.Common
         /// <summary>
         /// Create and start a process
         /// </summary>
-        /// <param name="logger">Th logger to log StandardOutput and StandardError</param>
-        /// <param name="filename"></param>
-        /// <param name="arguments"></param>
-        /// <param name="workingDirectory"></param>
-        /// <returns></returns>
+        /// <param name="logger">The logger to log StandardOutput and StandardError</param>
+        /// <param name="filename">the filename to execute</param>
+        /// <param name="arguments">arguments to execute the filename</param>
+        /// <param name="workingDirectory">The working directory where start the process</param>
+        /// <returns>The exit code and the all messages sent in StandardError stream</returns>
         public static (int ExitCode, string ErrorMessage) ExecuteAndLog(ILogger logger, string filename, string arguments, string workingDirectory = null, CancellationToken token = default)
         {
             var logs = new StringBuilder();

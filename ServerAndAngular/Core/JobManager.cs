@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SoupDiscover.ICore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,36 +37,30 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="project">The project to process</param>
         /// <returns>false : The project is already processing else true</returns>
-        public void StartTask<TJob>(TJob job)
+        public Task<TJob> ExecuteTask<TJob>(TJob job)
             where TJob : IJob
         {
             var task = new ExecutingTask();
-            ThreadPool.QueueUserWorkItem((o) =>
+           
+            Task<TJob> finalTask = null;
+            // Check if this project is not currently processing
+            lock (_syncObject)
             {
-                Task finalTask = null;
-                // Check if this project is not currently processing
-                lock (_syncObject)
+                if (_processingJobs.ContainsKey(job.IdJob))
                 {
-                    if (_processingJobs.ContainsKey(job.IdJob))
-                    {
-                        _logger.LogDebug($"Try to start a job that is already running");
-                        return; // Already processing
-                    }
-                    // Create a task to start the processing
-                    var tokenSource = new CancellationTokenSource();
-                    task.CancellationTokenSource = tokenSource;
-                    _logger.LogInformation($"Start the Job {job.IdJob}");
-                    finalTask = Task.Run(() => job.StartAsync(task.CancellationTokenSource.Token).Wait())
-                        .ContinueWith(t => EndProcessingJob(job));
-                    _processingJobs.Add(job.IdJob, task);
-                    task.Task = finalTask;
+                    _logger.LogDebug($"Try to start a job that is already running");
+                    return null; // Already processing
                 }
-                try
-                {
-                    finalTask?.Wait();
-                }catch
-                { }
-            });
+                // Create a task to start the processing
+                var tokenSource = new CancellationTokenSource();
+                task.CancellationTokenSource = tokenSource;
+                _logger.LogInformation($"Start the Job {job.IdJob}");
+                finalTask = Task.Run(() => job.ExecuteAsync(task.CancellationTokenSource.Token).Wait())
+                    .ContinueWith(t => EndProcessingJob(job));
+                _processingJobs.Add(job.IdJob, task);
+                task.Task = finalTask;
+            }
+            return finalTask;
         }
 
         /// <summary>
@@ -73,26 +68,22 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="initialTask">the task that processing the</param>
         /// <param name="job">The object, that manage the processing of the project</param>
-        private void EndProcessingJob(IJob job)
+        private TJob EndProcessingJob<TJob>(TJob job) where TJob: IJob
         {
             if (job == null)
             {
                 throw new ApplicationException($"The parameter {nameof(job)} must be not null!");
             }
-            var jobCasted = job as IJob;
-            if (jobCasted == null)
-            {
-                throw new ApplicationException($"The parameter {nameof(job)} must be type of {typeof(IJob)}!");
-            }
             lock (_syncObject)
             {
-                if (!_processingJobs.ContainsKey(jobCasted.IdJob))
+                if (!_processingJobs.ContainsKey(job.IdJob))
                 {
-                    throw new ApplicationException($"Unable to find the Task for the project Id {jobCasted.IdJob}");
+                    throw new ApplicationException($"Unable to find the Task for the project Id {job.IdJob}");
                 }
                 // Remove the task from processing tasks
-                _processingJobs.Remove(jobCasted.IdJob);
+                _processingJobs.Remove(job.IdJob);
             }
+            return job;
         }
 
         /// <summary>

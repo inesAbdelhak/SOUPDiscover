@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CredentialService } from '../service/credential.service';
 import { CredentialDto } from '../model/credential';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-credentials',
@@ -13,7 +14,8 @@ export class CredentialsComponent implements OnInit {
 
   public credentials: CredentialDto[];
 
-  constructor(private credentialService: CredentialService) {
+  constructor(private credentialService: CredentialService,
+    private toastr: ToastrService) {
   }
 
   /**
@@ -32,13 +34,14 @@ export class CredentialsComponent implements OnInit {
     this.credentialService.DeleteCredential(credentialDto.name)
       .subscribe(_ => {
         let index = this.credentials.indexOf(credentialDto);
-        this.credentials.splice(index);
+        this.credentials.splice(index);// Remove the credential of the credential list
+        this.toastr.success('La clée ssh ' + credentialDto.name + ' a été supprimée');
       },
-        error => this.HandelError(error));
+        error => this.HandleError(error));
   }
 
-  HandelError(error: HttpErrorResponse): void {
-    window.alert(error.error.detail);
+  HandleError(error: HttpErrorResponse): void {
+    this.toastr.error(error.error.detail, "Authentification");
   }
    
   ngOnInit() {

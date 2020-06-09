@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualBasic.CompilerServices;
 using SoupDiscover.Core;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
@@ -141,12 +142,11 @@ namespace SoupDiscover.Controllers
             projectJob.SetProject(project.ToDto(), _serviceProvider);
 
             // Add the Job to the JobManager
-            if (_projectJobManager.GetProcessingJobIds().Contains(projectId))
+            if (_projectJobManager.ExecuteTask(projectJob) == null)
             {
                 return Problem($"The project {project.Name} is already processing !");
             }
-            _projectJobManager.StartTask(projectJob);
-
+            
             return CreatedAtAction("Process Project", new { id = projectId }, true);
         }
 

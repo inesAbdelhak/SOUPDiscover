@@ -1,4 +1,4 @@
-﻿namespace SoupDiscover.Controllers.Dto
+﻿namespace SoupDiscover.Dto
 {
     public enum RepositoryType
     {

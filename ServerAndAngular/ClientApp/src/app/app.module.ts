@@ -25,7 +25,7 @@ import { CreateProjectComponent, CreateProjectDialog } from './create-project/cr
 import { ProjectDetailComponent } from './project-detail/project-detail.component';
 import { RepositoryDetailComponent } from './repository-detail/repository-detail.component';
 import { PackagespaginatorComponent } from './packagespaginator/packagespaginator.component';
-
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -68,6 +68,7 @@ import { PackagespaginatorComponent } from './packagespaginator/packagespaginato
     MatIconModule,
     MatListModule,
     MaterialModule,
+    ToastrModule.forRoot()
   ],
   entryComponents: [
     CreateCredentialComponent,

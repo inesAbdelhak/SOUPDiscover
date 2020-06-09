@@ -1,4 +1,4 @@
-<section class=" Title">
+<section class="title">
   <div class="childrenInline">
     <h1>Dépot {{repositoryId}}</h1>
     <button mat-raised-button color="warn" (click)="DeleteRepository()">
@@ -35,7 +35,7 @@
       </mat-form-field>
     </div>
     <div *ngIf="edit === false && repository.repositoryType === 'Git'">
-      <table class="biutifulTable">
+      <table class="beautifulTable">
         <tr>
           <th>Url ssh</th>
           <th>{{repository.url}}</th>

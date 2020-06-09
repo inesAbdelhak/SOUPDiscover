@@ -6,8 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
 using SoupDiscover.Core;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover
@@ -33,13 +35,16 @@ namespace SoupDiscover
             services.AddDbContext<DataContext>(options => options.UseSqlite(@"Data Source=CustomerDB.db;"));
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
             services.AddTransient<IProjectJob, ProjectJob>();
-            services.AddScoped<ISearchNpmPackage, SearchNpmPackage>();
-            services.AddScoped<ISearchNugetPackage, SearchNugetPackage>();
+            services.AddTransient<ISearchPackage, SearchNpmPackage>();
+            services.AddTransient<ISearchPackage, SearchNugetPackage>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            var log4netConfigFile = Configuration.GetSection("Logging").GetValue("log4net.config", "log4net.config");
+            if(log4netConfigFile != null)
+            loggerFactory.AddLog4Net(log4netConfigFile);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

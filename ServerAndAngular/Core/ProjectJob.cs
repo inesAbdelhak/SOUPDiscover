@@ -15,6 +15,8 @@ using SoupDiscover.Core.Respository;
 using System.Text;
 using SoupDiscover.Core;
 using SoupDiscover.Controllers;
+using SoupDiscover.ICore;
+using Microsoft.CodeAnalysis;
 
 namespace SoupDiscover.Common
 {
@@ -26,18 +28,24 @@ namespace SoupDiscover.Common
         private readonly ILogger<ProjectJob> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         
-        private ISearchNugetPackage _searchNugetPackage;
-        private ISearchNpmPackage _searchNpmPackage;
-        private ProjectDto _project;
+        private IDictionary<PackageType, ISearchPackage> _searchPackages;
         private RepositoryManager _repositoryManager;
+
+        protected SearchPackageConfiguration SearchPackageConfiguraton { get; private set; }
 
         public ProjectJob(ILogger<ProjectJob> logger,
             IServiceScopeFactory scopeFactory, 
-            ISearchNugetPackage searchNugetPackageMetada, 
-            ISearchNpmPackage searchNpmPackageMetadata)
+            IEnumerable<ISearchPackage> searchPackages)
         {
-            _searchNpmPackage = searchNpmPackageMetadata;
-            _searchNugetPackage = searchNugetPackageMetada;
+            _searchPackages = new Dictionary<PackageType, ISearchPackage>();
+            foreach (var s in searchPackages)
+            {
+                if (_searchPackages.ContainsKey(s.PackageType))
+                {
+                    throw new ApplicationException($"It is not possible to defined two {nameof(ISearchPackage)} in injection dependencies, that process the same type of package.");
+                }
+                _searchPackages.Add(s.PackageType, s);
+            }
             _logger = logger;
             _scopeFactory = scopeFactory;
         }
@@ -45,18 +53,23 @@ namespace SoupDiscover.Common
         /// <summary>
         /// The project to process
         /// </summary>
-        public ProjectDto ProjectDto
-        {
-            get
-            {
-                return _project;
-            }
-        }
+        public ProjectDto ProjectDto { get; private set; }
 
         public void SetProject(ProjectDto project, IServiceProvider provider)
         {
-            _project = project;
+            ProjectDto = project;
             _repositoryManager = ProjectDto.Repository.GetRepositoryManager(provider);
+            SearchPackageConfiguraton = CreateSearchConfiguraton();
+        }
+
+        private SearchPackageConfiguration CreateSearchConfiguraton()
+        {
+            var newConfiguration = new SearchPackageConfiguration(GetWorkDirectory());
+            if (!string.IsNullOrEmpty(ProjectDto.NugetServerUrl))
+            {
+                newConfiguration.AddSources(PackageType.Nuget, new[] { ProjectDto.NugetServerUrl });
+            }
+            return newConfiguration;
         }
 
         public object IdJob => ProjectDto.Name;
@@ -65,16 +78,16 @@ namespace SoupDiscover.Common
         /// Start synchronously the process, to find all SOUP in the repository
         /// </summary>
         /// <param name="token">The token to stop the processing</param>
-        public void Execute(CancellationToken token)
+        public void Execute()
         {
-            StartAsync(token).Wait();
+            ExecuteAsync(CancellationToken.None).Wait();
         }
 
         /// <summary>
         /// Start asynchronously the process, to find all SOUP in the repository
         /// </summary>
         /// <param name="token">The token to stop the processing</param>
-        public async Task<ProjectJob> StartAsync(CancellationToken token)
+        public async Task<ProjectJob> ExecuteAsync(CancellationToken token)
         {
             if(ProjectDto?.Repository == null)
             {
@@ -82,7 +95,7 @@ namespace SoupDiscover.Common
             }
             try
             {
-                return await ProcessProjectAnalyse(token);
+                return await ProcessProject(token);
             }
             catch(Exception e) // Catch the first exception, not all parallel exceptions
             {
@@ -107,7 +120,7 @@ namespace SoupDiscover.Common
             }
         }
 
-        private async Task<ProjectJob> ProcessProjectAnalyse(CancellationToken token)
+        private async Task<ProjectJob> ProcessProject(CancellationToken token)
         {
             if (ProjectDto == null)
             {
@@ -119,24 +132,22 @@ namespace SoupDiscover.Common
             var directory = RetrieveSourceFiles(token);
             // Execute command line defined in Packages.CommandLineBeforeParse
             ExecuteCommandLinesBefore(directory, token);
-            
-            var nugetPackagesTask = _searchNugetPackage.SearchPackages(directory, token);
-            
-            var npmPackagesTask = _searchNpmPackage.SearchPackages(directory, token);
 
-            var list = new List<PackageConsumerName>();
-            // Search nuget packages
-            var nugetPackages = await nugetPackagesTask;
-
-            // Search npm packages
-            var npmPackages = await npmPackagesTask;
-            if (nugetPackages != null)
+            var tasks = new List<Task<PackageConsumerName[]>>();
+            foreach (var searcher in _searchPackages.Values)
             {
-                list.AddRange(nugetPackages);
+                tasks.Add(searcher.SearchPackages(directory, token));
             }
-            if (npmPackages != null)
+            var list = new List<PackageConsumerName>();
+            Task.WaitAll(tasks.ToArray());
+
+            foreach (var t in tasks)
             {
-                list.AddRange(npmPackages);
+                var resultat = t.Result;
+                if (resultat != null)
+                {
+                    list.AddRange(resultat);
+                }
             }
             // Save all packages in database
             await CreateScopeAndSave(list, directory, token);
@@ -146,12 +157,12 @@ namespace SoupDiscover.Common
         /// <summary>
         /// Create the scope dependency and save data
         /// </summary>
-        private async Task CreateScopeAndSave(List<PackageConsumerName> packageConsumerNames, string checkoutDirectory, CancellationToken token)
+        private async Task CreateScopeAndSave(ICollection<PackageConsumerName> packageConsumerNames, string checkoutDirectory, CancellationToken token)
         {
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                await SaveSearchResult(packageConsumerNames, checkoutDirectory, context, token);
+                await SaveSearchResult(packageConsumerNames, context, token);
             }
         }
 
@@ -159,45 +170,16 @@ namespace SoupDiscover.Common
         /// Save result to database
         /// </summary>
         /// <param name="projectJob">The job that finished</param>
-        private async Task SaveSearchResult(List<PackageConsumerName> packageConsumerNames, string checkoutDirectory, DataContext context, CancellationToken token)
+        private async Task SaveSearchResult(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, CancellationToken token)
         {
-            var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
             var project = context.Projects.Find(ProjectDto.Name);
+            // Remove old package in the project
+            context.Entry(project).Collection(p => p.PackageConsumers).Load();
+            context.PackageConsumer.RemoveRange(project.PackageConsumers);
+            
             if (packageConsumerNames != null)
             {
-                // Remove old package in the project
-                context.Entry(project).Collection(p => p.PackageConsumers).Load();
-                context.PackageConsumer.RemoveRange(project.PackageConsumers);
-
-                // Add new packages found
-                List<PackageConsumer> consumers = new List<PackageConsumer>();
-                foreach (var packageConsumerName in packageConsumerNames)
-                {
-                    var packageConsummer = new PackageConsumer();
-                    packageConsummer.Project = project;
-                    packageConsummer.Packages = new List<PackageConsumerPackage>();
-                    packageConsummer.Name = packageConsumerName.Name;
-                    consumers.Add(packageConsummer);
-                    foreach (var packageName in packageConsumerName.Packages)
-                    {
-                        // Search package in cache
-                        packageCache.TryGetValue(packageName.GetSerialized(), out var packageInDatabase);
-                        // Search package in database
-                        packageInDatabase = packageInDatabase ?? context.Packages.Where(p => p.PackageId == packageName.PackageId && p.Version == packageName.Version).FirstOrDefault();
-                        if (packageInDatabase == null)
-                        {
-                            // Create a package
-                            packageInDatabase = GetPackageWithMetadata(packageName, checkoutDirectory, token);
-                            context.Packages.Add(packageInDatabase);
-                        }
-                        // Add package in cache
-                        packageCache.TryAdd(packageName.GetSerialized(), packageInDatabase);
-                        var packageReference = new PackageConsumerPackage() { Package = packageInDatabase, PackageConsumer = packageConsummer };
-                        packageConsummer.Packages.Add(packageReference);
-                        context.PackageConsumerPackages.Add(packageReference);
-                        context.PackageConsumer.Add(packageConsummer);
-                    }
-                }
+                SavePackageConsumers(packageConsumerNames, context, project, token);
             }
             project.LastAnalysisError = "";
             project.LastAnalysisDate = DateTime.Now;
@@ -206,26 +188,75 @@ namespace SoupDiscover.Common
         }
 
         /// <summary>
+        /// Save in the project, all package consumers found
+        /// </summary>
+        private void SavePackageConsumers(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, SOUPSearchProject project, CancellationToken token)
+        {
+            var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
+            // Add new packages found
+            List<PackageConsumer> consumers = new List<PackageConsumer>();
+            foreach (var packageConsumerName in packageConsumerNames)
+            {
+                var packageConsummer = new PackageConsumer()
+                {
+                    Project = project,
+                    Packages = new List<PackageConsumerPackage>(),
+                    Name = packageConsumerName.Name
+                };
+                consumers.Add(packageConsummer);
+                SavePackageInPackageConsumer(context, packageConsummer, packageConsumerName.Packages, packageCache, token);
+            }
+        }
+
+        /// <summary>
+        /// Save package on package consumers
+        /// </summary>
+        /// <param name="context">The database context to use</param>
+        /// <param name="packageConsummer">The package consumer there and packages</param>
+        /// <param name="packagesName">All packagename to add to packageConsumer</param>
+        /// <param name="packageCache">All packages already find in database or just created. The key is {PackageId}/{Version}</param>
+        /// <param name="token">The token, to cancel the processing</param>
+        private void SavePackageInPackageConsumer(DataContext context, PackageConsumer packageConsummer, IEnumerable<PackageName> packagesName, IDictionary<string, Package> packageCache, CancellationToken token = default)
+        {
+            foreach (var packageName in packagesName)
+            {
+                token.ThrowIfCancellationRequested();
+                // Search package in cache
+                packageCache.TryGetValue(packageName.GetSerialized(), out var packageInDatabase);
+                // Search package in database
+                packageInDatabase = packageInDatabase ?? context.Packages.Where(p => p.PackageId == packageName.PackageId && p.Version == packageName.Version).FirstOrDefault();
+                if (packageInDatabase == null)
+                {
+                    // Create a package
+                    packageInDatabase = GetPackageWithMetadata(packageName, token);
+                    context.Packages.Add(packageInDatabase);
+                }
+                // Add package in cache
+                packageCache.TryAdd(packageName.GetSerialized(), packageInDatabase);
+                var packageReference = new PackageConsumerPackage() { Package = packageInDatabase, PackageConsumer = packageConsummer };
+                packageConsummer.Packages.Add(packageReference);
+                context.PackageConsumerPackages.Add(packageReference);
+                context.PackageConsumer.Add(packageConsummer);
+            }
+        }
+
+        /// <summary>
         /// Return the package with found metadata
         /// </summary>
         /// <param name="packageName">The package to search</param>
         /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
         /// <returns></returns>
-        private Package GetPackageWithMetadata(PackageName packageName, string checkoutDirectory, CancellationToken token = default)
+        private Package GetPackageWithMetadata(PackageName packageName, CancellationToken token = default)
         {
-            switch(packageName.PackageType)
-            {
-                case PackageType.Nuget:
-                    return _searchNugetPackage.SearchMetadata(packageName.PackageId, packageName.Version, new[] { ProjectDto.NugetServerUrl }, token);
-                    
-                case PackageType.Npm:
-                    return _searchNpmPackage.SearchMetadata(packageName.PackageId, packageName.Version, checkoutDirectory, token);
-                default: throw new ApplicationException($"Packages type {packageName.PackageType} is not supported!");
-            }
+            return _searchPackages[packageName.PackageType].SearchMetadata(packageName.PackageId, packageName.Version, SearchPackageConfiguraton, token);
         }
-       
 
-        private void ExecuteCommandLinesBefore(string path, CancellationToken token)
+        /// <summary>
+        /// Execute the command line, defined in the project, before searching packages in repository
+        /// </summary>
+        /// <param name="checkoutDirectory">The directory where repository is checkout</param>
+        /// <param name="token">The token to cancel the processing</param>
+        private void ExecuteCommandLinesBefore(string checkoutDirectory, CancellationToken token)
         {
             if (string.IsNullOrEmpty(ProjectDto.CommandLinesBeforeParse))
             {
@@ -235,11 +266,11 @@ namespace SoupDiscover.Common
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Create a temporary file in path directory
-                filename = Path.Combine(path, "CommandLinesBeforeParse.sh");
+                filename = Path.Combine(checkoutDirectory, "CommandLinesBeforeParse.sh");
             }
             else
             {
-                filename = Path.Combine(path, "CommandLinesBeforeParse.bat");
+                filename = Path.Combine(checkoutDirectory, "CommandLinesBeforeParse.bat");
             }
             File.WriteAllText(filename, ProjectDto.CommandLinesBeforeParse);
             if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -248,7 +279,7 @@ namespace SoupDiscover.Common
                 Process.Start("chmod", $"+x {filename}").WaitForExit();
             }
             // Execute the script
-            ProcessHelper.ExecuteAndLog(_logger, filename, null, path, token);
+            ProcessHelper.ExecuteAndLog(_logger, filename, null, checkoutDirectory, token);
         }
 
         /// <summary>
@@ -261,10 +292,10 @@ namespace SoupDiscover.Common
             if (workDir == null)
             {
                 // workDir = Path.GetTempPath();
-                workDir = @"c:\temp\";
+                workDir = $"{Path.DirectorySeparatorChar}temp";
             }
             // Create a directory where working
-            return Path.Combine(workDir, $"Project{ProjectDto.Name}");
+            return Path.GetFullPath(Path.Combine(workDir, $"Project{ProjectDto.Name}"));
         }
 
         /// <summary>
@@ -278,9 +309,9 @@ namespace SoupDiscover.Common
             return workDir;
         }
 
-        Task IJob.StartAsync(CancellationToken token)
+        Task<IJob> IJob.ExecuteAsync(CancellationToken token)
         {
-            return StartAsync(token);
+            return ExecuteAsync(token).ContinueWith<IJob>(t => t.Result);
         }
     }
 }

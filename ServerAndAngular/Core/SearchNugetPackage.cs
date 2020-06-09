@@ -1,5 +1,6 @@
 ﻿using log4net.Core;
 using Microsoft.Extensions.Logging;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
 using System.Collections.Generic;
@@ -18,18 +19,21 @@ namespace SoupDiscover.Common
     /// Search meta-data from HTTP source server
     /// Search packages used from directory source code
     /// </summary>
-    public class SearchNugetPackage : ISearchNugetPackage
+    public class SearchNugetPackage : ISearchPackage
     {
         private Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
         private readonly ILogger<SearchNugetPackage> _logger;
+
+        public PackageType PackageType => PackageType.Nuget;
 
         public SearchNugetPackage(ILogger<SearchNugetPackage> logger)
         {
             _logger = logger;
         }
 
-        public Package SearchMetadata(string packageId, string version, string[] sources, CancellationToken token = default)
+        public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
+            var sources = configuration.GetSources(PackageType);
             if (sources == null || sources.Length == 0)
             {
                 return new Package() { PackageId = packageId, Version = version, Licence = null, PackageType = PackageType.Nuget };
@@ -42,8 +46,9 @@ namespace SoupDiscover.Common
                 {
                     metadataAsXml = _webClient.Value.DownloadString($"{source}/Packages(Id='{packageId}',Version='{version}')");
                 }
-                catch (Exception)
+                catch (WebException)
                 {
+                    _logger.LogDebug($"Unable to find metadata for the package {packageId}@{version} in source {source}");
                 }
                 if (metadataAsXml != null)
                 {
@@ -70,7 +75,7 @@ namespace SoupDiscover.Common
         /// Search all nuget packages in a directory,
         /// by searching in "project.assets.json" and "packages.config" files
         /// </summary>
-        public async Task<IEnumerable<PackageConsumerName>> SearchPackages(string path, CancellationToken token)
+        public async Task<PackageConsumerName[]> SearchPackages(string path, CancellationToken token)
         {
             var allPackagesConsumers = new List<PackageConsumerName>();
             var alreadyParsed = new Dictionary<string, PackageName>();
@@ -89,7 +94,7 @@ namespace SoupDiscover.Common
             {
                 allPackagesConsumers.Add(new PackageConsumerName("", packagesWithoutConsumer.ToArray()));
             }
-            return allPackagesConsumers;
+            return allPackagesConsumers.ToArray();
         }
 
         /// <summary>
@@ -133,9 +138,16 @@ namespace SoupDiscover.Common
             }
         }
 
-        private static void SearchPackagesFromPackageConfig(string path, Dictionary<string, PackageName> alreadyParsed, HashSet<PackageName> packagesWithoutConsumer, CancellationToken token)
+        /// <summary>
+        /// Search packages in packages.config files
+        /// </summary>
+        /// <param name="checkoutDirectory">The directory where repository is checkout</param>
+        /// <param name="alreadyParsed"></param>
+        /// <param name="packagesWithoutConsumer"></param>
+        /// <param name="token"></param>
+        private static void SearchPackagesFromPackageConfig(string checkoutDirectory, Dictionary<string, PackageName> alreadyParsed, HashSet<PackageName> packagesWithoutConsumer, CancellationToken token)
         {
-            foreach (var packageConfigFile in Directory.GetFiles(path, "packages.config", SearchOption.AllDirectories))
+            foreach (var packageConfigFile in Directory.GetFiles(checkoutDirectory, "packages.config", SearchOption.AllDirectories))
             {
                 token.ThrowIfCancellationRequested();
                 var doc = XDocument.Load(packageConfigFile);
@@ -162,10 +174,17 @@ namespace SoupDiscover.Common
             }
         }
 
-        private IEnumerable<PackageConsumerName> SearchPackagesFromAssetJson(string path, Dictionary<string, PackageName> alreadyParsed, CancellationToken token)
+        /// <summary>
+        /// Search packages in project.assets.json files
+        /// </summary>
+        /// <param name="checkoutDirectory"></param>
+        /// <param name="alreadyParsed"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private IEnumerable<PackageConsumerName> SearchPackagesFromAssetJson(string checkoutDirectory, Dictionary<string, PackageName> alreadyParsed, CancellationToken token)
         {
             var result = new List<PackageConsumerName>();
-            foreach (var jsonFile in Directory.GetFiles(path, "project.assets.json", SearchOption.AllDirectories))
+            foreach (var jsonFile in Directory.GetFiles(checkoutDirectory, "project.assets.json", SearchOption.AllDirectories))
             {
                 token.ThrowIfCancellationRequested();
                 string csproj = null;
@@ -177,7 +196,7 @@ namespace SoupDiscover.Common
                     using (var json = JsonDocument.Parse(jsonString))
                     {
                         csproj = json.RootElement.GetProperty("project").GetProperty("restore").GetProperty("projectPath").GetString();
-                        csproj = Path.GetRelativePath(path, csproj);
+                        csproj = Path.GetRelativePath(checkoutDirectory, csproj);
                         var targets = json.RootElement.GetProperty("targets");
 
                         foreach (var package in targets.EnumerateObject().SelectMany(e => e.Value.EnumerateObject()))

@@ -1,11 +1,13 @@
 <h1 mat-dialog-title>Création d'un nouveau projet</h1>
 <div mat-dialog-content>
   <div class="editconfig">
+
     <!-- Name of the project-->
     <mat-form-field>
       <mat-label>Nom</mat-label>
       <input matInput [(ngModel)]="data.name">
     </mat-form-field>
+
     <!-- The repository to use -->
     <mat-form-field>
       <mat-label>Dépot</mat-label>
@@ -14,6 +16,7 @@
         <mat-option *ngFor="let repo of repositories" [value]="repo.name">{{repo.name}}</mat-option>
       </mat-select>
     </mat-form-field>
+
     <!-- Command to prepare files -->
     <mat-form-field>
       <mat-label>Commande de préparation</mat-label>
@@ -23,5 +26,5 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Annuler</button>
-  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Créer</button>
+  <button mat-button (click)="onOkClick()" cdkFocusInitial>Créer</button>
 </div>

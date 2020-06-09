@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using SoupDiscover.Dto;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -35,6 +36,5 @@ namespace SoupDiscover.Controllers.Dto
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string branch { get; set; }
-
     }
 }
