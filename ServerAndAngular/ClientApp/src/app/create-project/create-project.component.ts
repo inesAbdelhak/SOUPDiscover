@@ -3,40 +3,10 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { ProjectService } from '../service/project.service';
 import { ProjectDto } from '../model/project';
 import { RepositoryDto } from '../model/repository';
-import { RepositoryType } from "../model/repositoryType";
+import { RepositoryType } from '../model/repositoryType';
 import { RepositoriesService } from '../service/repositories.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
-
-@Component({
-  selector: 'app-create-project',
-  templateUrl: './create-project.component.html',
-  styleUrls: ['./create-project.component.css']
-})
-export class CreateProjectComponent implements OnInit {
-
-  data: ProjectDto;
-  @Output() projectCreated: EventEmitter<ProjectDto> = new EventEmitter<ProjectDto>();
-  constructor(public dialog: MatDialog) { }
-
-  openDialog(): void {
-    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', nugetServerUrl: '' };
-    const dialogRef = this.dialog.open(CreateProjectDialog, {
-      data: this.data
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      if (result != undefined) {
-        this.data = result;
-        this.projectCreated.emit(result);
-      }
-    });
-  }
-
-  ngOnInit() {
-  }
-}
 
 @Component({
   selector: 'create-project-dialog',
@@ -81,5 +51,35 @@ export class CreateProjectDialog implements OnInit {
   */
   HandleError(error: HttpErrorResponse) {
     this.toastr.error(error.error.detail, 'Projet');
+  }
+}
+
+@Component({
+  selector: 'app-create-project',
+  templateUrl: './create-project.component.html',
+  styleUrls: ['./create-project.component.css']
+})
+export class CreateProjectComponent implements OnInit {
+
+  data: ProjectDto;
+  @Output() projectCreated: EventEmitter<ProjectDto> = new EventEmitter<ProjectDto>();
+  constructor(public dialog: MatDialog) { }
+
+  openDialog(): void {
+    this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', nugetServerUrl: '' };
+    const dialogRef = this.dialog.open(CreateProjectDialog, {
+      data: this.data
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result !== undefined) {
+        this.data = result;
+        this.projectCreated.emit(result);
+      }
+    });
+  }
+
+  ngOnInit() {
   }
 }

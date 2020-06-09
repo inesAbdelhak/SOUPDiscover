@@ -53,7 +53,7 @@ import { ToastrModule } from 'ngx-toastr';
     MaterialModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
-      { path: '', pathMatch: 'full', redirectTo: 'project' }, 
+      { path: '', pathMatch: 'full', redirectTo: 'project' },
       { path: 'project', component: ProjectComponent, },
       { path: 'project/:id', component: ProjectDetailComponent, },
       { path: 'repositories', component: RepositoriesComponent },
@@ -78,7 +78,7 @@ import { ToastrModule } from 'ngx-toastr';
     CreateProjectComponent,
     CreateProjectDialog,
     ],
-  providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } },],
+  providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'fill' } }, ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

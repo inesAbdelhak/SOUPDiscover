@@ -20,11 +20,11 @@ export class PackagesService {
    */
   public GetPackageFromProjectName(projectName: string, csproj: string = null): Observable<PackageDto[]> {
     if (projectName == null) {
-      throw new Error("projectName must be not null!");
+      throw new Error('projectName must be not null!');
     }
-    let request = this.packagesApiEndpoint + "filter?projectName=" + projectName;
+    let request = this.packagesApiEndpoint + 'filter?projectName=' + projectName;
     if (csproj != null) {
-      request += "&csproj=" + csproj;
+      request += '&csproj=' + csproj;
     }
     return this.httpClient.get<PackageDto[]>(request);
   }

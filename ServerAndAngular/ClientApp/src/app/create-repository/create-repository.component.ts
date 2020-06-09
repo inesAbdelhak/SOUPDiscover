@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, Pipe, PipeTransform, Output, EventEmitter } 
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
 import { RepositoryDto } from '../model/repository';
-import { RepositoryType } from "../model/repositoryType";
+import { RepositoryType } from '../model/repositoryType';
 import { RepositoriesService } from '../service/repositories.service';
 import { CredentialDto } from '../model/credential';
 import { FormControl, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -10,41 +10,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'app-create-repository',
-  templateUrl: './create-repository.component.html',
-  styleUrls: ['./create-repository.component.css']
-})
-export class CreateRepositoryComponent implements OnInit {
-
-  data: RepositoryDto;
-  @Output() repositoryCreated: EventEmitter<RepositoryDto> = new EventEmitter<RepositoryDto>();
-
-  constructor(public dialog: MatDialog) { }
-
-  openDialog(): void {
-    this.data = {};
-    const dialogRef = this.dialog.open(CreateRepositoryDialog, {
-      data: this.data
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result != undefined) {
-        this.data = result;  
-        this.repositoryCreated.emit(this.data)
-      }
-    });
-  }
-
-  ngOnInit() {
-  }
-}
-
-@Component({
   selector: 'create-repository-dialog',
   templateUrl: 'create-repository-dialog.html',
 })
 export class CreateRepositoryDialog implements OnInit {
-  repositoryTypes = Object.keys(RepositoryType).filter(e => !isNaN(+e)).map(o => { return { index: +o, name: RepositoryType[o] } });
+  repositoryTypes = Object.keys(RepositoryType).filter(e => !isNaN(+e)).map(o => ({ index: +o, name: RepositoryType[o] }));
   selected: { index: number, name: string };
   availableCredentials: CredentialDto[];
   registredForms: FormGroup;
@@ -73,14 +43,14 @@ export class CreateRepositoryDialog implements OnInit {
         this.dialogRef.close(res);
         this.toastr.success('Le dépot ' + res.name + ' a été créé');
       },
-      error => this.HandleError(error));
+        error => this.HandleError(error));
   }
 
   public ngOnInit(): void {
     // Retrieve all available credentials
     this.credentialService.GetCredentials()
       .subscribe(res => this.availableCredentials = res
-        ,error => console.error(error));
+        , error => console.error(error));
   }
 
   /**
@@ -88,6 +58,36 @@ export class CreateRepositoryDialog implements OnInit {
   * @param error the error to display
   */
   HandleError(error: HttpErrorResponse) {
-    this.toastr.error(error.error.detail, "Dépot");
+    this.toastr.error(error.error.detail, 'Dépot');
+  }
+}
+
+@Component({
+  selector: 'app-create-repository',
+  templateUrl: './create-repository.component.html',
+  styleUrls: ['./create-repository.component.css']
+})
+export class CreateRepositoryComponent implements OnInit {
+
+  data: RepositoryDto;
+  @Output() repositoryCreated: EventEmitter<RepositoryDto> = new EventEmitter<RepositoryDto>();
+
+  constructor(public dialog: MatDialog) { }
+
+  openDialog(): void {
+    this.data = {};
+    const dialogRef = this.dialog.open(CreateRepositoryDialog, {
+      data: this.data
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        this.data = result;
+        this.repositoryCreated.emit(this.data);
+      }
+    });
+  }
+
+  ngOnInit() {
   }
 }

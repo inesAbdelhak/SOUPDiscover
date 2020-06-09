@@ -17,7 +17,7 @@ export class RepositoryDetailComponent implements OnInit {
   repositoryId: string;
   repository: RepositoryDto;
   availableCredentials: CredentialDto[];
-  edit: boolean = false;
+  edit = false;
 
   constructor(private repositoriesService: RepositoriesService,
     private toastr: ToastrService,
@@ -34,7 +34,7 @@ export class RepositoryDetailComponent implements OnInit {
         .subscribe(res => {
           this.repository = res;
         });
-    })
+    });
     // Retrieve all available credentials
     this.credentialService.GetCredentials()
       .subscribe(res => this.availableCredentials = res);
@@ -47,7 +47,7 @@ export class RepositoryDetailComponent implements OnInit {
     this.repositoriesService.UpdateRepository(this.repository)
       .subscribe(_ => {
         this.edit = false;
-        this.toastr.success("Le dépot " + this.repositoryId + " a bien été mis à jour", "Dépot");
+        this.toastr.success('Le dépot ' + this.repositoryId + ' a bien été mis à jour', 'Dépot');
       },
         error => this.HandleError(error));
   }
@@ -65,7 +65,7 @@ export class RepositoryDetailComponent implements OnInit {
   DeleteRepository(): void {
     this.repositoriesService.DeleteRepository(this.repositoryId)
       .subscribe(_ => {
-        this.toastr.success("Le dépot " + this.repositoryId + " a bien été supprimé", "Dépot");
+        this.toastr.success('Le dépot ' + this.repositoryId + ' a bien été supprimé', 'Dépot');
         // Navigate to the repository list
         this.router.navigate(['/repositories']);
       },

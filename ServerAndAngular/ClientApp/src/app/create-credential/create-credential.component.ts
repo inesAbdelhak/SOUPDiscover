@@ -11,6 +11,45 @@ export interface DialogData {
 }
 
 @Component({
+  selector: 'create-credential-dialog',
+  templateUrl: 'create-credential-dialog.html',
+})
+export class CreateCredentialDialog {
+  constructor(
+    public dialogRef: MatDialogRef<CreateCredentialDialog>,
+    public credentalService: CredentialService,
+    private toastr: ToastrService,
+    @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
+
+  /**
+   * The user cancel editing
+   * */
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  /**
+   * Validate modifications
+   * */
+  OnOkClick(): void {
+    this.credentalService.AddCredential(this.data)
+      .subscribe(res => {
+        this.dialogRef.close(res);
+        this.toastr.success('La clé ssh ' + res.name + ' a été créée.', 'Clé SSH');
+      },
+        error => this.HandleError(error));
+  }
+
+  /**
+  * Display validation error to user
+  * @param error the error to display
+  */
+  HandleError(error: HttpErrorResponse) {
+    this.toastr.error(error.error.detail, 'Clé SSH');
+  }
+}
+
+@Component({
   selector: 'app-create-credential',
   templateUrl: './create-credential.component.html',
   styleUrls: ['./create-credential.component.css']
@@ -33,8 +72,9 @@ export class CreateCredentialComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result == null)
+      if (result == null) {
         return;
+      }
       this.data = result;
       this.credentialCreated.emit(result);
     },
@@ -43,44 +83,5 @@ export class CreateCredentialComponent implements OnInit {
   }
 
   ngOnInit() {
-  }
-}
-
-@Component({
-  selector: 'create-credential-dialog',
-  templateUrl: 'create-credential-dialog.html',
-})
-export class CreateCredentialDialog  {
-  constructor(
-    public dialogRef: MatDialogRef<CreateCredentialDialog>,
-    public credentalService: CredentialService,
-    private toastr: ToastrService,
-    @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
-
-  /**
-   * The user cancel editing
-   * */
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
-
-  /**
-   * Validate modifications
-   * */
-  OnOkClick(): void {
-    this.credentalService.AddCredential(this.data)
-      .subscribe(res => {
-        this.dialogRef.close(res)
-        this.toastr.success('La clé ssh ' + res.name + ' a été créée.', 'Clé SSH');
-      },
-        error => this.HandleError(error));
-  }
-
-  /**
-  * Display validation error to user
-  * @param error the error to display
-  */
-  HandleError(error: HttpErrorResponse) {
-    this.toastr.error(error.error.detail, "Clé SSH");
   }
 }

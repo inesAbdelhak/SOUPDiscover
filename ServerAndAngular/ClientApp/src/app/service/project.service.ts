@@ -67,7 +67,7 @@ export class ProjectService {
    */
   UpdateProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<ProjectDto>(this.projectApiEndpoint + project.name, JSON.stringify(project), { headers: headerOptions })
+    return this.httpClient.put<ProjectDto>(this.projectApiEndpoint + project.name, JSON.stringify(project), { headers: headerOptions });
   }
 
   /**

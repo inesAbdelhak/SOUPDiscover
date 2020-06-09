@@ -25,7 +25,7 @@ export class CredentialsComponent implements OnInit {
     this.credentialService.GetCredentials().subscribe(result => {
       this.credentials = result;
     }, error => console.error(error));
-  }
+  };
 
   /**
    * Delete the credential
@@ -33,17 +33,17 @@ export class CredentialsComponent implements OnInit {
   DeleteCredential(credentialDto: CredentialDto): void {
     this.credentialService.DeleteCredential(credentialDto.name)
       .subscribe(_ => {
-        let index = this.credentials.indexOf(credentialDto);
-        this.credentials.splice(index);// Remove the credential of the credential list
+        const index = this.credentials.indexOf(credentialDto);
+        this.credentials.splice(index); // Remove the credential of the credential list
         this.toastr.success('La clée ssh ' + credentialDto.name + ' a été supprimée');
       },
         error => this.HandleError(error));
   }
 
   HandleError(error: HttpErrorResponse): void {
-    this.toastr.error(error.error.detail, "Authentification");
+    this.toastr.error(error.error.detail, 'Authentification');
   }
-   
+
   ngOnInit() {
     this.credentialService.GetCredentials().subscribe(result => {
       this.credentials = result;

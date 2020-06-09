@@ -45,7 +45,8 @@ export class RepositoriesService {
    */
   UpdateRepository(repository: RepositoryDto) {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<RepositoryDto>(this.repositoryEndpoint + repository.name, JSON.stringify(repository), { headers: headerOptions });
+    return this.httpClient.put<RepositoryDto>(this.repositoryEndpoint + repository.name, JSON.stringify(repository),
+      { headers: headerOptions });
   }
 
   /**

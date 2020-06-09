@@ -21,7 +21,7 @@ export class PackageDto {
   version: string;
 
   /**
-   * The package licence. 
+   * The package licence.
    * */
   licence: string;
 

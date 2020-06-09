@@ -19,7 +19,7 @@ export class RepositoriesComponent implements OnInit {
   repositoryListUpdate = function (repository: RepositoryDto): void {
     this.repositoriesService.GetRepositories()
       .subscribe(result => this.repositories = result);
-  }
+  };
 
   ngOnInit() {
     /* Read all repositories */

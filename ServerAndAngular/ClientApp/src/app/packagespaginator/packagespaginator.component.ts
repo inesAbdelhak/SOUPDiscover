@@ -18,8 +18,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 export class PackagespaginatorComponent implements OnInit {
 
   constructor(public projectService: ProjectService,
-    public packageService: PackagesService)
-  {
+    public packageService: PackagesService) {
   }
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
