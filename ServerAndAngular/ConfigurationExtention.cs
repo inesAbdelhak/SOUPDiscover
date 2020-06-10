@@ -15,18 +15,9 @@ namespace SoupDiscover
         public static DbContextOptionsBuilder UseDatabaseConfig([NotNull] this DbContextOptionsBuilder optionsBuilder, IConfiguration configuration, ILogger logger = null)
         {
             logger = logger ?? NullLogger.Instance;
-            // Search configuration in environment
-            var databaseType = Environment.GetEnvironmentVariable("DatabaseType");
-            if (string.IsNullOrEmpty(databaseType))
-            {
-                // Search configuration in appsettings.json
-                databaseType = configuration.GetValue("DatabaseType", SupportedDatabase.SQLite.ToString());
-            }
-            if (!Enum.TryParse<SupportedDatabase>(databaseType, true, out var dbType))
-            {
-                dbType = SupportedDatabase.SQLite;
-                logger.LogInformation($"The database type {databaseType} is not recognized. Use database type {dbType} instead.");
-            }
+            
+            var dbType = configuration.GetDatabaseType(logger);
+            
             // Search configuration in environment and in appsettings
             var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? configuration.GetConnectionString("Default") ?? "Data Source=CustomerDB.db;";
 
@@ -47,6 +38,29 @@ namespace SoupDiscover
             }
 
             return optionsBuilder;
+        }
+
+        /// <summary>
+        /// Return the database type configured
+        /// Search on EnvironmentVariable and in appsetting.json file
+        /// else return SQLite, the default database type
+        /// </summary>
+        /// <returns></returns>
+        public static SupportedDatabase GetDatabaseType(this IConfiguration configuration, ILogger logger = null)
+        {
+            logger = logger ?? NullLogger.Instance;
+            var databaseType = Environment.GetEnvironmentVariable("DatabaseType");
+            if (string.IsNullOrEmpty(databaseType))
+            {
+                // Search configuration in appsettings.json
+                databaseType = configuration.GetValue("DatabaseType", SupportedDatabase.SQLite.ToString());
+            }
+            if (!Enum.TryParse<SupportedDatabase>(databaseType, true, out var dbType))
+            {
+                dbType = SupportedDatabase.SQLite;
+                logger.LogInformation($"The database type {databaseType} is not recognized. Use database type {dbType} instead.");
+            }
+            return dbType;
         }
     }
 }

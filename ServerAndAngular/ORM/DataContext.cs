@@ -1,18 +1,29 @@
 ﻿using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using SoupDiscover.Core.Respository;
 
 namespace SoupDiscover.ORM
 {
+
     /// <summary>
     /// The context of the database
     /// </summary>
-    public class DataContext : DbContext
+    public abstract class DataContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options)
+        private readonly IConfiguration _configuration;
+        protected DataContext(DbContextOptions options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            // The configuration of database must be in this class, otherwise migration generation with ef tool doesn't works
+            optionsBuilder.UseDatabaseConfig(_configuration);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -11,6 +11,7 @@ using SoupDiscover.Common;
 using SoupDiscover.Core;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
+using System;
 
 namespace SoupDiscover
 {
@@ -32,7 +33,18 @@ namespace SoupDiscover
             {
                 configuration.RootPath = "dist";
             });
-            services.AddDbContext<DataContext>(options => options.UseSqlite(@"Data Source=CustomerDB.db;"));
+            var databaseType = Configuration.GetDatabaseType();
+            switch (databaseType)
+            {
+                case SupportedDatabase.SQLite:
+                    services.AddDbContext<DataContext, SqliteDataContext>();
+                break;
+                case SupportedDatabase.Postgres:
+                    services.AddDbContext<DataContext, PostgresDataContext>();
+                break;
+                default:
+                    throw new ApplicationException($"The databaseType {databaseType} is not supported!");
+            }
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
             services.AddTransient<IProjectJob, ProjectJob>();
             services.AddTransient<ISearchPackage, SearchNpmPackage>();

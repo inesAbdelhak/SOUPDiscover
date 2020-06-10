@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,10 +33,7 @@ namespace SoupDiscover
                 try
                 {
                     var context = services.GetRequiredService<DataContext>();
-                    if (context.Database.EnsureCreated())
-                    {
-                        logger.LogInformation("The database schema is generated");
-                    }
+                    context.Database.Migrate();
                 }
                 catch (Exception ex)
                 {
