@@ -272,7 +272,16 @@ namespace SoupDiscover.Common
             {
                 filename = Path.Combine(checkoutDirectory, "CommandLinesBeforeParse.bat");
             }
-            File.WriteAllText(filename, ProjectDto.CommandLinesBeforeParse);
+
+            using(var scriptFile = new StreamWriter(filename))
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    scriptFile.WriteLine("#!/bin/sh");
+                }
+                scriptFile.WriteLine(ProjectDto.CommandLinesBeforeParse);
+            }
+            
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update ACL to be executable
