@@ -75,7 +75,7 @@ export class CreateRepositoryComponent implements OnInit {
   constructor(public dialog: MatDialog) { }
 
   openDialog(): void {
-    this.data = {};
+    this.data = new RepositoryDto();
     const dialogRef = this.dialog.open(CreateRepositoryDialog, {
       data: this.data
     });

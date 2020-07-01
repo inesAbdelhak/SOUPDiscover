@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RepositoryDto } from '../model/repository';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,14 +22,20 @@ export class RepositoriesService {
    */
   AddRepository(repository: RepositoryDto): Observable<RepositoryDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.post<RepositoryDto>(this.repositoryEndpoint, JSON.stringify(repository), { headers: headerOptions });
+    return this.httpClient.post<RepositoryDto>(this.repositoryEndpoint, JSON.stringify(repository), { headers: headerOptions }).
+      pipe(
+        map(data => RepositoryDto.CreateFromData(data))
+      );;
   }
 
   /**
   *  Return all repositories on database
   */
   GetRepositories(): Observable<RepositoryDto[]> {
-    return this.httpClient.get<RepositoryDto[]>(this.repositoryEndpoint);
+    return this.httpClient.get<RepositoryDto[]>(this.repositoryEndpoint).
+      pipe(
+        map(data => data.map(d => RepositoryDto.CreateFromData(d)))
+      );
   }
 
   /**
@@ -36,7 +43,10 @@ export class RepositoriesService {
    * @param id
    */
   GetRepository(id: string): Observable<RepositoryDto> {
-    return this.httpClient.get<RepositoryDto>(this.repositoryEndpoint + id);
+    return this.httpClient.get<RepositoryDto>(this.repositoryEndpoint + id).
+      pipe(
+        map(data => RepositoryDto.CreateFromData(data))
+      );
   }
 
   /**
@@ -46,7 +56,10 @@ export class RepositoriesService {
   UpdateRepository(repository: RepositoryDto) {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.httpClient.put<RepositoryDto>(this.repositoryEndpoint + repository.name, JSON.stringify(repository),
-      { headers: headerOptions });
+      { headers: headerOptions }).
+      pipe(
+        map(data => RepositoryDto.CreateFromData(data))
+      );
   }
 
   /**

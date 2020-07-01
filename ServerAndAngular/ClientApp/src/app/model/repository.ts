@@ -1,6 +1,17 @@
 import { RepositoryType } from './repositoryType';
 
-export interface RepositoryDto {
+export class RepositoryDto {
+
+  public static CreateFromData(data): RepositoryDto {
+    let repo = new RepositoryDto();
+    repo.name = data.name;
+    repo.repositoryType = (<any>RepositoryType)[data.repositoryType];
+    repo.url = data.url;
+    repo.sshKeyName = data.sshKeyName;
+    repo.branch = data.branch;
+    return repo;
+  }
+
   /** The name of the repository to display and the primary key */
   name?: string;
   /** The type of the repository */

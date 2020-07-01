@@ -65,6 +65,7 @@ export class ProjectDetailComponent implements OnInit {
    * Refresh data to display
    * */
   Refresh(): void {
+    
     // Get details of the project
     this.projectService.GetProject(this.currentProjectId).subscribe(res => {
       this.project = res;

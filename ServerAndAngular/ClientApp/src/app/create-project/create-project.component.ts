@@ -7,6 +7,7 @@ import { RepositoryType } from '../model/repositoryType';
 import { RepositoriesService } from '../service/repositories.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { ProcessStatus } from '../model/processStatus';
 
 @Component({
   selector: 'create-project-dialog',

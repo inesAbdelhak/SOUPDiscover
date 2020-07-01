@@ -2,6 +2,8 @@ import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ProjectDto } from '../model/project';
 import { Observable } from 'rxjs';
+import { ProcessStatus } from '../model/processStatus';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,10 @@ export class ProjectService {
    */
   AddProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.post<ProjectDto>(this.projectApiEndpoint, JSON.stringify(project), { headers: headerOptions });
+    return this.httpClient.post<ProjectDto>(this.projectApiEndpoint, JSON.stringify(project), { headers: headerOptions })
+      .pipe(
+        map(data => ProjectDto.CreateFromData(data))
+      );
   }
 
   /**
@@ -42,7 +47,10 @@ export class ProjectService {
    * Return all project of the database
    * */
   GetProjects(): Observable<ProjectDto[]> {
-    return this.httpClient.get<ProjectDto[]>(this.projectApiEndpoint);
+    return this.httpClient.get<ProjectDto[]>(this.projectApiEndpoint)
+      .pipe(
+        map(data => data.map(d => ProjectDto.CreateFromData(d)))
+      );
   }
 
   /**
@@ -50,7 +58,10 @@ export class ProjectService {
    * @param name the name of the project to retrieve
    */
   GetProject(name: string): Observable<ProjectDto> {
-    return this.httpClient.get<ProjectDto>(this.projectApiEndpoint + name);
+    return this.httpClient.get<ProjectDto>(this.projectApiEndpoint + name)
+      .pipe(
+        map(data => ProjectDto.CreateFromData(data))
+      );
   }
 
   /**
@@ -67,7 +78,10 @@ export class ProjectService {
    */
   UpdateProject(project: ProjectDto): Observable<ProjectDto> {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.httpClient.put<ProjectDto>(this.projectApiEndpoint + project.name, JSON.stringify(project), { headers: headerOptions });
+    return this.httpClient.put<ProjectDto>(this.projectApiEndpoint + project.name, JSON.stringify(project), { headers: headerOptions })
+      .pipe(
+        map(data => ProjectDto.CreateFromData(data))
+      );;
   }
 
   /**
@@ -75,6 +89,9 @@ export class ProjectService {
    * @param currentProjectId
    */
   DeleteProject(currentProjectId: string): Observable<ProjectDto> {
-    return this.httpClient.delete<ProjectDto>(this.projectApiEndpoint + currentProjectId);
+    return this.httpClient.delete<ProjectDto>(this.projectApiEndpoint + currentProjectId)
+      .pipe(
+        map(data => ProjectDto.CreateFromData(data))
+      );
   }
 }

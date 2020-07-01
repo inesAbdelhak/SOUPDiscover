@@ -18,7 +18,7 @@
   </div>
 </section>
 <mat-divider></mat-divider>
-<section class="configuration">
+<section class="configuration" *ngIf="project != null">
   <h2>Configuration</h2>
   <!-- Editing the configuration -->
   <div class="editconfig" *ngIf="edit === true">
@@ -61,7 +61,7 @@
     </table>
   </div>
   <div class="childrenInline">
-    <button mat-raised-button color="accent" *ngIf="edit === false" [disabled]="project.processStatus === 'Running'" (click)="EditProject()">
+    <button mat-raised-button color="accent" *ngIf="edit === false" [disabled]="project.processStatus === processStatus.Running" (click)="EditProject()">
       <mat-icon>edit</mat-icon>
     </button>
     <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()">
@@ -74,16 +74,20 @@
 </section>
 <hr />
 <!-- Display packages -->
-<section *ngIf="project.processStatus === processStatus.Waiting">
-  <h2>Packages trouvés pour le projet</h2>
-  <!-- For downloading csv file -->
-  <div>
-    <!-- To download csv file that contains all package of the project -->
-    <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
+<section *ngIf="project != null">
+  <div *ngIf="project.processStatus == processStatus.Waiting">
+    <h2>Packages trouvés pour le projet</h2>
+    <!-- For downloading csv file -->
+    <div>
+      <!-- To download csv file that contains all package of the project -->
+      <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
+    </div>
+    <app-packagespaginator [currentProjectId]="currentProjectId"></app-packagespaginator>
   </div>
-  <app-packagespaginator [currentProjectId]="currentProjectId"></app-packagespaginator>
 </section>
-<section *ngIf="project.processStatus === processStatus.Error">
-  <h2>Erreur de traitement</h2>
-  <pre>{{project.lastAnalysisError}}</pre>
+<section *ngIf="project != null">
+  <div *ngIf="project.processStatus === processStatus.Error">
+    <h2>Erreur de traitement</h2>
+    <pre>{{project.lastAnalysisError}}</pre>
+  </div>
 </section>

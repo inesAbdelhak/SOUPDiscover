@@ -9,10 +9,10 @@
 <!-- div display where repository loaded -->
 <section *ngIf="repository != null">
   <div>
-    <p>Type de dépot : {{repository?.repositoryType}}</p>
+    <p>Type de dépot : {{repositoryType[repository?.repositoryType]}}</p>
 
     <!-- Div for Git repository -->
-    <div class="editconfig" *ngIf="edit === true && repository.repositoryType === 'Git'">
+    <div class="editconfig" *ngIf="edit === true && repository.repositoryType === repositoryType.Git">
       <!-- the git url in ssh format -->
       <mat-form-field>
         <mat-label>Url ssh</mat-label>
@@ -34,7 +34,7 @@
         </mat-select>
       </mat-form-field>
     </div>
-    <div *ngIf="edit === false && repository.repositoryType === 'Git'">
+    <div *ngIf="edit === false && repository.repositoryType === repositoryType.Git">
       <table class="beautifulTable">
         <tr>
           <th>Url ssh</th>

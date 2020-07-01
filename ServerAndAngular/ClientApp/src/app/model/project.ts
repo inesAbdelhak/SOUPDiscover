@@ -3,6 +3,21 @@ import { PackageDto, PackageType } from './package';
 import { ProcessStatus } from './processStatus';
 
 export class ProjectDto {
+
+  public static CreateFromData(data): ProjectDto {
+    let project = new ProjectDto();
+    project.name = data.name;
+    project.commandLinesBeforeParse = data.commandLinesBeforeParse;
+    project.repositoryId = data.repositoryId;
+    project.nugetServerUrl = data.nugetServerUrl;
+    project.lastAnalysisError = data.lastAnalysisError;
+    project.processStatus = (<any>ProcessStatus)[data.processStatus];
+    if (data.lastAnalysisDate != null) {
+      project.lastAnalysisDate = new Date(data.lastAnalysisDate);
+    }
+    return project;
+  }
+
   /**
    * The primary  key of the project
    * */

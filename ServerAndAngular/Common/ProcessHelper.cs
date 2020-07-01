@@ -57,7 +57,12 @@ namespace SoupDiscover.Common
             {
                 process.WaitForExit();
             }
-            return (ExitCode: process.ExitCode, ErrorMessage: logs.ToString());
+            string messageError = logs.ToString();
+            if(string.IsNullOrEmpty(messageError))
+            {
+                messageError = $"Error on executing file {filename}";
+            }
+            return (ExitCode: process.ExitCode, ErrorMessage: messageError);
         }
     }
 }

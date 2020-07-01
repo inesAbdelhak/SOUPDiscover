@@ -6,6 +6,7 @@ import { CredentialDto } from '../model/credential';
 import { CredentialService } from '../service/credential.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { RepositoryType } from '../model/repositoryType';
 
 @Component({
   selector: 'app-repository-detail',
@@ -18,6 +19,7 @@ export class RepositoryDetailComponent implements OnInit {
   repository: RepositoryDto;
   availableCredentials: CredentialDto[];
   edit = false;
+  repositoryType = RepositoryType;
 
   constructor(private repositoriesService: RepositoriesService,
     private toastr: ToastrService,
