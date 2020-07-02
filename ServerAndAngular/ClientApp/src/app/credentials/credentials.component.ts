@@ -35,7 +35,7 @@ export class CredentialsComponent implements OnInit {
       .subscribe(_ => {
         const index = this.credentials.indexOf(credentialDto);
         this.credentials.splice(index); // Remove the credential of the credential list
-        this.toastr.success('La clée ssh ' + credentialDto.name + ' a été supprimée');
+        this.toastr.success('La clée ssh "' + credentialDto.name + '" a été supprimée', 'Authentification');
       },
         error => this.HandleError(error));
   }

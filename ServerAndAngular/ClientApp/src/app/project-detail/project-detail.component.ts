@@ -85,7 +85,7 @@ export class ProjectDetailComponent implements OnInit {
   DeleteProject(): void {
     this.projectService.DeleteProject(this.currentProjectId)
       .subscribe(_ => {
-        this.toastr.success('Le projet ' + this.currentProjectId + ' a bien été supprimé', 'Projet');
+        this.toastr.success('Le projet "' + this.currentProjectId + '" a bien été supprimé', 'Projet');
         this.router.navigate(['..'], { relativeTo: this.route });
 
       }
@@ -99,7 +99,7 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.UpdateProject(this.project)
       .subscribe(_ => {
         this.edit = false;
-        this.toastr.success('Les modifications du projet ' + this.currentProjectId + 'on bien été appliquées.', 'Projet');
+        this.toastr.success('Les modifications du projet "' + this.currentProjectId + '" on bien été appliquées.', 'Projet');
       },
         error => this.HandleError(error));
   }
@@ -136,7 +136,7 @@ export class ProjectDetailComponent implements OnInit {
     this.projectService.LaunchProject(this.currentProjectId)
       .subscribe(_ => {
         this.Refresh();
-        this.toastr.success('L\'analyse du projet ' + this.currentProjectId + ' a été stopée', 'Projet');
+        this.toastr.success('L\'analyse du projet "' + this.currentProjectId + '" a été démarré', 'Projet');
       },
         error => {
           this.HandleError(error);

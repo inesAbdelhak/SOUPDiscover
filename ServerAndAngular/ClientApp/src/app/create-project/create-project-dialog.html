@@ -22,6 +22,12 @@
       <mat-label>Commande de préparation</mat-label>
       <textarea matInput [(ngModel)]="data.commandLinesBeforeParse"></textarea>
     </mat-form-field>
+
+    <!-- The package source where search package metadata -->
+    <mat-form-field>
+      <mat-label>Server nuget pour rechercher les métadonnées</mat-label>
+      <textarea matInput [(ngModel)]="data.nugetServerUrl"></textarea>
+    </mat-form-field>
   </div>
 </div>
 <div mat-dialog-actions>

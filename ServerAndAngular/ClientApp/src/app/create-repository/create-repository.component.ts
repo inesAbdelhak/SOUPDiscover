@@ -41,7 +41,7 @@ export class CreateRepositoryDialog implements OnInit {
     this.repositoryService.AddRepository(this.data)
       .subscribe(res => {
         this.dialogRef.close(res);
-        this.toastr.success('Le dépot ' + res.name + ' a été créé');
+        this.toastr.success('Le dépot "' + res.name + '" a été créé', 'Dépot');
       },
         error => this.HandleError(error));
   }

@@ -49,7 +49,7 @@ export class RepositoryDetailComponent implements OnInit {
     this.repositoriesService.UpdateRepository(this.repository)
       .subscribe(_ => {
         this.edit = false;
-        this.toastr.success('Le dépot ' + this.repositoryId + ' a bien été mis à jour', 'Dépot');
+        this.toastr.success('Le dépot "' + this.repositoryId + '" a bien été mis à jour', 'Dépot');
       },
         error => this.HandleError(error));
   }
@@ -67,7 +67,7 @@ export class RepositoryDetailComponent implements OnInit {
   DeleteRepository(): void {
     this.repositoriesService.DeleteRepository(this.repositoryId)
       .subscribe(_ => {
-        this.toastr.success('Le dépot ' + this.repositoryId + ' a bien été supprimé', 'Dépot');
+        this.toastr.success('Le dépot "' + this.repositoryId + '" a bien été supprimé', 'Dépot');
         // Navigate to the repository list
         this.router.navigate(['/repositories']);
       },

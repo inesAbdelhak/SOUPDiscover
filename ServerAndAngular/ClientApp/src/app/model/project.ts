@@ -5,6 +5,9 @@ import { ProcessStatus } from './processStatus';
 export class ProjectDto {
 
   public static CreateFromData(data): ProjectDto {
+    if (data == null) {
+      return null;
+    }
     let project = new ProjectDto();
     project.name = data.name;
     project.commandLinesBeforeParse = data.commandLinesBeforeParse;

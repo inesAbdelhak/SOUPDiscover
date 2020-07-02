@@ -23,7 +23,7 @@
   <!-- Editing the configuration -->
   <div class="editconfig" *ngIf="edit === true">
 
-  <!-- The repository to use -->
+    <!-- The repository to use -->
     <mat-form-field *ngIf="project != null">
       <mat-select [(ngModel)]="project.repositoryId">
         <mat-option>--Dépot--</mat-option>
@@ -37,6 +37,7 @@
       <textarea matInput [(ngModel)]="project.commandLinesBeforeParse"></textarea>
     </mat-form-field>
 
+    <!-- The package source where search package metadata -->
     <mat-form-field *ngIf="project != null">
       <mat-label>Server nuget pour rechercher les métadonnées</mat-label>
       <textarea matInput [(ngModel)]="project.nugetServerUrl"></textarea>

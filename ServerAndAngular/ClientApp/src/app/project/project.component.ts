@@ -31,7 +31,7 @@ export class ProjectComponent implements OnInit {
    */
   LaunchAnalyze(projectName: string): void {
     this.projectService.LaunchProject(projectName)
-      .subscribe(_ => this.toastr.success('L\'analyse du projet ' + projectName + 'a été lancée', 'Projet'),
+      .subscribe(_ => this.toastr.success('L\'analyse du projet "' + projectName + '" a été lancée', 'Projet'),
         error => this.HandleError(error));
   }
 

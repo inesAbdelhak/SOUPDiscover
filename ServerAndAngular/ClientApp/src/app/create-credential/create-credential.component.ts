@@ -35,7 +35,7 @@ export class CreateCredentialDialog {
     this.credentalService.AddCredential(this.data)
       .subscribe(res => {
         this.dialogRef.close(res);
-        this.toastr.success('La clé ssh ' + res.name + ' a été créée.', 'Clé SSH');
+        this.toastr.success('La clé ssh "' + res.name + '" a été créée.', 'Authentification');
       },
         error => this.HandleError(error));
   }
@@ -45,7 +45,7 @@ export class CreateCredentialDialog {
   * @param error the error to display
   */
   HandleError(error: HttpErrorResponse) {
-    this.toastr.error(error.error.detail, 'Clé SSH');
+    this.toastr.error(error.error.detail, 'Authentification');
   }
 }
 

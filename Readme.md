@@ -1,4 +1,4 @@
-# SoupDiscover
+﻿# SoupDiscover
 Cette application permet d'extraire l'ensemble des packages ainsi que les métadonnées associées.
 Elle recherche les paquets Nuget et NPM.
 
@@ -8,8 +8,14 @@ Elle recherche les paquets Nuget et NPM.
 
 ## Avec Docker
 ```
+# Build project
 docker build . -t soupdicover:latest
+
+# Run with sqlite
 docker run -d -P soupdicover:latest
+
+# Run with Postgres
+docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL100; Port=5432; Database=SoupDiscover; User Id=SoupDiscover; Password=*********;" soupdicover:latest
 ```
 
 ## En local

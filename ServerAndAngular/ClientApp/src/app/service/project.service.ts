@@ -80,8 +80,8 @@ export class ProjectService {
     const headerOptions = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.httpClient.put<ProjectDto>(this.projectApiEndpoint + project.name, JSON.stringify(project), { headers: headerOptions })
       .pipe(
-        map(data => ProjectDto.CreateFromData(data))
-      );;
+        map(_ => project)
+      );
   }
 
   /**

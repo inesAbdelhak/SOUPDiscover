@@ -41,7 +41,7 @@ export class CreateProjectDialog implements OnInit {
     this.projectService.AddProject(this.data)
       .subscribe(res => {
         this.dialogRef.close(res);
-        this.toastr.success('Le projet ' + res.name + ' a été créé', 'Projet');
+        this.toastr.success('Le projet "' + res.name + '" a été créé', 'Projet');
       },
         error => this.HandleError(error));
   }
