@@ -8,16 +8,19 @@
       <mat-icon>refresh</mat-icon>
     </button>
   </div>
-  <ul>
-    <li *ngFor="let project of projects">
-      <a [routerLink]="['/project', project.name]">{{project.name}}</a>: {{project.repositoryId}}
-      <pre *ngIf="project.lastAnalysisDate != null">{{project.lastAnalysisDate}}</pre>
-      <mat-icon color="warn" *ngIf="project.processStatus === 'Error'">error_outline</mat-icon>
-      <mat-icon *ngIf="project.processStatus === 'Running'">moped</mat-icon>
-      <mat-icon *ngIf="project.processStatus === 'Waiting'">done</mat-icon>
-      <button mat-raised-button color="accent" (click)="LaunchAnalyze(project.name)">
+  <ul style="list-style-type: none;">
+    <li *ngFor="let project of projects" style="display:flex;">
+      <div style="width:200px; display:inline-flex">
+        <mat-icon color="warn" *ngIf="project.processStatus === processStatus.Error">error_outline</mat-icon>
+        <mat-icon *ngIf="project.processStatus === processStatus.Running">moped</mat-icon>
+        <mat-icon *ngIf="project.processStatus === processStatus.Waiting">done</mat-icon>
+        <a [routerLink]="['/project', project.name]" style="width:50px">{{project.name}}</a>
+      </div>
+      <button mat-raised-button color="primary" style="align-self:center;height:fit-content;" (click)="LaunchAnalyze(project.name)">
         <mat-icon>launch</mat-icon>
       </button>
+      <pre *ngIf="project.lastAnalysisDate != null">{{project.lastAnalysisDate | date:'medium'}}</pre>
+
     </li>
   </ul>
 </div>

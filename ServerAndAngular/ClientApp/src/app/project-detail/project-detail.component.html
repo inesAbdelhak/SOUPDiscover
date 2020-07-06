@@ -5,13 +5,13 @@
       <button mat-raised-button matTooltip="Rafraichir les données affichées" (click)="Refresh()">
         <mat-icon>refresh</mat-icon>
       </button>
-      <button mat-raised-button color="accent" [disabled]="project.processStatus === 'Running'" matTooltip="Démarrer la recherche des packages" (click)="Analyze()">
+      <button mat-raised-button color="primary" [disabled]="project.processStatus === processStatus.Running" matTooltip="Démarrer la recherche des packages" (click)="Analyze()">
         <mat-icon>launch</mat-icon>
       </button>
-      <button mat-raised-button color="accent" [disabled]="project.processStatus != 'Running'" matTooltip="Arrêter la recherche en cours" (click)="Stop()">
+      <button mat-raised-button color="accent" [disabled]="project.processStatus != processStatus.Running" matTooltip="Arrêter la recherche en cours" (click)="Stop()">
         <mat-icon>stop</mat-icon>
       </button>
-      <button mat-raised-button color="warn" [disabled]="project.processStatus === 'Running'" matTooltip="Supprimer le projet" (click)="DeleteProject()">
+      <button mat-raised-button color="warn" [disabled]="project.processStatus === processStatus.Running" matTooltip="Supprimer le projet" (click)="DeleteProject()">
         <mat-icon>delete</mat-icon>
       </button>
     </div>
@@ -25,6 +25,7 @@
 
     <!-- The repository to use -->
     <mat-form-field *ngIf="project != null">
+      <mat-label>Le dépot</mat-label>
       <mat-select [(ngModel)]="project.repositoryId">
         <mat-option>--Dépot--</mat-option>
         <mat-option *ngFor="let repo of repositories" [value]="repo.name">{{repo.name}}</mat-option>
@@ -62,7 +63,7 @@
     </table>
   </div>
   <div class="childrenInline">
-    <button mat-raised-button color="accent" *ngIf="edit === false" [disabled]="project.processStatus === processStatus.Running" (click)="EditProject()">
+    <button mat-raised-button style="margin-top: 20px" color="accent" *ngIf="edit === false" [disabled]="project.processStatus === processStatus.Running" (click)="EditProject()">
       <mat-icon>edit</mat-icon>
     </button>
     <button mat-raised-button color="warn" *ngIf="edit === true" (click)="UpdateProject()">

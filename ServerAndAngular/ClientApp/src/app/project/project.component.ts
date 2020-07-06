@@ -3,6 +3,7 @@ import { ProjectDto } from '../model/project';
 import { ProjectService } from '../service/project.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
+import { ProcessStatus } from '../model/processStatus';
 
 @Component({
   selector: 'app-project',
@@ -15,6 +16,8 @@ export class ProjectComponent implements OnInit {
    * List of projects displayed
    */
   projects: ProjectDto[];
+
+  public processStatus = ProcessStatus;
 
   constructor(public projectService: ProjectService,
     private toastr: ToastrService) { }
