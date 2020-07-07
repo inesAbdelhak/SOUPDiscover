@@ -27,6 +27,7 @@ body {
 .beautifulTable {
   font-family: arial, sans-serif;
   border-collapse: collapse;
+  border: hidden;
   width: 100%;
 }
 
