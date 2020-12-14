@@ -1,12 +1,12 @@
 ﻿# SoupDiscover
-Cette application permet d'extraire l'ensemble des packages ainsi que les métadonnées associées.
-Elle recherche les paquets Nuget et NPM.
+This application allows you to extract all the packages as well as the associated metadata.
+It searches for Nuget and NPM packages.
 
-// Ajouter une capture d'écran de l'application
+// Add screenshoot here
 
-# Compilation et executation de l'application
+# Build and execute
 
-## Avec Docker
+## With Docker
 ```
 # Build project
 docker build . -t soupdicover:latest
@@ -18,21 +18,24 @@ docker run -d -P soupdicover:latest
 docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL100; Port=5432; Database=SoupDiscover; User Id=SoupDiscover; Password=*********;" soupdicover:latest
 ```
 
-## En local
+## Locally
 ```
+# Compil
 dotnet build SoupDiscover.csproj
+
+# Execute
 dotnet ServerAndAngular\bin\Debug\netcoreapp3.1\SoupDiscover.dll
 ```
 
-# Variables d'environement
+# Environment variables
 
-Si l'application est exécuté dans un docker, ele peut être paramétrée par l'intermédiaire de varaibles d'environement.
+If application is running in a docker, it can be configured through environment variables.
 
-| Nom de la variable | Description | Valeur par défaut |
+| Variable name | Description | Default value |
 |---|---|---|
-| __TempWork__ | Le dossier dans lequel déployer les dépot | Le dossier temporaire de l'OS |
-| __ConnectionString__ | Chaine de connection d'accès à la base de données | `Data Source=CustomerDB.db`  |
-| __DatabaseType__  | Le type de base de données. Les type de base de données supportées sont "SQLite" et "Postgres" | `SQLite` |
+| __TempWork__ | The directory where deploying repositories. | This folder is temporary, to restore packages.  |
+| __ConnectionString__ | String connection for the database | `Data Source=CustomerDB.db`  |
+| __DatabaseType__  | Database type. Supported database types : "SQLite" and "Postgres" | `SQLite` |
 
-# Paramétrages de appsetting.json
+# Settings of appsetting.json
 :construction_worker:

@@ -149,7 +149,7 @@ namespace SoupDiscover.Common
                     list.AddRange(resultat);
                 }
             }
-            // Save all packages in database
+            // Save all packages in database and search metadata for all unknown found packages
             await CreateScopeAndSave(list, directory, token);
             return this;
         }
@@ -173,7 +173,7 @@ namespace SoupDiscover.Common
         private async Task SaveSearchResult(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, CancellationToken token)
         {
             var project = context.Projects.Find(ProjectDto.Name);
-            // Remove old package in the project
+            // Remove last search
             context.Entry(project).Collection(p => p.PackageConsumers).Load();
             context.PackageConsumer.RemoveRange(project.PackageConsumers);
             
@@ -189,6 +189,7 @@ namespace SoupDiscover.Common
 
         /// <summary>
         /// Save in the project, all package consumers found
+        /// And search Metadata of all unkonwn packages
         /// </summary>
         private void SavePackageConsumers(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, SOUPSearchProject project, CancellationToken token)
         {

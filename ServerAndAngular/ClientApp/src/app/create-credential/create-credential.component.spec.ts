@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CreateCredentialComponent } from './create-credential.component';
 
@@ -6,7 +6,7 @@ describe('CreateCredentialComponent', () => {
   let component: CreateCredentialComponent;
   let fixture: ComponentFixture<CreateCredentialComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CreateCredentialComponent ]
     })

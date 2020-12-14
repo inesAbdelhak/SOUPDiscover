@@ -34,6 +34,11 @@ namespace SoupDiscover.ORM
         public string Licence { get; set; }
 
         /// <summary>
+        /// The Url to the package
+        /// </summary>
+        public string PackageUrl { get; set; }
+        
+        /// <summary>
         /// Nuget package or npm package
         /// </summary>
         [JsonConverter(typeof(JsonStringEnumConverter))]

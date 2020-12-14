@@ -57,18 +57,28 @@ namespace SoupDiscover.Common
             }
             string licenceUrl = null;
             string description = null;
+            string packageUrl = null;
             if (metadataAsXml != null)
             {
                 var document = XDocument.Parse(metadataAsXml);
                 var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
                 licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl").Value;
                 description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
+                packageUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Url").Value;
             }
             else
             {
                 _logger.LogInformation($"Unable to find Meta-data on package {packageId} version {version} on sources {string.Join(";", sources)}");
             }
-            return new Package() { PackageId = packageId, Version = version, Licence = licenceUrl, PackageType = PackageType.Nuget, Description = description };
+            return new Package()
+            { 
+                PackageId = packageId,
+                Version = version, 
+                Licence = licenceUrl, 
+                PackageType = PackageType.Nuget, 
+                Description = description,
+                PackageUrl = packageUrl,
+            };
         }
 
         /// <summary>

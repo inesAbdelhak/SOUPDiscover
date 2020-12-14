@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { PackagespaginatorComponent } from './packagespaginator.component';
 
@@ -6,7 +6,7 @@ describe('PackagespaginatorComponent', () => {
   let component: PackagespaginatorComponent;
   let fixture: ComponentFixture<PackagespaginatorComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ PackagespaginatorComponent ]
     })

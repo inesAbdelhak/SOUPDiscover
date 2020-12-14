@@ -3,7 +3,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM node:12.16.3-alpine AS client 
+FROM node:15.4.0-alpine AS client 
 ARG skip_client_build=false 
 WORKDIR /app 
 COPY ClientApp .
@@ -13,7 +13,7 @@ RUN npm config set https-proxy $https_proxy
 RUN [[ ${skip_client_build} = true ]] && echo "Skipping npm install" || npm install 
 RUN [[ ${skip_client_build} = true ]] && mkdir dist || npm run-script build
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:5.0 AS build
 WORKDIR /src
 COPY SoupDiscover.csproj .
 RUN dotnet restore SoupDiscover.csproj

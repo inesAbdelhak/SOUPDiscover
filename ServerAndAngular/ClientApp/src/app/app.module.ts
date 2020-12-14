@@ -1,8 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { RouterModule, Routes } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MainNavComponent } from './main-nav/main-nav.component';
@@ -52,14 +53,15 @@ import { ToastrModule } from 'ngx-toastr';
     MatDialogModule,
     MaterialModule,
     ReactiveFormsModule,
+    RouterTestingModule,
     RouterModule.forRoot([
-      { path: '', pathMatch: 'full', redirectTo: 'project' },
-      { path: 'project', component: ProjectComponent, },
-      { path: 'project/:id', component: ProjectDetailComponent, },
-      { path: 'repositories', component: RepositoriesComponent },
-      { path: 'repository/:id', component: RepositoryDetailComponent },
-      { path: 'credentials', component: CredentialsComponent },
-    ]),
+    { path: '', pathMatch: 'full', redirectTo: 'project' },
+    { path: 'project', component: ProjectComponent, },
+    { path: 'project/:id', component: ProjectDetailComponent, },
+    { path: 'repositories', component: RepositoriesComponent },
+    { path: 'repository/:id', component: RepositoryDetailComponent },
+    { path: 'credentials', component: CredentialsComponent },
+], { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     LayoutModule,
     MatToolbarModule,
