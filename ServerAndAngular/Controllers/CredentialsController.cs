@@ -106,7 +106,7 @@ namespace SoupDiscover.Controllers
         public async Task<ActionResult<CredentialDto>> DeleteCredential(string credentialId)
         {
             var credentialTask = _context.Credentials.FindAsync(credentialId);
-            var repoOfTheCredentialTask = _context.Repositories.OfType<GitRepository>().Where(e => e.SshKeyId == credentialId).Select(e => e.Name).ToArrayAsync();
+            var repoOfTheCredentialTask = _context.Repositories.OfType<GitRepository>().Where(e => e.CredentialId == credentialId).Select(e => e.Name).ToArrayAsync();
             var credential = await credentialTask;
             if (credential == null)
             {

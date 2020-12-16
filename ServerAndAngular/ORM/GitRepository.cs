@@ -20,8 +20,8 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The key to use, to clone repository if needed
         /// </summary>
-        public virtual Credential SshKey { get; set; }
+        public virtual Credential Credential { get; set; }
 
-        public string SshKeyId { get; set; }
+        public string CredentialId { get; set; }
     }
 }

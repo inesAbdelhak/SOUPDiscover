@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
+using SoupDiscover.ORM;
 using System;
 using System.IO;
 using System.Linq;
@@ -14,29 +15,29 @@ namespace SoupDiscover.Core.Respository
     /// </summary>
     internal class GitRepositoryManager : RepositoryManager
     {
-        private const string _gitSSHUrlStringRegex = @"^git@(?<hostname>[^:]+):(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$";
-        private static Regex _gitSSHUrlRegex;
+        private static readonly string[] _gitUrlStringRegex = new string[]
+        {
+            @"^(?<protocol>git)@(?<hostname>[^:]+):(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$",
+            @"^(?<protocol>https?):\/\/(?<hostname>[^\/]+)\/(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$"
+        };
+        private static Regex[] _gitUrlRegex;
         private const string _gitCommand = "git";
         private readonly ILogger<GitRepositoryManager> _logger;
         private readonly string _urlRepository;
         private readonly string _branch;
-        private readonly string _sshKeyId;
-        private readonly string _sshKey;
-        private readonly string _sshKeyFilename;
-
+        private readonly Credential _credential;
+        
         static GitRepositoryManager()
         {
-            _gitSSHUrlRegex = new Regex(_gitSSHUrlStringRegex);
+            _gitUrlRegex = _gitUrlStringRegex.Select(x => new Regex(x)).ToArray();
         }
 
-        public GitRepositoryManager(ILogger<GitRepositoryManager> logger, string urlRepository, string branch, string sshKeyId, string sshKey, string sshKeyFilename)
+        public GitRepositoryManager(ILogger<GitRepositoryManager> logger, string urlRepository, string branch, Credential credential)
         {
             _logger = logger;
             _urlRepository = urlRepository;
             _branch = branch;
-            _sshKeyId = sshKeyId;
-            _sshKey = sshKey;
-            _sshKeyFilename = sshKeyFilename;
+            _credential = credential;
             ParseRepositoryUrl();
         }
 
@@ -48,112 +49,17 @@ namespace SoupDiscover.Core.Respository
             return true;
         }
 
-        private static string CreateSShDirectory()
-        {
-            var sshDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (sshDir == null)
-            {
-                throw new ApplicationException("Unable to find the UserProfile directory!");
-            }
-            sshDir = Path.Combine(sshDir, ".ssh");
-            if (!Directory.Exists(sshDir))
-            {
-                Directory.CreateDirectory(sshDir);
-            }
-            return sshDir;
-        }
-
-        /// <summary>
-        /// Create the ssh key to %Home%/.ssh
-        /// </summary>
-        private string CreateSshKeyFile()
-        {
-            var sshDir = CreateSShDirectory();
-            var sshFilename = Path.Combine(sshDir, _sshKeyFilename);
-            if (!File.Exists(sshFilename))
-            {
-                File.WriteAllText(sshFilename, _sshKey.Replace("\r\n", "\n"));
-            }
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                // Update permission to the ssh key (Just for Linux)
-                ProcessHelper.ExecuteAndLog(_logger, "chmod", $"600 {sshFilename}");
-            }
-            return sshFilename;
-        }
-
-        /// <summary>
-        /// Update the ssh config file to define the key to used to clone the repository
-        /// </summary>
-        /// <returns></returns>
-        private bool AddSshKey()
-        {
-            // https://medium.com/@xiaolishen/use-multiple-ssh-keys-for-different-github-accounts-on-the-same-computer-7d7103ca8693
-            var sshConfigFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ssh", "config");
-            var config = new SshConfigFile(sshConfigFile);
-
-            // define a substitute hostname to define an ssh private key for each repository. Even if there are several repositories on a same hotname.
-            config.Add($"Host {SubstituteHostname}", "StrictHostKeyChecking no");
-            config.Add($"Host {SubstituteHostname}", $"HostName {HostName}"); // The real hostname
-            config.Add($"Host {SubstituteHostname}", $"User git"); // always git user, for git repositories
-            config.Add($"Host {SubstituteHostname}", $"IdentityFile ~/.ssh/{_sshKeyFilename}");
-            return config.Save(_logger);
-        }
-
-        /// <summary>
-        /// Return the hostname of the url
-        /// Ex : git@github.com:NonoDS/SOUPDiscover.git -> github.com
-        /// </summary>
-        protected string HostName
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// The organization parsed in git url.
-        /// Ex : git@github.com:NonoDS/SOUPDiscover.git -> NonoDS
-        /// </summary>
-        protected string Organization
-        {
-            get; private set;
-        }
-
-        /// <summary>
-        /// The Repository name parsed in the url, without ".git"
-        /// Ex: Ex : git@github.com:NonoDS/SOUPDiscover.git -> SOUPDiscover
-        /// </summary>
-        protected string Repository
-        {
-            get; private set;
-        }
-
-        /// <summary>
-        /// The hostname to use to clone the repository.
-        /// It is not the same that given by user.
-        /// This permit to define a ssh private key for each repository of a same real hostname.
-        /// </summary>
-        protected string SubstituteHostname
-        {
-            get
-            {
-                return $"{HostName}-{_sshKeyId}";
-            }
-        }
-
         /// <summary>
         /// Parse the url to extract hostname organization name and repository name
         /// </summary>
-        private void ParseRepositoryUrl()
+        private (string Protocol, string Hostname, string Organisation, string Repository) ParseRepositoryUrl()
         {
-            var match = _gitSSHUrlRegex.Match(_urlRepository);
-            if (!match.Success)
+            var match = _gitUrlRegex.Select(x => x.Match(_urlRepository)).FirstOrDefault(match => match.Success);
+            if(match == null)
             {
                 throw new ApplicationException($"Unable to parse git url \"{_urlRepository}\"!");
             }
-            HostName = match.Groups["hostname"].Value;
-            Organization = match.Groups["organization"].Value;
-            Repository = match.Groups["repository"].Value;
+            return new(match.Groups["protocol"].Value, match.Groups["hostname"].Value, match.Groups["organization"].Value, match.Groups["repository"].Value);
         }
 
         /// <summary>
@@ -163,12 +69,6 @@ namespace SoupDiscover.Core.Respository
         public override void CopyTo(string path, CancellationToken token = default)
         {
             // Create the ssh key to clone the repository
-            CreateSshKeyFile();
-            AddSshKey();
-            if (!CheckGitInstalled())
-            {
-                throw new ApplicationException($"Unable to find command {_gitCommand}");
-            }
             CloneRepository(path, token);
         }
 
@@ -183,8 +83,23 @@ namespace SoupDiscover.Core.Respository
             {
                 Directory.CreateDirectory(path);
             }
-            var repositoryToClone = $@"git@{SubstituteHostname}:{Organization}/{Repository}.git";
-            var result = ProcessHelper.ExecuteAndLog(_logger, _gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path, token);
+            string repositoryToClone = null;
+            var giturl = ParseRepositoryUrl();
+            if (giturl.Protocol == "git")
+            {
+                var substituteHostname = _credential.InstallSSHKey(giturl.Hostname);
+                repositoryToClone = $@"git@{substituteHostname}:{giturl.Organisation}/{giturl.Repository}.git";
+            }
+            else
+            {
+                repositoryToClone = $@"{giturl.Protocol}://{_credential.Login}:{_credential.Password}@{giturl.Hostname}/{giturl.Organisation}/{giturl.Repository}.git";
+            }
+            if (!CheckGitInstalled())
+            {
+                throw new ApplicationException($"Unable to find command {_gitCommand}");
+            }
+
+            var result = ProcessHelper.ExecuteAndLog(_gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path, _logger, token);
             if(result.ExitCode != 0)
             {
                 throw new ApplicationException($"Error on cloning the Git repository {_urlRepository} in path {path}. Error :\r\n {result.ErrorMessage}");

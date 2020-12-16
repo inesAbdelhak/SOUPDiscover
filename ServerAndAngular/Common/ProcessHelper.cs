@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -10,13 +11,17 @@ namespace SoupDiscover.Common
         /// <summary>
         /// Create and start a process
         /// </summary>
-        /// <param name="logger">The logger to log StandardOutput and StandardError</param>
         /// <param name="filename">the filename to execute</param>
         /// <param name="arguments">arguments to execute the filename</param>
         /// <param name="workingDirectory">The working directory where start the process</param>
+        /// <param name="logger">The logger to log StandardOutput and StandardError</param>
         /// <returns>The exit code and the all messages sent in StandardError stream</returns>
-        public static (int ExitCode, string ErrorMessage) ExecuteAndLog(ILogger logger, string filename, string arguments, string workingDirectory = null, CancellationToken token = default)
+        public static (int ExitCode, string ErrorMessage) ExecuteAndLog(string filename, string arguments, string workingDirectory = null, ILogger logger = null, CancellationToken token = default)
         {
+            if (logger == null)
+            {
+                logger = NullLogger.Instance;
+            }
             var logs = new StringBuilder();
             AutoResetEvent exitEvent = null;
             using var process = new Process();

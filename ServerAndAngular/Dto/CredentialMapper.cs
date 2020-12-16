@@ -16,6 +16,8 @@ namespace SoupDiscover.Controllers
             {
                 Name = dto.Name,
                 Key = dto.Key,
+                Login = dto.Login,
+                Password = dto.Password,
             };
         }
 
@@ -29,6 +31,8 @@ namespace SoupDiscover.Controllers
             {
                 Name = model.Name,
                 Key = model.Key,
+                Login = model.Login,
+                Password = model.Password,
             };
         }
 

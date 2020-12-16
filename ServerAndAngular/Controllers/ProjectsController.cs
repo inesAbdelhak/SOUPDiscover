@@ -133,7 +133,7 @@ namespace SoupDiscover.Controllers
             switch (project.Repository)
             {
                 case GitRepository git:
-                    _context.Entry((GitRepository)project.Repository).Reference(r => r.SshKey).Load();
+                    _context.Entry((GitRepository)project.Repository).Reference(r => r.Credential).Load();
                     break;
                 default: throw new ApplicationException($"The repository Type {project.Repository?.GetType()} is not supported!");
             }

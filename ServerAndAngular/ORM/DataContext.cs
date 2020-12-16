@@ -31,6 +31,7 @@ namespace SoupDiscover.ORM
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Package>().HasIndex(p => p.PackageId);
         }
+        public DbSet<Repository> Repositories { get; set; }
 
         public DbSet<GitRepository> GitRepositories { get; set; }
 
@@ -39,8 +40,6 @@ namespace SoupDiscover.ORM
         public DbSet<Package> Packages { get; set; }
 
         public DbSet<SOUPSearchProject> Projects { get; set; }
-
-        public DbSet<Repository> Repositories { get; set; }
 
         public DbSet<PackageConsumer> PackageConsumer { get; set; }
 

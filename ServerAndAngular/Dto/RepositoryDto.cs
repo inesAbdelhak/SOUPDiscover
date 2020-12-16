@@ -23,13 +23,13 @@ namespace SoupDiscover.Controllers.Dto
         public string url { get; set; }
 
         /// <summary>
-        /// The name of ssh key to clone the repository
+        /// The name of the key to clone the repository
         /// </summary>
         [Required(AllowEmptyStrings = false)]
-        public string sshKeyName { get; set; }
+        public string credentialId { get; set; }
 
         [JsonIgnore]
-        public CredentialDto sshKey { get; set; }
+        public CredentialDto credential { get; set; }
 
         /// <summary>
         /// The name of the branch to process

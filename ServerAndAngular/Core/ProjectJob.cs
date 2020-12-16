@@ -289,7 +289,7 @@ namespace SoupDiscover.Common
                 Process.Start("chmod", $"+x {filename}").WaitForExit();
             }
             // Execute the script
-            ProcessHelper.ExecuteAndLog(_logger, filename, null, checkoutDirectory, token);
+            ProcessHelper.ExecuteAndLog(filename, null, checkoutDirectory, _logger, token);
         }
 
         /// <summary>

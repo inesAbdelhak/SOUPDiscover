@@ -1,6 +1,7 @@
 ﻿using log4net.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SoupDiscover.Controllers;
 using SoupDiscover.Controllers.Dto;
 using SoupDiscover.Dto;
 using SoupDiscover.ORM;
@@ -18,7 +19,7 @@ namespace SoupDiscover.Core.Respository
             switch (repository.repositoryType)
             {
                 case RepositoryType.Git:
-                    return new GitRepositoryManager(provider.GetService<ILogger<GitRepositoryManager>>(), repository.url, repository.branch, repository.sshKeyName, repository.sshKey?.Key, $"sshgitkey{repository.sshKeyName}");
+                    return new GitRepositoryManager(provider.GetService<ILogger<GitRepositoryManager>>(), repository.url, repository.branch, CredentialMapper.ToModel(repository.credential));
                 default:
                     throw new ApplicationException($"The repository type {repository.GetType()} is not supported!");
             }

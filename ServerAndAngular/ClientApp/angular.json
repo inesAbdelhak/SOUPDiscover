@@ -151,5 +151,8 @@
       }
     }
   },
-  "defaultProject": "SoupDiscover"
+  "defaultProject": "SoupDiscover",
+  "cli": {
+    "analytics": false
+  }
 }

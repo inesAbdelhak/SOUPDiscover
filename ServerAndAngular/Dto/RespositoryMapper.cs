@@ -23,9 +23,9 @@ namespace SoupDiscover.Controllers
                 case GitRepository git:
                     repositoryDto.repositoryType = RepositoryType.Git;
                     repositoryDto.branch = git.Branch;
-                    repositoryDto.sshKeyName = git.SshKeyId;
+                    repositoryDto.credentialId = git.CredentialId;
+                    repositoryDto.credential = git.Credential.ToDto();
                     repositoryDto.url = git.Url;
-                    repositoryDto.sshKey = git.SshKey.ToDto();
                     break;
                 default:
                     return null;
@@ -49,8 +49,8 @@ namespace SoupDiscover.Controllers
                         Branch = repositoryDto.branch,
                         Url = repositoryDto.url,
                         Name = repositoryDto.name,
-                        SshKeyId = repositoryDto.sshKeyName,
-                        SshKey = repositoryDto.sshKey.ToModel(),
+                        CredentialId = repositoryDto.credentialId,
+                        Credential = repositoryDto.credential.ToModel(),
                     };
                     break;
             }

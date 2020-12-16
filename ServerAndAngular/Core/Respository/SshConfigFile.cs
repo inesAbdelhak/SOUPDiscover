@@ -82,7 +82,7 @@ namespace SoupDiscover.Core.Respository
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update permission to the file
-                ProcessHelper.ExecuteAndLog(logger, "chmod", $"600 {ConfigFilePath}");
+                ProcessHelper.ExecuteAndLog("chmod", $"600 {ConfigFilePath}", null, logger);
             }
             _isUpdated = false;
             return true;
