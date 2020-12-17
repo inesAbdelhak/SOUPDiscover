@@ -36,7 +36,7 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The Url to the package
         /// </summary>
-        public string PackageUrl { get; set; }
+        public string ProjectUrl { get; set; }
         
         /// <summary>
         /// Nuget package or npm package

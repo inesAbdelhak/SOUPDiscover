@@ -6,6 +6,12 @@ using System.IO;
 
 namespace SoupDiscover.ORM
 {
+    public enum CredentialType
+    {
+        Password,
+        SSH,
+    }
+
     /// <summary>
     /// A token used to authenticate from an api
     /// </summary>
@@ -25,6 +31,8 @@ namespace SoupDiscover.ORM
         public string Login { get; set; }
 
         public string Password { get; set; }
+
+        public CredentialType CredentialType { get; set; }
 
         /// <summary>
         /// Update the ssh config file to define the key to used to clone the repository

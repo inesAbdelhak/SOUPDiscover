@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CredentialService } from '../service/credential.service';
-import { CredentialDto } from '../model/credential';
+import { CredentialDto, CredentialType } from '../model/credential';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
@@ -21,6 +21,9 @@ export class CreateCredentialDialog {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
 
+  selected: { index: number, name: string };
+  credentialTypes = Object.keys(CredentialType).filter(e => !isNaN(+e)).map(o => ({ index: +o, name: CredentialType[o] }));
+
   /**
    * The user cancel editing
    * */
@@ -32,10 +35,15 @@ export class CreateCredentialDialog {
    * Validate modifications
    * */
   OnOkClick(): void {
+    if (this.selected.name == 'ssh')
+      this.data.credentialType = CredentialType.ssh;
+    else if (this.selected.name == 'password') {
+      this.data.credentialType = CredentialType.password;
+    }
     this.credentalService.AddCredential(this.data)
       .subscribe(res => {
         this.dialogRef.close(res);
-        this.toastr.success('La clé ssh "' + res.name + '" a été créée.', 'Authentification');
+        this.toastr.success('L\'authentification "' + res.name + '" a été créée.', 'Authentification');
       },
         error => this.HandleError(error));
   }
@@ -66,7 +74,7 @@ export class CreateCredentialComponent implements OnInit {
    * Open the dialog box to create a new credential
   */
   openDialog(): void {
-    this.data = { name: '', key: '' };
+    this.data = { name: '', key: '', login: '', password: '', credentialType: null };
     const dialogRef = this.dialog.open(CreateCredentialDialog, {
       data: this.data
     });

@@ -22,7 +22,10 @@
     <!-- Package Id -->
     <ng-container matColumnDef="packageId">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Id </th>
-      <td mat-cell *matCellDef="let element"> {{element.packageId}} </td>
+      <td mat-cell *matCellDef="let element">
+        <a *ngIf="element.projectUrl" href="{{element.projectUrl}}" title="Lien sur le projet" target="_blank">{{element.packageId}}</a>
+        <p *ngIf="!element.projectUrl">{{element.packageId}}</p>
+      </td>
     </ng-container>
 
     <!-- Package Version -->

@@ -33,7 +33,7 @@ namespace SoupDiscover
                 try
                 {
                     var context = services.GetRequiredService<DataContext>();
-                    context.Database.Migrate();
+                    context.Database.EnsureCreated();
                 }
                 catch (Exception ex)
                 {

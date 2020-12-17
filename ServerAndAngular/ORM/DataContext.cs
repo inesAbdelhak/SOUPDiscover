@@ -30,10 +30,13 @@ namespace SoupDiscover.ORM
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Package>().HasIndex(p => p.PackageId);
+            modelBuilder.Entity<GitRepository>()
+                .HasBaseType<Repository>();
+            modelBuilder.Entity<Repository>()
+                .HasDiscriminator()
+                .HasValue<GitRepository>("git");
         }
         public DbSet<Repository> Repositories { get; set; }
-
-        public DbSet<GitRepository> GitRepositories { get; set; }
 
         public DbSet<Credential> Credentials { get; set; }
 

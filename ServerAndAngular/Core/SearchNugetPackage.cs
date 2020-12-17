@@ -57,14 +57,14 @@ namespace SoupDiscover.Common
             }
             string licenceUrl = null;
             string description = null;
-            string packageUrl = null;
+            string projectUrl = null;
             if (metadataAsXml != null)
             {
                 var document = XDocument.Parse(metadataAsXml);
                 var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
-                licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl").Value;
+                licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl")?.Value;
                 description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
-                packageUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Url").Value;
+                projectUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "ProjectUrl")?.Value;
             }
             else
             {
@@ -77,7 +77,7 @@ namespace SoupDiscover.Common
                 Licence = licenceUrl, 
                 PackageType = PackageType.Nuget, 
                 Description = description,
-                PackageUrl = packageUrl,
+                ProjectUrl = projectUrl,
             };
         }
 

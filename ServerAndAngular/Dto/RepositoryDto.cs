@@ -19,7 +19,7 @@ namespace SoupDiscover.Controllers.Dto
         /// <summary>
         /// The name of sh key to clone the repository
         /// </summary>
-        [RegularExpression(@"^git@[^:]+:[^\/]+\/[^\/]+\.git$")]
+        [RegularExpression(@"^(git@[^:]+:[^\/]+\/[^\/]+\.git)|(https?:\/\/[^\/]+\/[^\/]+\/.*\.git)$")]
         public string url { get; set; }
 
         /// <summary>

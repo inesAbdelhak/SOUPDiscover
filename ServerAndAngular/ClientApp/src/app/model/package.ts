@@ -34,4 +34,10 @@ export class PackageDto {
     * Nuget package or npm package
     */
   packageType: PackageType;
+
+  /**
+   * The project Url of this package.
+   * Can be empty.
+   */
+  projectUrl: string;
 }

@@ -32,8 +32,8 @@
 
     <!-- The ssh key to clone the repository -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
-      <mat-label>Clé ssh</mat-label>
-      <mat-select [(ngModel)]="data.sshKeyName">
+      <mat-label>Authentification</mat-label>
+      <mat-select [(ngModel)]="data.credentialId">
         <mat-option>--selectionner--</mat-option>
         <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
       </mat-select>

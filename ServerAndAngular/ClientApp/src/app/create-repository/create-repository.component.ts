@@ -58,7 +58,14 @@ export class CreateRepositoryDialog implements OnInit {
   * @param error the error to display
   */
   HandleError(error: HttpErrorResponse) {
-    this.toastr.error(error.error.detail, 'Dépot');
+    let errorTitle = "";
+    if (error.error.detail != undefined) {
+      errorTitle = error.error.detail;
+    }
+    else {
+      errorTitle = error.error.title;
+    }
+    this.toastr.error(errorTitle, 'Dépot');
   }
 }
 
