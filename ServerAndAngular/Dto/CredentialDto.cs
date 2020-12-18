@@ -1,4 +1,6 @@
-﻿namespace SoupDiscover.Dto
+﻿using SoupDiscover.ORM;
+
+namespace SoupDiscover.Dto
 {
     public class CredentialDto
     {
@@ -21,5 +23,7 @@
         /// The password to use to clone the repository
         /// </summary>
         public string Password { get; set; }
+
+        public CredentialType CredentialType { get; set; }
     }
 }

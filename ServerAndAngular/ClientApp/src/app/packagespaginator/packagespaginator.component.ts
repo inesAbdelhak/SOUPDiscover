@@ -45,6 +45,12 @@ export class PackagespaginatorComponent implements OnInit {
   // the columns to display
   displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'licence'];
 
+  // Element contains at least one element
+  positivefilter: string[] = [];
+
+  // Element doesn't contains one element
+  negativefilter: string[] = [];
+
   selectProjectControl: FormControl = new FormControl();
 
   /**
@@ -57,6 +63,7 @@ export class PackagespaginatorComponent implements OnInit {
         this.packages = res;
         this.packagesTableSource = new MatTableDataSource<PackageDto>(this.packages);
         this.packagesTableSource.paginator = this.paginator;
+        this.packagesTableSource.filterPredicate = (a, b) => { return this.filterElement(a, b) };
       },
         error => console.error(error));
 
@@ -79,13 +86,49 @@ export class PackagespaginatorComponent implements OnInit {
     );
   }
 
+  // Update fields positivefilter and negativefilter form current filter
+  updateFilter(filter: string) {
+    var list = filter.split(' ');
+    this.positivefilter = [];
+    this.negativefilter = [];
+    list.forEach(value => {
+      value = value.trim();
+      if (value.startsWith('+') && value.length > 1) {
+        this.positivefilter.push(value.substring(1));
+      }
+      else if (value.startsWith('-') && value.length > 1) {
+        this.negativefilter.push(value.substring(1));
+      }
+      else {
+        this.positivefilter.push(value);
+      }
+    }); 
+  }
+
   /**
   * Filter list of packages
   * @param event the event that contains the filter request
   */
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
+    this.updateFilter(filterValue);
     this.packagesTableSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  filterElement(data: PackageDto, filter: string) : boolean {
+    var isok: boolean = true;
+    if (this.positivefilter.length > 0) {
+      isok = isok && this.positivefilter.every(function f(value: string, index: number, array: string[]) {
+        return data.packageId.lastIndexOf(value) != -1;
+      });
+    }
+
+    if (this.negativefilter.length > 0) {
+      isok = isok && this.negativefilter.every(function f(value: string, index: number, array: string[]) {
+        return data.packageId.lastIndexOf(value) == -1;
+      });
+    }
+    return isok;
   }
 
   applyCsProjFilter(event: MatAutocompleteSelectedEvent) {
@@ -115,5 +158,4 @@ export class PackagespaginatorComponent implements OnInit {
   ngOnInit() {
     this.Refresh();
   }
-
 }

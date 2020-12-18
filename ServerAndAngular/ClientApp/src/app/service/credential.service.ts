@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@angular/core';
 import { CredentialDto } from '../model/credential';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs/internal/Observable';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,9 @@ export class CredentialService {
    * Return all credentials of the database
    * */
   GetCredentials(): Observable<CredentialDto[]> {
-    return this.httpClient.get<CredentialDto[]>(this.credentialApiEndpoint);
+    return this.httpClient.get<CredentialDto[]>(this.credentialApiEndpoint).pipe(
+      map(data => data.map(d => CredentialDto.CreateFromData(d)))
+    );
   }
 
   /**

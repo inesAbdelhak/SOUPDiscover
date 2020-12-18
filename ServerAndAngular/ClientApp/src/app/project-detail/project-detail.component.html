@@ -80,7 +80,8 @@
   <div *ngIf="project.processStatus == processStatus.Waiting">
     <h2>Packages trouvés pour le projet</h2>
     <!-- For downloading csv file -->
-    <div>
+    <div class="childrenInline">
+      <mat-icon>archive</mat-icon>
       <!-- To download csv file that contains all package of the project -->
       <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
     </div>

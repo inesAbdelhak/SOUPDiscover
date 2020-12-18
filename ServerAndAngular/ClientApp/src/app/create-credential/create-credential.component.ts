@@ -21,6 +21,7 @@ export class CreateCredentialDialog {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: CredentialDto) { }
 
+  hide = true;
   selected: { index: number, name: string };
   credentialTypes = Object.keys(CredentialType).filter(e => !isNaN(+e)).map(o => ({ index: +o, name: CredentialType[o] }));
 
@@ -74,7 +75,7 @@ export class CreateCredentialComponent implements OnInit {
    * Open the dialog box to create a new credential
   */
   openDialog(): void {
-    this.data = { name: '', key: '', login: '', password: '', credentialType: null };
+    this.data = CredentialDto.CreateEmptyCredential();//{ name: '', key: '', login: '', password: '', credentialType: null };
     const dialogRef = this.dialog.open(CreateCredentialDialog, {
       data: this.data
     });

@@ -11,10 +11,12 @@
     </mat-autocomplete>
   </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Filtre sur l'id</mat-label>
+  <!-- Filter from th id -->
+  <mat-form-field floatLabel="auto">
+    <mat-label><mat-icon>filter_alt</mat-icon>Filter sur l'id (ex: -Stago +log)</mat-label>
     <input matInput (keyup)="applyFilter($event)" placeholder="Ex. log4net" />
   </mat-form-field>
+
 </div>
 <div class="fillelements">
   <!-- Display list of packages found -->

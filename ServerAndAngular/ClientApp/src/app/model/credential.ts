@@ -25,4 +25,24 @@ export class CredentialDto {
   password: string;
 
   credentialType: CredentialType;
+
+  public get credentialTypeName(): string {
+    return CredentialType[this.credentialType];
+  }
+
+  static CreateEmptyCredential(): CredentialDto {
+    var newObject = new CredentialDto();
+    newObject.name = '';
+    return newObject;
+  }
+
+  static CreateFromData(data): CredentialDto {
+    var newobject: CredentialDto = new CredentialDto();
+    newobject.key = data.key;
+    newobject.login = data.login;
+    newobject.name = data.name;
+    newobject.password = data.password;
+    newobject.credentialType = data.credentialType;
+    return newobject;
+  }
 }

@@ -2,7 +2,7 @@
 This application allows you to extract all the packages as well as the associated metadata.
 It searches for Nuget and NPM packages.
 
-// Add screenshoot here
+![](screenshots/result.png)
 
 # Build and execute
 
@@ -24,7 +24,7 @@ docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL10
 dotnet build SoupDiscover.csproj
 
 # Execute
-dotnet ServerAndAngular\bin\Debug\netcoreapp3.1\SoupDiscover.dll
+dotnet ServerAndAngular\bin\Debug\net5.0\SoupDiscover.dll
 ```
 
 # Environment variables
@@ -39,3 +39,4 @@ If application is running in a docker, it can be configured through environment 
 
 # Settings of appsetting.json
 :construction_worker:
+

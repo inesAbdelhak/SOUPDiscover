@@ -18,10 +18,11 @@ namespace SoupDiscover.Controllers
                 Key = dto.Key,
                 Login = dto.Login,
                 Password = dto.Password,
+                CredentialType = dto.CredentialType,
             };
         }
 
-        public static CredentialDto ToDto(this Credential model)
+        public static CredentialDto ToDto(this Credential model, bool securised = false)
         {
             if(model == null)
             {
@@ -30,13 +31,14 @@ namespace SoupDiscover.Controllers
             return new CredentialDto()
             {
                 Name = model.Name,
-                Key = model.Key,
+                Key = securised ? "*****" : model.Key,
                 Login = model.Login,
-                Password = model.Password,
+                Password = securised ? "*****" :model.Password,
+                CredentialType = model.CredentialType,
             };
         }
 
-        public static IEnumerable<CredentialDto> ToDto(this IEnumerable<Credential> credentials)
+        public static IEnumerable<CredentialDto> ToDto(this IEnumerable<Credential> credentials, bool securised)
         {
             if (credentials == null)
             {
@@ -44,11 +46,7 @@ namespace SoupDiscover.Controllers
             }
             foreach(var c in credentials)
             {
-                yield return new CredentialDto()
-                {
-                    Name = c.Name,
-                    Key = "*****",
-                };
+                yield return c.ToDto(securised);
             }
         }
     }

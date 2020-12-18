@@ -25,8 +25,8 @@ namespace SoupDiscover.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CredentialDto>>> GetCredentials()
         {
-            var list = await _context.Credentials.Select(e => e.Name).ToArrayAsync();
-            return list.Select(e => new CredentialDto() { Name = e, Key = "*****" }).ToArray(); // doesn't return the key value
+            var list = await _context.Credentials.ToArrayAsync();
+            return list.Select(e => e.ToDto(true)).ToArray(); // doesn't return the key value
         }
 
         // GET: api/Credentials/5
