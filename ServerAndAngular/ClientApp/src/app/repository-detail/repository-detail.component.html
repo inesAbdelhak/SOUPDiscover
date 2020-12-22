@@ -15,7 +15,7 @@
     <div class="editconfig" *ngIf="edit === true && repository.repositoryType === repositoryType.Git">
       <!-- the git url in ssh format -->
       <mat-form-field>
-        <mat-label>Url ssh</mat-label>
+        <mat-label>Url</mat-label>
         <input matInput [(ngModel)]="repository.url" />
       </mat-form-field>
 
@@ -27,17 +27,17 @@
 
       <!-- The ssh key to clone the repository -->
       <mat-form-field>
-        <mat-label>Clé ssh</mat-label>
-        <mat-select [(ngModel)]="repository.sshKeyName">
+        <mat-label>Authentification</mat-label>
+        <mat-select [(ngModel)]="repository.credentialId">
           <mat-option>--selectionner--</mat-option>
-          <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
+          <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name + '(' + cred.credentialTypeName + ')'}}</mat-option>
         </mat-select>
       </mat-form-field>
     </div>
     <div *ngIf="edit === false && repository.repositoryType === repositoryType.Git">
       <table class="beautifulTable">
         <tr>
-          <th>Url ssh</th>
+          <th>Url</th>
           <th>{{repository.url}}</th>
         </tr>
         <tr>
@@ -45,8 +45,8 @@
           <th>{{repository.branch}}</th>
         </tr>
         <tr>
-          <th>Clé ssh</th>
-          <th>{{repository.sshKeyName}}</th>
+          <th>Authentification</th>
+          <th>{{credentials.name + '(' + credentials.credentialTypeName + ')'}}</th>
         </tr>
       </table>
     </div>

@@ -125,8 +125,8 @@ export class ProjectDetailComponent implements OnInit {
   /**
    * Export all detected soup to a csv file
    * */
-  GetCsvUrl(): string {
-    return this.packageService.GetCsvUrl(this.currentProjectId);
+  GetCsvUrlFromProject(): string {
+    return this.packageService.GetCsvUrlFromProject(this.currentProjectId);
   }
 
   /**

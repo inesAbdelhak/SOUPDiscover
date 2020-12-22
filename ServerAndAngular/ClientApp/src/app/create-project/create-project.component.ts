@@ -69,7 +69,8 @@ export class CreateProjectComponent implements OnInit {
   openDialog(): void {
     this.data = { name: '', commandLinesBeforeParse: '', repositoryId: '', nugetServerUrl: '' };
     const dialogRef = this.dialog.open(CreateProjectDialog, {
-      data: this.data
+      data: this.data,
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe(result => {

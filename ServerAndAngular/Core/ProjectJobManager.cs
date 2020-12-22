@@ -12,7 +12,7 @@ namespace SoupDiscover.Core
     public class ProjectJobManager : JobManager, IProjectJobManager
     {
         public ProjectJobManager(ILogger<ProjectJobManager> logger)
-            : base(logger)
+            : base(logger, 1)
         {
         }
     }

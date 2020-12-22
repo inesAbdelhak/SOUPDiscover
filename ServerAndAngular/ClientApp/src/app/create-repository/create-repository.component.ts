@@ -84,7 +84,8 @@ export class CreateRepositoryComponent implements OnInit {
   openDialog(): void {
     this.data = new RepositoryDto();
     const dialogRef = this.dialog.open(CreateRepositoryDialog, {
-      data: this.data
+      data: this.data,
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe(result => {

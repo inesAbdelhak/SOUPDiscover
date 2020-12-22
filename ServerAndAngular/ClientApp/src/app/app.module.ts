@@ -27,6 +27,7 @@ import { ProjectDetailComponent } from './project-detail/project-detail.componen
 import { RepositoryDetailComponent } from './repository-detail/repository-detail.component';
 import { PackagespaginatorComponent } from './packagespaginator/packagespaginator.component';
 import { ToastrModule } from 'ngx-toastr';
+import { SearchPackageComponent } from './search-package/search-package.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { ToastrModule } from 'ngx-toastr';
     ProjectDetailComponent,
     RepositoryDetailComponent,
     PackagespaginatorComponent,
+    SearchPackageComponent,
   ],
   imports: [
     CommonModule,
@@ -55,12 +57,13 @@ import { ToastrModule } from 'ngx-toastr';
     ReactiveFormsModule,
     RouterTestingModule,
     RouterModule.forRoot([
-    { path: '', pathMatch: 'full', redirectTo: 'project' },
-    { path: 'project', component: ProjectComponent, },
-    { path: 'project/:id', component: ProjectDetailComponent, },
-    { path: 'repositories', component: RepositoriesComponent },
-    { path: 'repository/:id', component: RepositoryDetailComponent },
-    { path: 'credentials', component: CredentialsComponent },
+      { path: '', pathMatch: 'full', redirectTo: 'project' },
+      { path: 'project', component: ProjectComponent, },
+      { path: 'project/:id', component: ProjectDetailComponent, },
+      { path: 'repositories', component: RepositoriesComponent },
+      { path: 'repository/:id', component: RepositoryDetailComponent },
+      { path: 'credentials', component: CredentialsComponent },
+      { path: 'searchPackage', component: SearchPackageComponent },
 ], { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     LayoutModule,

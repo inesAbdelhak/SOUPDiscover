@@ -20,6 +20,7 @@ export class RepositoryDetailComponent implements OnInit {
   availableCredentials: CredentialDto[];
   edit = false;
   repositoryType = RepositoryType;
+  credentials: CredentialDto;
 
   constructor(private repositoriesService: RepositoriesService,
     private toastr: ToastrService,
@@ -28,6 +29,15 @@ export class RepositoryDetailComponent implements OnInit {
     private credentialService: CredentialService) { }
 
   ngOnInit() {
+    // Retrieve all available credentials
+    this.credentialService.GetCredentials()
+      .subscribe(res => {
+        this.availableCredentials = res;
+        if (this.availableCredentials != null && this.repository != null) {
+          this.credentials = this.availableCredentials.find(c => c.name === this.repository.credentialId);
+        }
+      });
+
     // Load the repository data
     this.route.paramMap.subscribe(params => {
       this.repositoryId = params.get('id');
@@ -35,11 +45,11 @@ export class RepositoryDetailComponent implements OnInit {
       this.repositoriesService.GetRepository(this.repositoryId)
         .subscribe(res => {
           this.repository = res;
+          if (this.availableCredentials != null && res != null) {
+            this.credentials = this.availableCredentials.find(c => c.name === this.repository.credentialId);
+          }
         });
     });
-    // Retrieve all available credentials
-    this.credentialService.GetCredentials()
-      .subscribe(res => this.availableCredentials = res);
   }
 
   /**

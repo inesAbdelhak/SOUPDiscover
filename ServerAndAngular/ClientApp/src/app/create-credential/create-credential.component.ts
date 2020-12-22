@@ -77,7 +77,8 @@ export class CreateCredentialComponent implements OnInit {
   openDialog(): void {
     this.data = CredentialDto.CreateEmptyCredential();//{ name: '', key: '', login: '', password: '', credentialType: null };
     const dialogRef = this.dialog.open(CreateCredentialDialog, {
-      data: this.data
+      data: this.data,
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe(result => {

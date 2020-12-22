@@ -6,6 +6,6 @@
     </app-create-repository>
   </div>
     <ul style="list-style-type: none;">
-      <li *ngFor="let repo of repositories"><a [routerLink]="['/repository', repo.name]">{{repo.name}}</a>: {{repo.url}}</li>
+      <li *ngFor="let repo of repositories"><a [routerLink]="['/repository', repo.name]">{{repo.name}}</a>{{ '(' + repo.url + ')'}}</li>
   </ul>
 </div>

@@ -81,9 +81,9 @@
     <h2>Packages trouvés pour le projet</h2>
     <!-- For downloading csv file -->
     <div class="childrenInline">
-      <mat-icon>archive</mat-icon>
+      <mat-icon style="margin-right: 0px">archive</mat-icon>
       <!-- To download csv file that contains all package of the project -->
-      <a [href]="GetCsvUrl()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
+      <a [href]="GetCsvUrlFromProject()" [download]="currentProjectId + '.csv'">Télécharger le fichier csv des packages trouvés</a>
     </div>
     <app-packagespaginator [currentProjectId]="currentProjectId"></app-packagespaginator>
   </div>

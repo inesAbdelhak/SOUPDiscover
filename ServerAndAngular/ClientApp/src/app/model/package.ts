@@ -5,6 +5,18 @@ export enum PackageType {
 }
 
 export class PackageDto {
+
+  static CreateFromData(pa): PackageDto {
+    var newPackage: PackageDto = new PackageDto();
+    newPackage.id = pa.id;
+    newPackage.packageId = pa.packageId;
+    newPackage.version = pa.version;
+    newPackage.licence = pa.licence;
+    newPackage.description = pa.description;
+    newPackage.packageType = pa.packageType;
+    newPackage.projectUrl = pa.projectUrl;
+    return newPackage;
+  }
   /**
    * Id of the package in database
    */
@@ -40,4 +52,8 @@ export class PackageDto {
    * Can be empty.
    */
   projectUrl: string;
+
+  get isLicenceUrl() {
+    return this.licence?.startsWith('http') === true;
+  }
 }

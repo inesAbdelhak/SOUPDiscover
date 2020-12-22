@@ -20,7 +20,7 @@
     <!-- for git repositories -->
     <!-- the git url in ssh format -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
-      <mat-label>Url ssh</mat-label>
+      <mat-label>Url</mat-label>
       <input matInput [(ngModel)]="data.url">
     </mat-form-field>
 
@@ -35,7 +35,7 @@
       <mat-label>Authentification</mat-label>
       <mat-select [(ngModel)]="data.credentialId">
         <mat-option>--selectionner--</mat-option>
-        <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name}}</mat-option>
+        <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name + '(' + cred.credentialTypeName + ')'}}</mat-option>
       </mat-select>
     </mat-form-field>
 

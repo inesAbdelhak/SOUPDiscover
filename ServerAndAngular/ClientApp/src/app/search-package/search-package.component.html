@@ -1,0 +1,68 @@
+<section style="margin: 40px">
+  <h1>Recherche de packets</h1>
+
+  <!-- Filter from the id -->
+  <div>
+    <mat-form-field>
+      <mat-label>Filter sur l'id du packet (e: log)</mat-label>
+      <input #search matInput (keyup.enter)="OnEnter($event.target.value)" placeholder="Ex. log4net" />
+    </mat-form-field>
+    <button mat-button (click)="OnEnter(search.value)" style="min-width: 10px; padding: 0px; margin: 0px; vertical-align: super;"><mat-icon>search</mat-icon></button>
+    <div class="childrenInline">
+      <mat-icon style="margin-left: 20px; margin-right: 0px">archive</mat-icon>
+      <a style="margin-left: 5px" [href]="GetCsvUrlFromId()" [download]="'search' + idToSearch + '.csv'">Télécharger le fichier csv des packages trouvés</a>
+    </div>
+  </div>
+
+  <!-- Display list of packages -->
+  <table *ngIf="packages != null" mat-table [dataSource]="packages" class="mat-elevation-z8">
+    <!--Package Id -->
+    <ng-container matColumnDef="packageId">
+      <th mat-header-cell *matHeaderCellDef> Id </th>
+      <td mat-cell *matCellDef="let element">
+        <a *ngIf="element.packageDto.projectUrl" href="{{element.packageDto.projectUrl}}" title="Lien sur le projet" target="_blank">{{element.packageDto.packageId}}</a>
+        <p *ngIf="!element.packageDto.projectUrl">{{element.packageDto.packageId}}</p>
+      </td>
+    </ng-container>
+
+    <!-- Package Version -->
+    <ng-container matColumnDef="version">
+      <th mat-header-cell *matHeaderCellDef> Version </th>
+      <td mat-cell *matCellDef="let element"> {{element.packageDto.version}} </td>
+    </ng-container>
+
+    <!-- Package licence -->
+    <ng-container matColumnDef="licence">
+      <th mat-header-cell *matHeaderCellDef> Licence </th>
+      <td mat-cell *matCellDef="let element"> {{element.packageDto.licence}} </td>
+    </ng-container>
+
+    <!-- Package description -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef> Description </th>
+      <td mat-cell *matCellDef="let element"> {{element.packageDto.description}} </td>
+    </ng-container>
+
+    <!-- Package type -->
+    <ng-container matColumnDef="packageType">
+      <th mat-header-cell *matHeaderCellDef> Type </th>
+      <td mat-cell *matCellDef="let element"> {{element.packageDto.packageType}} </td>
+    </ng-container>
+
+    <!-- Projects that use this package -->
+    <ng-container matColumnDef="projects">
+      <th mat-header-cell *matHeaderCellDef>Projets</th>
+      <td mat-cell *matCellDef="let element">
+        <ul>
+          <li *ngFor="let name of element.projectNames">
+            <a [routerLink]="['/project', name ]">{{name}}</a>
+          </li>
+        </ul>
+       </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  
+</section>

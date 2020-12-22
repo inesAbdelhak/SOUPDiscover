@@ -8,19 +8,25 @@
       <mat-icon>refresh</mat-icon>
     </button>
   </div>
-  <ul style="list-style-type: none;">
-    <li *ngFor="let project of projects" style="display:flex;">
-      <div style="width:200px; display:inline-flex">
+  <table style="list-style-type: none;">
+    <tr *ngFor="let project of projects">
+      <td>
         <mat-icon color="warn" *ngIf="project.processStatus === processStatus.Error">error_outline</mat-icon>
         <mat-icon *ngIf="project.processStatus === processStatus.Running">moped</mat-icon>
         <mat-icon *ngIf="project.processStatus === processStatus.Waiting">done</mat-icon>
+      </td>
+      <td>
         <a [routerLink]="['/project', project.name]" style="width:50px">{{project.name}}</a>
-      </div>
-      <button mat-raised-button color="primary" style="align-self:center;height:fit-content;" (click)="LaunchAnalyze(project.name)">
-        <mat-icon>launch</mat-icon>
-      </button>
-      <pre *ngIf="project.lastAnalysisDate != null">{{project.lastAnalysisDate | date:'medium'}}</pre>
+      </td>
+      <td>
+        <p *ngIf="project.lastAnalysisDate != null">{{project.lastAnalysisDate | date:'medium'}}</p>
+      </td>
+      <td>
+        <button mat-raised-button color="primary" style="align-self:center;height:fit-content;" (click)="LaunchAnalyze(project.name)">
+          <mat-icon>launch</mat-icon>
+        </button>
+      </td>
 
-    </li>
-  </ul>
+    </tr>
+  </table>
 </div>
