@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS base
+﻿FROM mcr.microsoft.com/dotnet/sdk:5.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -13,7 +13,7 @@ RUN npm config set https-proxy $https_proxy
 RUN [[ ${skip_client_build} = true ]] && echo "Skipping npm install" || npm install 
 RUN [[ ${skip_client_build} = true ]] && mkdir dist || npm run-script build
 
-FROM mcr.microsoft.com/dotnet/core/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 COPY SoupDiscover.csproj .
 RUN dotnet restore SoupDiscover.csproj

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { PackageDto } from '../model/package';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PackageWithProjectDto } from '../model/PackageWithProjectDto';
+import { PackageWithProjectDto } from '../model/packageWithProjectDto';
 
 @Injectable({
   providedIn: 'root'

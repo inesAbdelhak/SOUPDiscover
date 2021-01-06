@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { PackageDto } from '../model/package';
-import { PackageWithProjectDto } from '../model/PackageWithProjectDto';
+import { PackageWithProjectDto } from '../model/packageWithProjectDto';
 import { PackagesService } from '../service/packages.service';
 
 @Component({
