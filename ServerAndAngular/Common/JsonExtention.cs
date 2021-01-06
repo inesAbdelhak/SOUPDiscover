@@ -12,7 +12,7 @@ namespace SoupDiscover.Common
             }
             if (foundElement.ValueKind == JsonValueKind.Object)
             {
-                if(!foundElement.TryGetProperty(optionalSubKey, out foundElement))
+                if (!foundElement.TryGetProperty(optionalSubKey, out foundElement))
                 {
                     return null;
                 }

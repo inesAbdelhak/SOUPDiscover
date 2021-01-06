@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
 using SoupDiscover.Core;
+using SoupDiscover.Database;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
@@ -38,10 +37,10 @@ namespace SoupDiscover
             {
                 case SupportedDatabase.SQLite:
                     services.AddDbContext<DataContext, SqliteDataContext>();
-                break;
+                    break;
                 case SupportedDatabase.Postgres:
                     services.AddDbContext<DataContext, PostgresDataContext>();
-                break;
+                    break;
                 default:
                     throw new ApplicationException($"The databaseType {databaseType} is not supported!");
             }
@@ -55,8 +54,8 @@ namespace SoupDiscover
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             var log4netConfigFile = Configuration.GetSection("Logging").GetValue("log4net.config", "log4net.config");
-            if(log4netConfigFile != null)
-            loggerFactory.AddLog4Net(log4netConfigFile);
+            if (log4netConfigFile != null)
+                loggerFactory.AddLog4Net(log4netConfigFile);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

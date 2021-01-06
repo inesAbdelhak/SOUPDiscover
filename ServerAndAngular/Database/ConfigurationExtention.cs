@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace SoupDiscover
+namespace SoupDiscover.Database
 {
     /// <summary>
     /// Configure database from parameters
@@ -15,9 +15,9 @@ namespace SoupDiscover
         public static DbContextOptionsBuilder UseDatabaseConfig([NotNull] this DbContextOptionsBuilder optionsBuilder, IConfiguration configuration, ILogger logger = null)
         {
             logger = logger ?? NullLogger.Instance;
-            
+
             var dbType = configuration.GetDatabaseType(logger);
-            
+
             // Search configuration in environment and in appsettings
             var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? configuration.GetConnectionString("Default") ?? "Data Source=CustomerDB.db;";
 
@@ -27,11 +27,11 @@ namespace SoupDiscover
             {
                 case SupportedDatabase.SQLite:
                     optionsBuilder.UseSqlite(connectionString);
-                break;
+                    break;
 
                 case SupportedDatabase.Postgres:
                     optionsBuilder.UseNpgsql(connectionString);
-                break;
+                    break;
 
                 default:
                     throw new ApplicationException("Unable to configure the database type");

@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SoupDiscover.ORM
@@ -37,7 +35,7 @@ namespace SoupDiscover.ORM
         /// The Url to the package
         /// </summary>
         public string ProjectUrl { get; set; }
-        
+
         /// <summary>
         /// Nuget package or npm package
         /// </summary>
@@ -49,7 +47,7 @@ namespace SoupDiscover.ORM
         /// </summary>
         [JsonIgnore]
         public virtual ICollection<PackageConsumer> PackageConsumers { get; set; }
-        
+
         /// <summary>
         /// Description found in metadata
         /// </summary>

@@ -1,7 +1,6 @@
 ﻿using SoupDiscover.Common;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 

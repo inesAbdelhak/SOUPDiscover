@@ -1,5 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
 using SoupDiscover.ORM;
 using System;
@@ -20,13 +19,13 @@ namespace SoupDiscover.Core.Respository
             @"^(?<protocol>git)@(?<hostname>[^:]+):(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$",
             @"^(?<protocol>https?):\/\/(?<hostname>[^\/]+)\/(?<organization>[^\/]+)\/(?<repository>[^\/]+)\.git$"
         };
-        private static Regex[] _gitUrlRegex;
+        private static readonly Regex[] _gitUrlRegex;
         private const string _gitCommand = "git";
         private readonly ILogger<GitRepositoryManager> _logger;
         private readonly string _urlRepository;
         private readonly string _branch;
         private readonly Credential _credential;
-        
+
         static GitRepositoryManager()
         {
             _gitUrlRegex = _gitUrlStringRegex.Select(x => new Regex(x)).ToArray();
@@ -55,7 +54,7 @@ namespace SoupDiscover.Core.Respository
         private (string Protocol, string Hostname, string Organisation, string Repository) ParseRepositoryUrl()
         {
             var match = _gitUrlRegex.Select(x => x.Match(_urlRepository)).FirstOrDefault(match => match.Success);
-            if(match == null)
+            if (match == null)
             {
                 throw new ApplicationException($"Unable to parse git url \"{_urlRepository}\"!");
             }
@@ -100,7 +99,7 @@ namespace SoupDiscover.Core.Respository
             }
 
             var result = ProcessHelper.ExecuteAndLog(_gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path, _logger, token);
-            if(result.ExitCode != 0)
+            if (result.ExitCode != 0)
             {
                 throw new ApplicationException($"Error on cloning the Git repository {_urlRepository} in path {path}. Error :\r\n {result.ErrorMessage}");
             }

@@ -10,6 +10,9 @@ namespace SoupDiscover.ORM
 
         public virtual SOUPSearchProject Project { get; set; }
 
+        /// <summary>
+        /// The name of the project associated
+        /// </summary>
         public string ProjectId { get; set; }
 
         /// <summary>

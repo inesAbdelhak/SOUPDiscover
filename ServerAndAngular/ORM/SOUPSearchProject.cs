@@ -1,11 +1,8 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SoupDiscover.Common;
-using SoupDiscover.Core.Respository;
+﻿using SoupDiscover.Core.Respository;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace SoupDiscover.ORM
 {
@@ -34,7 +31,7 @@ namespace SoupDiscover.ORM
         /// <summary>
         /// The packages associated with a package consumer (package used by a project)
         /// </summary>
-        public virtual ICollection<PackageConsumer> PackageConsumers { get;set;}
+        public virtual ICollection<PackageConsumer> PackageConsumers { get; set; }
 
         /// <summary>
         /// The current status of the project

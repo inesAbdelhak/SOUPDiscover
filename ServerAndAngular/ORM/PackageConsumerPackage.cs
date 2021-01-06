@@ -9,7 +9,7 @@ namespace SoupDiscover.ORM
     {
         [Key]
         public int Id { get; set; }
-        
+
         public virtual PackageConsumer PackageConsumer { get; set; }
 
         public int PackageConsumerId { get; set; }

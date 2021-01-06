@@ -1,7 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System;
 
-namespace SoupDiscover.Migrations.SqliteData
+namespace SoupDiscover.Database.PostgresData
 {
     public partial class InitialCreate : Migration
     {
@@ -24,7 +25,7 @@ namespace SoupDiscover.Migrations.SqliteData
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PackageId = table.Column<string>(nullable: true),
                     Version = table.Column<string>(nullable: true),
                     Licence = table.Column<string>(nullable: true),
@@ -84,7 +85,7 @@ namespace SoupDiscover.Migrations.SqliteData
                 columns: table => new
                 {
                     PackageConsumerId = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ProjectId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     PackageId = table.Column<int>(nullable: true)
@@ -111,7 +112,7 @@ namespace SoupDiscover.Migrations.SqliteData
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PackageConsumerId = table.Column<int>(nullable: false),
                     PackageId = table.Column<int>(nullable: false)
                 },

@@ -16,7 +16,7 @@ namespace SoupDiscover.Core.Respository
         /// <summary>
         /// All root element of the ssh config file
         /// </summary>
-        private IList<RootElement> _rootElements;
+        private readonly IList<RootElement> _rootElements;
 
         private bool _isUpdated;
 
@@ -59,7 +59,7 @@ namespace SoupDiscover.Core.Respository
         /// <returns>true: An update is pending ad saved. False : no pending modification.</returns>
         public bool Save(ILogger logger = null)
         {
-            if(logger == null)
+            if (logger == null)
             {
                 logger = NullLogger.Instance;
             }

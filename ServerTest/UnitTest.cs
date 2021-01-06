@@ -1,19 +1,10 @@
-using Microsoft.AspNetCore.Routing.Patterns;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using SoupDiscover.Common;
-using SoupDiscover.Controllers;
-using SoupDiscover.Core;
 using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Threading;
 
 namespace ServerTest
 {
@@ -43,12 +34,12 @@ namespace ServerTest
         public void TestNugetMetadata()
         {
             var search = new SearchNugetPackage(NullLogger<SearchNugetPackage>.Instance);
-            var package = search.SearchMetadata("log4net", 
-                "2.0.8", 
+            var package = search.SearchMetadata("log4net",
+                "2.0.8",
                 new SearchPackageConfiguration("",
                 new Dictionary<PackageType, string[]>()
-                { 
-                    { PackageType.Nuget, new[] { @"https://www.nuget.org/api/v2" } } 
+                {
+                    { PackageType.Nuget, new[] { @"https://www.nuget.org/api/v2" } }
                 }));
             Assert.AreEqual("log4net", package.PackageId);
             Assert.AreEqual("2.0.8", package.Version);
@@ -62,7 +53,7 @@ namespace ServerTest
             var search = new SearchNpmPackage(NullLogger<SearchNpmPackage>.Instance);
             var assemblyLocation = typeof(SearchNpmPackage).Assembly.Location;
             var index = assemblyLocation.IndexOf(Path.DirectorySeparatorChar + "ServerTest" + Path.DirectorySeparatorChar);
-            if(index == -1)
+            if (index == -1)
             {
                 return; // Inconclusive test
             }

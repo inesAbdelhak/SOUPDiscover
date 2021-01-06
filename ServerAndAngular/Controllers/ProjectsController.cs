@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualBasic.CompilerServices;
-using SoupDiscover.Core;
+using SoupDiscover.Dto;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SoupDiscover.Controllers
 {
@@ -74,7 +67,7 @@ namespace SoupDiscover.Controllers
                 return BadRequest();
             }
 
-            if(_projectJobManager.IsRunning(projectId))
+            if (_projectJobManager.IsRunning(projectId))
             {
                 return Problem($"The project {projectId} is running. Stop the project before update it.");
             }
@@ -146,7 +139,7 @@ namespace SoupDiscover.Controllers
             {
                 return Problem($"The project {project.Name} is already processing !");
             }
-            
+
             return CreatedAtAction("Process Project", new { id = projectId }, true);
         }
 
@@ -171,7 +164,7 @@ namespace SoupDiscover.Controllers
             {
                 return NotFound();
             }
-            if(_projectJobManager.IsRunning(projectId))
+            if (_projectJobManager.IsRunning(projectId))
             {
                 return Problem($"The project {projectId} is running. Stop it before remove it.");
             }

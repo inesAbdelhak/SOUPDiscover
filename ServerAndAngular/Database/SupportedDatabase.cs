@@ -1,4 +1,4 @@
-﻿namespace SoupDiscover
+﻿namespace SoupDiscover.Database
 {
     public enum SupportedDatabase
     {

@@ -6,7 +6,7 @@
         /// A nuget package
         /// </summary>
         Nuget,
-        
+
         /// <summary>
         /// an npm package 
         /// </summary>

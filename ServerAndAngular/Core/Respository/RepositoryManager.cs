@@ -1,10 +1,6 @@
-﻿using log4net.Core;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SoupDiscover.Controllers;
-using SoupDiscover.Controllers.Dto;
 using SoupDiscover.Dto;
-using SoupDiscover.ORM;
 using System;
 using System.Threading;
 

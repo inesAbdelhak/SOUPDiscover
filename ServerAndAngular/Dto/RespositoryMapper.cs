@@ -1,9 +1,7 @@
-﻿using SoupDiscover.Controllers.Dto;
-using SoupDiscover.Core.Respository;
-using SoupDiscover.Dto;
+﻿using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
 
-namespace SoupDiscover.Controllers
+namespace SoupDiscover.Dto
 {
     /// <summary>
     /// Mapping between <see cref="RepositoryDto"/> and <see cref="Repository"/>
@@ -12,12 +10,14 @@ namespace SoupDiscover.Controllers
     {
         public static RepositoryDto ToDto(this Repository repositoryModel)
         {
-            if(repositoryModel == null)
+            if (repositoryModel == null)
             {
                 return null;
             }
-            var repositoryDto = new RepositoryDto();
-            repositoryDto.name = repositoryModel.Name;
+            var repositoryDto = new RepositoryDto
+            {
+                name = repositoryModel.Name
+            };
             switch (repositoryModel)
             {
                 case GitRepository git:
@@ -35,7 +35,7 @@ namespace SoupDiscover.Controllers
 
         public static Repository ToModel(this RepositoryDto repositoryDto)
         {
-            if(repositoryDto == null)
+            if (repositoryDto == null)
             {
                 return null;
             }

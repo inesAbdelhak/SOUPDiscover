@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace SoupDiscover.Common
         public const string NodeModulesDirName = "node_modules";
 
         private (string CheckoutDirectory, string[] packageLockJson) _lastSearch;
-        private ILogger<SearchNpmPackage> _logger;
+        private readonly ILogger<SearchNpmPackage> _logger;
 
         public PackageType PackageType => PackageType.Npm;
 

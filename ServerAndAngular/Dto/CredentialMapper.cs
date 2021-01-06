@@ -1,8 +1,7 @@
-﻿using SoupDiscover.Dto;
-using SoupDiscover.ORM;
+﻿using SoupDiscover.ORM;
 using System.Collections.Generic;
 
-namespace SoupDiscover.Controllers
+namespace SoupDiscover.Dto
 {
     public static class CredentialMapper
     {
@@ -24,7 +23,7 @@ namespace SoupDiscover.Controllers
 
         public static CredentialDto ToDto(this Credential model, bool securised = false)
         {
-            if(model == null)
+            if (model == null)
             {
                 return null;
             }
@@ -33,7 +32,7 @@ namespace SoupDiscover.Controllers
                 Name = model.Name,
                 Key = securised ? "*****" : model.Key,
                 Login = model.Login,
-                Password = securised ? "*****" :model.Password,
+                Password = securised ? "*****" : model.Password,
                 CredentialType = model.CredentialType,
             };
         }
@@ -44,7 +43,7 @@ namespace SoupDiscover.Controllers
             {
                 yield break;
             }
-            foreach(var c in credentials)
+            foreach (var c in credentials)
             {
                 yield return c.ToDto(securised);
             }

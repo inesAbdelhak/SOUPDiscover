@@ -1,4 +1,4 @@
-﻿using SoupDiscover.Controllers.Dto;
+﻿using SoupDiscover.Dto;
 using System;
 
 namespace SoupDiscover.Core.Respository
@@ -10,5 +10,4 @@ namespace SoupDiscover.Core.Respository
             return RepositoryManager.CreateManagerFrom(repository, provider);
         }
     }
-
 }

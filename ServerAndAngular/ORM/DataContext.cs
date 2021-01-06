@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Server.IIS.Core;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SoupDiscover.Core.Respository;
+using SoupDiscover.Database;
 
 namespace SoupDiscover.ORM
 {
-
     /// <summary>
     /// The context of the database
     /// </summary>

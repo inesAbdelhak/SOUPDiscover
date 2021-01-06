@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace SoupDiscover.Common
+﻿namespace SoupDiscover.Common
 {
     public class PackageConsumerName
     {

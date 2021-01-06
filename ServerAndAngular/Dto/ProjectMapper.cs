@@ -1,8 +1,9 @@
 ﻿using SoupDiscover.ORM;
 using System.Collections.Generic;
 
-namespace SoupDiscover.Controllers
+namespace SoupDiscover.Dto
 {
+
     /// <summary>
     /// Mapping between <see cref="SOUPSearchProject"/> and <see cref="ProjectDto"/>
     /// </summary>

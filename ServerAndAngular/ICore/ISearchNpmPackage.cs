@@ -1,9 +1,9 @@
-﻿using SoupDiscover.ORM;
-using System.Runtime.InteropServices;
+﻿using SoupDiscover.Common;
+using SoupDiscover.ORM;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SoupDiscover.Common
+namespace SoupDiscover.ICore
 {
     /// <summary>
     /// Search packages

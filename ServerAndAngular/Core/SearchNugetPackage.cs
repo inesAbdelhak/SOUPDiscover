@@ -1,5 +1,4 @@
-﻿using log4net.Core;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
@@ -21,7 +20,7 @@ namespace SoupDiscover.Common
     /// </summary>
     public class SearchNugetPackage : ISearchPackage
     {
-        private Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
+        private readonly Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
         private readonly ILogger<SearchNugetPackage> _logger;
 
         public PackageType PackageType => PackageType.Nuget;
@@ -71,11 +70,11 @@ namespace SoupDiscover.Common
                 _logger.LogInformation($"Unable to find Meta-data on package {packageId} version {version} on sources {string.Join(";", sources)}");
             }
             return new Package()
-            { 
+            {
                 PackageId = packageId,
-                Version = version, 
-                Licence = licenceUrl, 
-                PackageType = PackageType.Nuget, 
+                Version = version,
+                Licence = licenceUrl,
+                PackageType = PackageType.Nuget,
                 Description = description,
                 ProjectUrl = projectUrl,
             };
@@ -162,7 +161,7 @@ namespace SoupDiscover.Common
                 token.ThrowIfCancellationRequested();
                 var doc = XDocument.Load(packageConfigFile);
                 var packages = doc.Root.Element("packages")?.Elements();
-                if(packages == null)
+                if (packages == null)
                 {
                     continue;
                 }

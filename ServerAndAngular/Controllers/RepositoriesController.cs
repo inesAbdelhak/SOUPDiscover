@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using SoupDiscover.Core.Respository;
+using SoupDiscover.Dto;
+using SoupDiscover.ORM;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using SoupDiscover.Controllers.Dto;
-using SoupDiscover.Core.Respository;
-using SoupDiscover.ORM;
 
 namespace SoupDiscover.Controllers
 {
@@ -116,7 +114,7 @@ namespace SoupDiscover.Controllers
             _context.Repositories.Remove(repository);
             await _context.SaveChangesAsync();
             var repositoryDto = repository.ToDto();
-            if(repository == null)
+            if (repository == null)
             {
                 return Problem($"Repository type {typeof(Repository)} is not supported!");
             }

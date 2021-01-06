@@ -33,7 +33,7 @@ namespace SoupDiscover.Core
                     {
                         throw e; // all try are used -> return the exception
                     }
-                    foreach(var f in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+                    foreach (var f in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
                     {
                         File.SetAttributes(f, FileAttributes.Normal); // Set all file in normal mode
                     }

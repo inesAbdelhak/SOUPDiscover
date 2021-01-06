@@ -63,13 +63,7 @@ namespace SoupDiscover.ORM
             return $"{hostname}-{Name}";
         }
 
-        private string SSHKeyFilename
-        {
-            get
-            {
-                return $"sshgitkey{Name}";
-            }
-        }
+        private string SSHKeyFilename => $"sshgitkey{Name}";
 
         /// <summary>
         /// Create the ssh key to %Home%/.ssh

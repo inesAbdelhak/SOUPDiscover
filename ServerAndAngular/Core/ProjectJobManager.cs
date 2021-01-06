@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SoupDiscover.ICore;
-using SoupDiscover.ORM;
-using System.Linq;
 
 namespace SoupDiscover.Core
 {

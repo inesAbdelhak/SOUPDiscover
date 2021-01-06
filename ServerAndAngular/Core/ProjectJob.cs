@@ -1,22 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SoupDiscover.Core;
+using SoupDiscover.Core.Respository;
+using SoupDiscover.Dto;
+using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using Newtonsoft.Json.Linq;
-using System.Text.Json;
-using System.Xml.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using SoupDiscover.Core.Respository;
-using System.Text;
-using SoupDiscover.Core;
-using SoupDiscover.Controllers;
-using SoupDiscover.ICore;
-using Microsoft.CodeAnalysis;
 
 namespace SoupDiscover.Common
 {
@@ -27,14 +22,14 @@ namespace SoupDiscover.Common
     {
         private readonly ILogger<ProjectJob> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
-        
-        private IDictionary<PackageType, ISearchPackage> _searchPackages;
+
+        private readonly IDictionary<PackageType, ISearchPackage> _searchPackages;
         private RepositoryManager _repositoryManager;
 
         protected SearchPackageConfiguration SearchPackageConfiguraton { get; private set; }
 
         public ProjectJob(ILogger<ProjectJob> logger,
-            IServiceScopeFactory scopeFactory, 
+            IServiceScopeFactory scopeFactory,
             IEnumerable<ISearchPackage> searchPackages)
         {
             _searchPackages = new Dictionary<PackageType, ISearchPackage>();
@@ -89,7 +84,7 @@ namespace SoupDiscover.Common
         /// <param name="token">The token to stop the processing</param>
         public async Task<ProjectJob> ExecuteAsync(CancellationToken token)
         {
-            if(ProjectDto?.Repository == null)
+            if (ProjectDto?.Repository == null)
             {
                 throw new ApplicationException("The project to process must be defined");
             }
@@ -97,7 +92,7 @@ namespace SoupDiscover.Common
             {
                 return await ProcessProject(token);
             }
-            catch(Exception e) // Catch the first exception, not all parallel exceptions
+            catch (Exception e) // Catch the first exception, not all parallel exceptions
             {
                 using (var serviceScope = _scopeFactory.CreateScope())
                 {
@@ -153,7 +148,7 @@ namespace SoupDiscover.Common
             await CreateScopeAndSave(list, directory, token);
             return this;
         }
-        
+
         /// <summary>
         /// Create the scope dependency and save data
         /// </summary>
@@ -176,7 +171,7 @@ namespace SoupDiscover.Common
             // Remove last search
             context.Entry(project).Collection(p => p.PackageConsumers).Load();
             context.PackageConsumer.RemoveRange(project.PackageConsumers);
-            
+
             if (packageConsumerNames != null)
             {
                 SavePackageConsumers(packageConsumerNames, context, project, token);
@@ -274,7 +269,7 @@ namespace SoupDiscover.Common
                 filename = Path.Combine(checkoutDirectory, "CommandLinesBeforeParse.bat");
             }
 
-            using(var scriptFile = new StreamWriter(filename))
+            using (var scriptFile = new StreamWriter(filename))
             {
                 if (Environment.OSVersion.Platform == PlatformID.Unix)
                 {
@@ -282,7 +277,7 @@ namespace SoupDiscover.Common
                 }
                 scriptFile.WriteLine(ProjectDto.CommandLinesBeforeParse);
             }
-            
+
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update ACL to be executable

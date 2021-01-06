@@ -35,11 +35,11 @@ namespace SoupDiscover.Common
 
         public bool Equals([AllowNull] PackageName other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }

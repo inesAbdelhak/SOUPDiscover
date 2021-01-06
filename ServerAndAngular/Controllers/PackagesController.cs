@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SoupDiscover.Common;
 using SoupDiscover.Dto;
 using SoupDiscover.ORM;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SoupDiscover.Controllers
 {
@@ -26,14 +25,14 @@ namespace SoupDiscover.Controllers
 
         // GET: api/Packages/Filter?projectName=Test
         [HttpGet("filter")]
-        public async Task<ActionResult<IEnumerable<Package>>> GetPackages([FromQuery]string projectName, [FromQuery]string csproj)
+        public async Task<ActionResult<IEnumerable<Package>>> GetPackages([FromQuery] string projectName, [FromQuery] string csproj)
         {
             var packages = _context.PackageConsumerPackages.Where(p => true);
-            if(!string.IsNullOrEmpty(projectName))
+            if (!string.IsNullOrEmpty(projectName))
             {
                 packages = packages.Where(p => p.PackageConsumer.Project.Name == projectName);
             }
-            if(!string.IsNullOrEmpty(csproj))
+            if (!string.IsNullOrEmpty(csproj))
             {
                 packages = packages.Where(p => p.PackageConsumer.Name == csproj);
             }
@@ -52,71 +51,6 @@ namespace SoupDiscover.Controllers
             }
 
             return package;
-        }
-
-        // PUT: api/Packages/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPackage(int id, Package package)
-        {
-            if (id != package.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(package).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PackageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Packages
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPost]
-        public async Task<ActionResult<Package>> PostPackage(Package package)
-        {
-            _context.Packages.Add(package);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPackage", new { id = package.Id }, package);
-        }
-
-        // DELETE: api/Packages/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Package>> DeletePackage(int id)
-        {
-            var package = await _context.Packages.FindAsync(id);
-            if (package == null)
-            {
-                return NotFound();
-            }
-
-            _context.Packages.Remove(package);
-            await _context.SaveChangesAsync();
-
-            return package;
-        }
-
-        private bool PackageExists(int id)
-        {
-            return _context.Packages.Any(e => e.Id == id);
         }
 
         /// <summary>
@@ -167,7 +101,6 @@ namespace SoupDiscover.Controllers
             {
                 return Problem($"Package Id not defined!");
             }
-            
             var package = SearchPackage(packageId).ToList();
             return package;
         }
@@ -176,28 +109,28 @@ namespace SoupDiscover.Controllers
         {
             if (string.IsNullOrEmpty(packageId))
             {
-                throw new ApplicationException("You must set at least 3 char.");
+                throw new ApplicationException($"You must set at least 3 char for the parameter {nameof(packageId)}.");
             }
-            var package = from p1 in _context.PackageConsumer
-                          join p2 in _context.PackageConsumerPackages on p1.PackageConsumerId equals p2.PackageConsumerId
-                          where p2.Package.PackageId.Contains(packageId)
-                          select new { p1.ProjectId, p2.Package };
-            var packageDico = new Dictionary<Package, List<string>>();
-            foreach (var p in package)
+            var packagesFound = from packageConsumer in _context.PackageConsumer
+                                join p2 in _context.PackageConsumerPackages on packageConsumer.PackageConsumerId equals p2.PackageConsumerId
+                                where p2.Package.PackageId.Contains(packageId)
+                                select new { packageConsumer, p2.Package };
+            var packageDico = new Dictionary<Package, List<PackageConsumer>>();
+            foreach (var package in packagesFound)
             {
-                List<string> list;
-                if (!packageDico.ContainsKey(p.Package))
+                List<PackageConsumer> list;
+                if (!packageDico.ContainsKey(package.Package))
                 {
-                    list = new List<string>();
-                    packageDico.Add(p.Package, list);
+                    list = new List<PackageConsumer>();
+                    packageDico.Add(package.Package, list);
                 }
                 else
                 {
-                    list = packageDico[p.Package];
+                    list = packageDico[package.Package];
                 }
-                list.Add(p.ProjectId);
+                list.Add(package.packageConsumer);
             }
-            return packageDico.Select(p => new PackageWithProjectDto(p.Key, p.Value.ToArray()));
+            return packageDico.Select(p => new PackageWithProjectDto(p.Key, p.Value.Select(p => p.ToDto()).ToArray()));
         }
 
         /// <summary>
@@ -210,22 +143,27 @@ namespace SoupDiscover.Controllers
         {
             var packages = SearchPackage(packageId);
             var baseStream = new MemoryStream();
-            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8);
-            stream.NewLine = "\r\n";// RFC 4180
+            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8)
+            {
+                NewLine = "\r\n"// RFC 4180
+            };
             // Create header
-            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "Type", "Description", "License", "Projets" }, delimiter));
+            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "Type", "License", "sous-projet", "Projets" }, delimiter));
             foreach (var p in packages)
             {
-                stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[]
+                foreach (var c in p.packageConsumers)
                 {
-                    p.packageDto.PackageId,
-                    p.packageDto.Version,
-                    p.packageDto.PackageType.ToString(),
-                    p.packageDto.Description,
-                    p.packageDto.Licence,
-                    p.projectNames.Aggregate("", (c, n) => $"{n}," + c)
-                },
-                delimiter));
+                    stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[]
+                    {
+                        p.packageDto.PackageId,
+                        p.packageDto.Version,
+                        p.packageDto.PackageType.ToString(),
+                        p.packageDto.Licence,
+                        c.name,
+                        c.projectId,
+                    },
+                    delimiter));
+                }
             }
             stream.Flush(); // Empty the stream to the base stream
             // Don't close the StreamWriter, this will close the base stream
@@ -246,8 +184,10 @@ namespace SoupDiscover.Controllers
                 return null;
             }
             var baseStream = new MemoryStream();
-            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8);
-            stream.NewLine = "\r\n";// RFC 4180
+            var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8)
+            {
+                NewLine = "\r\n"// RFC 4180
+            };
             _context.Entry(project).Collection(p => p.PackageConsumers).Load();
 
             // Create header

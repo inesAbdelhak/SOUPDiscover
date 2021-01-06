@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
-namespace SoupDiscover.Migrations.PostgresData
+namespace SoupDiscover.Database.SqliteData
 {
     public partial class InitialCreate : Migration
     {
@@ -25,7 +24,7 @@ namespace SoupDiscover.Migrations.PostgresData
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     PackageId = table.Column<string>(nullable: true),
                     Version = table.Column<string>(nullable: true),
                     Licence = table.Column<string>(nullable: true),
@@ -85,7 +84,7 @@ namespace SoupDiscover.Migrations.PostgresData
                 columns: table => new
                 {
                     PackageConsumerId = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     ProjectId = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
                     PackageId = table.Column<int>(nullable: true)
@@ -112,7 +111,7 @@ namespace SoupDiscover.Migrations.PostgresData
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Sqlite:Autoincrement", true),
                     PackageConsumerId = table.Column<int>(nullable: false),
                     PackageId = table.Column<int>(nullable: false)
                 },

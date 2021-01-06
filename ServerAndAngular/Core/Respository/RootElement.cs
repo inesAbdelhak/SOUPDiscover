@@ -11,7 +11,7 @@ namespace SoupDiscover.Core.Respository
     /// </summary>
     internal class RootElement
     {
-        private IList<string> _subElements = new List<string>();
+        private readonly IList<string> _subElements = new List<string>();
 
         /// <summary>
         /// The name of the RootElemet. Ex : "Host *"

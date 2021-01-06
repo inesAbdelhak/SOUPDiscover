@@ -4,13 +4,14 @@ namespace SoupDiscover.Dto
 {
     public class PackageWithProjectDto
     {
-        public PackageWithProjectDto(Package packageDto, string[] projectNames)
+        public PackageWithProjectDto(Package packageDto, PackageConsumerDto[] packageConsumers)
         {
             this.packageDto = packageDto;
-            this.projectNames = projectNames;
+            this.packageConsumers = packageConsumers;
         }
 
         public Package packageDto { get; }
-        public string[] projectNames { get; }
+
+        public PackageConsumerDto[] packageConsumers { get; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using SoupDiscover.Common;
-using SoupDiscover.Controllers;
-using SoupDiscover.ORM;
+﻿using SoupDiscover.Dto;
 using System;
 
 namespace SoupDiscover.ICore

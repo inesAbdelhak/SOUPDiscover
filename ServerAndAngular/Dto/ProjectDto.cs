@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SoupDiscover.ORM;
+using System;
 using System.Text.Json.Serialization;
-using SoupDiscover.Controllers.Dto;
-using SoupDiscover.ORM;
 
-namespace SoupDiscover.Controllers
+namespace SoupDiscover.Dto
 {
     public class ProjectDto
     {

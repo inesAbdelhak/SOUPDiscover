@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using SoupDiscover.Dto;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace SoupDiscover.Controllers.Dto
+namespace SoupDiscover.Dto
 {
     public class RepositoryDto
     {
@@ -15,7 +13,7 @@ namespace SoupDiscover.Controllers.Dto
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         public string name { get; set; }
-        
+
         /// <summary>
         /// The name of sh key to clone the repository
         /// </summary>

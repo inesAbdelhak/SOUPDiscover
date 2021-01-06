@@ -43,7 +43,7 @@ namespace SoupDiscover.Common
             process.StartInfo.RedirectStandardError = true;
             process.OutputDataReceived += (o, e) => logger.LogDebug(e.Data);
             process.ErrorDataReceived += (o, e) => { logs.AppendLine(e.Data); logger.LogWarning(e.Data); };
-            
+
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
@@ -63,7 +63,7 @@ namespace SoupDiscover.Common
                 process.WaitForExit();
             }
             string messageError = logs.ToString();
-            if(string.IsNullOrEmpty(messageError))
+            if (string.IsNullOrEmpty(messageError))
             {
                 messageError = $"Error on executing file {filename}";
             }

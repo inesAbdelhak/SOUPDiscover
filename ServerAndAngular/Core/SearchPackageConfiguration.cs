@@ -1,5 +1,4 @@
 ﻿using SoupDiscover.ORM;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +9,7 @@ namespace SoupDiscover.Common
     /// </summary>
     public class SearchPackageConfiguration
     {
-        private IDictionary<PackageType, string[]> _sources;
+        private readonly IDictionary<PackageType, string[]> _sources;
 
         public SearchPackageConfiguration(string checkoutDirectory, IDictionary<PackageType, string[]> sources = null)
         {

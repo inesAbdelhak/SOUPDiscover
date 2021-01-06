@@ -45,9 +45,9 @@ namespace SoupDiscover.Core
             where TJob : IJob
         {
             var executingTask = new ExecutingTask();
-           
+
             Task task = null;
-            Task<TJob> finalTask = null; 
+            Task<TJob> finalTask = null;
             // Check if this project is not currently processing
             lock (_syncObject)
             {
@@ -83,7 +83,7 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="initialTask">the task that processing the</param>
         /// <param name="job">The object, that manage the processing of the project</param>
-        private TJob EndProcessingJob<TJob>(TJob job) where TJob: IJob
+        private TJob EndProcessingJob<TJob>(TJob job) where TJob : IJob
         {
             if (job == null)
             {
@@ -136,10 +136,9 @@ namespace SoupDiscover.Core
         /// <param name="jobId">Id of the job to stop</param>
         public bool Cancel(string jobId)
         {
-            ExecutingTask executingTask;
             lock (_syncObject)
             {
-                if (_processingJobs.TryGetValue(jobId, out executingTask))
+                if (_processingJobs.TryGetValue(jobId, out ExecutingTask executingTask))
                 {
                     executingTask.CancellationTokenSource.Cancel();
                     return true;
@@ -159,7 +158,7 @@ namespace SoupDiscover.Core
 
         public bool IsRunning(string jobId)
         {
-            lock(_syncObject)
+            lock (_syncObject)
             {
                 return _processingJobs.ContainsKey(jobId) || _waitingJobs.Any(e => (string)e.Job.IdJob == jobId);
             }
