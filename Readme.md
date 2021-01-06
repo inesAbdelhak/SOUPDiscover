@@ -9,13 +9,13 @@ It searches for Nuget and NPM packages.
 ## With Docker
 ```
 # Build project
-docker build . -t soupdicover:latest
+docker build . -t soupdiscover:latest
 
 # Run with sqlite
-docker run -d -P soupdicover:latest
+docker run -d -P soupdiscover:latest
 
 # Run with Postgres
-docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL100; Port=5432; Database=SoupDiscover; User Id=SoupDiscover; Password=*********;" soupdicover:latest
+docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL100; Port=5432; Database=SoupDiscover; User Id=SoupDiscover; Password=*********;" soupdiscover:latest
 ```
 
 ## Locally
