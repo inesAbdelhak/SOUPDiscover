@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/sdk:5.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -22,7 +22,7 @@ RUN npm config set proxy $http_proxy; \
     npm config set noproxy $no_proxy; \
     npm config list; \
     export;
-
+    
 RUN [[ ${skip_client_build} = true ]] && echo "Skipping npm install" || npm install 
 RUN [[ ${skip_client_build} = true ]] && mkdir dist || npm run-script build
 
