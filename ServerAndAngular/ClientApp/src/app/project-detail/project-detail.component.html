@@ -6,7 +6,7 @@
         <mat-icon>refresh</mat-icon>
       </button>
       <button mat-raised-button color="primary" [disabled]="project.processStatus === processStatus.Running" matTooltip="Démarrer la recherche des packages" (click)="Analyze()">
-        <mat-icon>launch</mat-icon>
+        <mat-icon>play_arrow</mat-icon>
       </button>
       <button mat-raised-button color="accent" [disabled]="project.processStatus != processStatus.Running" matTooltip="Arrêter la recherche en cours" (click)="Stop()">
         <mat-icon>stop</mat-icon>

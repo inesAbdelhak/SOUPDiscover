@@ -174,6 +174,7 @@ namespace SoupDiscover.Controllers
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
+            project.PackageConsumers = null;// Fix json cyle serialisation
             return project;
         }
 
