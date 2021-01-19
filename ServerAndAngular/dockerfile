@@ -12,10 +12,6 @@ ENV http_proxy=$http_proxy
 ENV https_proxy=$https_proxy
 ENV no_proxy=$no_proxy
 
-# Install certificats needed to compile
-COPY ./certificates/*  /usr/local/share/ca-certificates/
-RUN update-ca-certificates
-
 WORKDIR /app 
 COPY ClientApp .
 RUN npm config set proxy $http_proxy; \
