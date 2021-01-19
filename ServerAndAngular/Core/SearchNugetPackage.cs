@@ -3,6 +3,7 @@ using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -30,8 +31,52 @@ namespace SoupDiscover.Common
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieve metadata of the package, in cache, in dicrectory %userprofile%/.nuget/packages
+        /// </summary>
+        /// <returns>the xml node of the nuspec file of the package</returns>
+        private static XElement GetPackageMetadataOnLocalCache(string packageId, string version)
+        {
+            SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"{nameof(packageId)} must be not null or empty!");
+            SoupDiscoverException.ThrowIfNullOrEmpty(version, $"{nameof(version)} must be not null or empty!");
+            var packageDirectory = $"{packageId}.{version}";
+
+            packageDirectory = Path.Combine(NugetCacheDirectory, packageId, version, $"{packageId}.nuspec").ToLower(CultureInfo.InvariantCulture);
+                
+            if (!File.Exists(packageDirectory))
+            {
+                return null; // package not found in cache
+            }
+            var nuspecFile = XDocument.Load(packageDirectory);
+            return nuspecFile.Root.Element(XName.Get("metadata", nuspecFile.Root.Name.NamespaceName));
+        }
+
+        public static string NugetCacheDirectory
+        {
+            get
+            {
+                var nugetCacheDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                return Path.Combine(nugetCacheDir, ".nuget", "packages");
+            }
+        }
+
         public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
+            var metadataNode = GetPackageMetadataOnLocalCache(packageId, version);
+            if (metadataNode != null)
+            {
+                return new Package()
+                {
+                    PackageId = packageId,
+                    Version = version,
+                    Licence = metadataNode.Element(XName.Get("licenseUrl", metadataNode.Name.NamespaceName))?.Value,
+                    PackageType = PackageType.Nuget,
+                    Description = metadataNode.Element(XName.Get("description", metadataNode.Name.NamespaceName))?.Value,
+                    ProjectUrl = metadataNode.Element(XName.Get("projectUrl", metadataNode.Name.NamespaceName))?.Value,
+                    RepositoryUrl = metadataNode.Element(XName.Get("repository", metadataNode.Name.NamespaceName))?.Attribute(XName.Get("url"))?.Value,
+                    RepositoryType = metadataNode.Element(XName.Get("repository", metadataNode.Name.NamespaceName))?.Attribute(XName.Get("type"))?.Value,
+                };
+            }
             var sources = configuration.GetSources(PackageType);
             if (sources == null || sources.Length == 0)
             {

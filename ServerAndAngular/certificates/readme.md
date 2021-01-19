@@ -1,1 +1,1 @@
-﻿Copy in this directory, certificates tu use to compile andd execute the server.
+﻿Copy in this directory, certificates to use to compile andd execute the server.

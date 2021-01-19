@@ -66,7 +66,6 @@ namespace SoupDiscover.Common
                 }
                 packageMetadataFile = Path.Combine(packageMetadataFile, "package.json");
 
-
                 if (File.Exists(packageMetadataFile))
                 {
                     var json = JsonDocument.Parse(File.ReadAllText(packageMetadataFile, Encoding.UTF8));
@@ -75,6 +74,8 @@ namespace SoupDiscover.Common
                     {
                         continue; // Search version in another "node_module" directory
                     }
+                    json.RootElement.TryGetProperty("repository", out var repository);
+                    var nullableRepository = new JsonElement?(repository);
                     return new Package()
                     {
                         PackageId = packageId,
@@ -82,6 +83,10 @@ namespace SoupDiscover.Common
                         Licence = json.RootElement.TryGetValueAsString("license", "type"),
                         PackageType = PackageType.Npm,
                         Description = json.RootElement.TryGetValueAsString("description"),
+                        ProjectUrl = json.RootElement.TryGetValueAsString("homepage"),
+                        RepositoryType = nullableRepository?.TryGetValueAsString("type"),
+                        RepositoryUrl = nullableRepository?.TryGetValueAsString("url"),
+                        RepositoryCommit = string.Empty,
                     };
                 }
             }
@@ -90,8 +95,7 @@ namespace SoupDiscover.Common
             {
                 PackageId = packageId,
                 Version = version,
-                PackageType =
-                PackageType.Npm
+                PackageType = PackageType.Npm,
             };
         }
 

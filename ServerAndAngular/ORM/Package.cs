@@ -52,5 +52,18 @@ namespace SoupDiscover.ORM
         /// Description found in metadata
         /// </summary>
         public string Description { get; set; }
+
+        /// <summary>
+        /// The type of repository where is source code.
+        /// Ex : git
+        /// </summary>
+        public string RepositoryType { get; set; }
+        
+        /// <summary>
+        /// The url where is source code
+        /// </summary>
+        public string RepositoryUrl { get; set; }
+
+        public string RepositoryCommit { get; set; }
     }
 }

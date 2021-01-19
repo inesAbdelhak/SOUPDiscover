@@ -15,8 +15,12 @@ export class PackageDto {
     newPackage.description = pa.description;
     newPackage.packageType = pa.packageType;
     newPackage.projectUrl = pa.projectUrl;
+    newPackage.repositoryUrl = pa.repositoryUrl;
+    newPackage.repositoryType = pa.repositoryType;
+    newPackage.repositoryCommit = pa.repositoryCommit;
     return newPackage;
   }
+
   /**
    * Id of the package in database
    */
@@ -52,6 +56,23 @@ export class PackageDto {
    * Can be empty.
    */
   projectUrl: string;
+
+  /*
+   * The repository where are source code of the package
+   */
+  repositoryUrl: string;
+
+  /*
+   * The type of repository where are source code.
+   * Ex : git
+   */
+  repositoryType: string;
+
+  /*
+   * The commit number of this specific version of package.
+   * For git, a sha1.
+   */
+  repositoryCommit: string;
 
   get isLicenceUrl() {
     return this.licence?.startsWith('http') === true;

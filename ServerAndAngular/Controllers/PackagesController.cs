@@ -148,7 +148,7 @@ namespace SoupDiscover.Controllers
                 NewLine = "\r\n"// RFC 4180
             };
             // Create header
-            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "Type", "License", "sous-projet", "Projets" }, delimiter));
+            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "ProjectUrl", "RepositoryType", "RepositoryUrl", "RepositoryCommit", "Description", "Type", "License", "sous-projet", "Projets" }, delimiter));
             foreach (var p in packages)
             {
                 foreach (var c in p.packageConsumers)
@@ -157,6 +157,10 @@ namespace SoupDiscover.Controllers
                     {
                         p.packageDto.PackageId,
                         p.packageDto.Version,
+                        p.packageDto.ProjectUrl,
+                        p.packageDto.RepositoryType,
+                        p.packageDto.RepositoryUrl,
+                        p.packageDto.RepositoryCommit,
                         p.packageDto.PackageType.ToString(),
                         p.packageDto.Licence,
                         c.name,
@@ -191,11 +195,11 @@ namespace SoupDiscover.Controllers
             _context.Entry(project).Collection(p => p.PackageConsumers).Load();
 
             // Create header
-            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "PackageUrl", "Version", "Type", "Description", "License" }, delimiter));
+            stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { "PackageId", "Version", "Type", "PackageUrl", "RepositoryType", "RepositoryUrl", "RepositoryCommit", "Description", "License" }, delimiter));
             var packages = _context.PackageConsumerPackages.Where(p => p.PackageConsumer.ProjectId == projectId).Select(p => p.Package).Distinct();
             foreach (var p in packages)
             {
-                stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { p.PackageId, p.ProjectUrl, p.Version, p.PackageType.ToString(), p.Description, p.Licence }, delimiter));
+                stream.WriteLine(CSVFileHelper.SerializeToCvsLine(new string[] { p.PackageId, p.Version, p.PackageType.ToString(), p.ProjectUrl, p.RepositoryType, p.RepositoryUrl, p.RepositoryCommit, p.Description, p.Licence }, delimiter));
             }
             stream.Flush(); // Empty the stream to the base stream
             // Don't close the StreamWriter, this will close the base stream
