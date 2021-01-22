@@ -26,10 +26,15 @@ namespace SoupDiscover.ORM
         public string Version { get; set; }
 
         /// <summary>
-        /// On nuget package, the url to the license
-        /// For npm package, the type of license
+        /// The license can be an Url, an expression or a file.
         /// </summary>
-        public string Licence { get; set; }
+        public string License { get; set; }
+
+        /// <summary>
+        /// The license type, <see cref="LicenseType"/> for more info.
+        /// </summary>
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public LicenseType LicenseType { get; set; }
 
         /// <summary>
         /// The Url to the package

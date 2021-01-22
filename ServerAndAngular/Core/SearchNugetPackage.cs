@@ -32,23 +32,29 @@ namespace SoupDiscover.Common
         }
 
         /// <summary>
-        /// Retrieve metadata of the package, in cache, in dicrectory %userprofile%/.nuget/packages
+        /// Retrieve metadata of the package, in cache, in directory %userprofile%/.nuget/packages
         /// </summary>
-        /// <returns>the xml node of the nuspec file of the package</returns>
+        /// <returns>The Xml node of the nuspec file of the package</returns>
         private static XElement GetPackageMetadataOnLocalCache(string packageId, string version)
         {
             SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"{nameof(packageId)} must be not null or empty!");
             SoupDiscoverException.ThrowIfNullOrEmpty(version, $"{nameof(version)} must be not null or empty!");
-            var packageDirectory = $"{packageId}.{version}";
+            var packageDirectory = GetNugetCacheDirectory(packageId, version);
 
-            packageDirectory = Path.Combine(NugetCacheDirectory, packageId, version, $"{packageId}.nuspec").ToLower(CultureInfo.InvariantCulture);
-                
             if (!File.Exists(packageDirectory))
             {
                 return null; // package not found in cache
             }
             var nuspecFile = XDocument.Load(packageDirectory);
             return nuspecFile.Root.Element(XName.Get("metadata", nuspecFile.Root.Name.NamespaceName));
+        }
+
+        private static string GetNugetCacheDirectory(string packageId, string version)
+        {
+            SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"{nameof(packageId)} must be not null or empty!");
+            SoupDiscoverException.ThrowIfNullOrEmpty(version, $"{nameof(version)} must be not null or empty!");
+            var packageDirectory = $"{packageId}.{version}";
+            return Path.Combine(NugetCacheDirectory, packageId, version, $"{packageId}.nuspec").ToLower(CultureInfo.InvariantCulture);
         }
 
         public static string NugetCacheDirectory
@@ -60,29 +66,66 @@ namespace SoupDiscover.Common
             }
         }
 
+        private static (string License, LicenseType LicenseType) GetLicense(XElement nuspecElement, string packageDirectory)
+        {
+            SoupDiscoverException.ThrowIfNull(nuspecElement, $"{nameof(nuspecElement)} must be not null!");
+            var licenseExpression = nuspecElement.Elements(XName.Get("license", nuspecElement.Name.NamespaceName)).FirstOrDefault(e => e.Attribute("type").Value == "expression")?.Value;
+            if (licenseExpression != null)
+            {
+                return (licenseExpression, LicenseType.Expression);
+            }
+
+            var licenseFile = nuspecElement.Elements(XName.Get("license", nuspecElement.Name.NamespaceName)).FirstOrDefault(e => e.Attribute("type").Value == "file")?.Value;
+            if (licenseFile != null)
+            {
+                licenseFile = Path.Combine(packageDirectory, licenseFile);
+                if (!File.Exists(licenseFile))
+                {
+                    return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
+                }
+                return (File.ReadAllText(licenseFile), LicenseType.File);
+            }
+            var licenseUrl = nuspecElement.Element(XName.Get("licenseUrl", nuspecElement.Name.NamespaceName))?.Value;
+            if (licenseUrl != null)
+            {
+                return (licenseUrl, LicenseType.Url);
+            }
+            return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
+        }
+
         public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
-            var metadataNode = GetPackageMetadataOnLocalCache(packageId, version);
-            if (metadataNode != null)
+            // Try to retrieve package metadata, by reading nuspec file in nuget cache directory
+            var nuspecMetadata = GetPackageMetadataOnLocalCache(packageId, version);
+            var packageDirectory = GetNugetCacheDirectory(packageId, version);
+            if (nuspecMetadata != null)
             {
+                var license = GetLicense(nuspecMetadata, packageDirectory);
                 return new Package()
                 {
                     PackageId = packageId,
                     Version = version,
-                    Licence = metadataNode.Element(XName.Get("licenseUrl", metadataNode.Name.NamespaceName))?.Value,
+                    License = license.License,
+                    LicenseType = license.LicenseType,
                     PackageType = PackageType.Nuget,
-                    Description = metadataNode.Element(XName.Get("description", metadataNode.Name.NamespaceName))?.Value,
-                    ProjectUrl = metadataNode.Element(XName.Get("projectUrl", metadataNode.Name.NamespaceName))?.Value,
-                    RepositoryUrl = metadataNode.Element(XName.Get("repository", metadataNode.Name.NamespaceName))?.Attribute(XName.Get("url"))?.Value,
-                    RepositoryType = metadataNode.Element(XName.Get("repository", metadataNode.Name.NamespaceName))?.Attribute(XName.Get("type"))?.Value,
+                    Description = nuspecMetadata.Element(XName.Get("description", nuspecMetadata.Name.NamespaceName))?.Value,
+                    ProjectUrl = nuspecMetadata.Element(XName.Get("projectUrl", nuspecMetadata.Name.NamespaceName))?.Value,
+                    RepositoryUrl = nuspecMetadata.Element(XName.Get("repository", nuspecMetadata.Name.NamespaceName))?.Attribute(XName.Get("url"))?.Value,
+                    RepositoryType = nuspecMetadata.Element(XName.Get("repository", nuspecMetadata.Name.NamespaceName))?.Attribute(XName.Get("type"))?.Value,
                 };
             }
             var sources = configuration.GetSources(PackageType);
             if (sources == null || sources.Length == 0)
             {
-                return new Package() { PackageId = packageId, Version = version, Licence = null, PackageType = PackageType.Nuget };
+                return new Package()
+                {
+                    PackageId = packageId, 
+                    Version = version, 
+                    License = ISearchPackage.NoneLicenseExpression, 
+                    PackageType = PackageType.Nuget
+                };
             }
-            // Retrieve package source in
+            // Retrieve package metadata by calling REST nuget api server
             string metadataAsXml = null;
             foreach (var source in sources.Where(e => !string.IsNullOrEmpty(e)))
             {
@@ -99,14 +142,14 @@ namespace SoupDiscover.Common
                     break;
                 }
             }
-            string licenceUrl = null;
+            string licenseUrl = null;
             string description = null;
             string projectUrl = null;
             if (metadataAsXml != null)
             {
                 var document = XDocument.Parse(metadataAsXml);
                 var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
-                licenceUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl")?.Value;
+                licenseUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl")?.Value;
                 description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
                 projectUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "ProjectUrl")?.Value;
             }
@@ -118,7 +161,8 @@ namespace SoupDiscover.Common
             {
                 PackageId = packageId,
                 Version = version,
-                Licence = licenceUrl,
+                License = licenseUrl,
+                LicenseType = LicenseType.Url,
                 PackageType = PackageType.Nuget,
                 Description = description,
                 ProjectUrl = projectUrl,

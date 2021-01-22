@@ -10,6 +10,8 @@ namespace SoupDiscover.ICore
     /// </summary>
     public interface ISearchPackage
     {
+        public const string NoneLicenseExpression = "None";
+
         /// <summary>
         /// Search a nuget package MetaData
         /// </summary>

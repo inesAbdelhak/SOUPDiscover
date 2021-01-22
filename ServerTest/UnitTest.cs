@@ -43,7 +43,7 @@ namespace ServerTest
                 }));
             Assert.AreEqual("log4net", package.PackageId);
             Assert.AreEqual("2.0.8", package.Version);
-            Assert.AreEqual("http://logging.apache.org/log4net/license.html", package.Licence);
+            Assert.AreEqual("http://logging.apache.org/log4net/license.html", package.License);
             Assert.IsTrue(package.Description.StartsWith("log4net is a tool to help the programmer output "));
         }
 
@@ -59,10 +59,10 @@ namespace ServerTest
             }
             var checkoutDir = assemblyLocation.Substring(0, index);
             var packagesDir = Path.Combine(checkoutDir, "ServerAndAngular", "ClientApp");
-            var package = search.SearchMetadata("@angular/core", "8.2.12", new SearchPackageConfiguration(packagesDir));
+            var package = search.SearchMetadata("@angular/core", "11.0.4", new SearchPackageConfiguration(packagesDir));
             Assert.AreEqual("@angular/core", package.PackageId);
-            Assert.AreEqual("8.2.12", package.Version);
-            Assert.AreEqual("MIT", package.Licence);
+            Assert.AreEqual("11.0.4", package.Version);
+            Assert.AreEqual("MIT", package.License);
             Assert.AreEqual(PackageType.Npm, package.PackageType);
             Assert.AreEqual("Angular - the core framework", package.Description);
         }

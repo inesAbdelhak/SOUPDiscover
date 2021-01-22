@@ -24,9 +24,9 @@ export class PackagesService {
     if (projectName == null) {
       throw new Error('projectName must be not null!');
     }
-    let request = this.packagesApiEndpoint + 'filter?projectName=' + projectName;
+    let request = this.packagesApiEndpoint + 'filter?projectName=' + encodeURIComponent(projectName);
     if (csproj != null) {
-      request += '&csproj=' + csproj;
+      request += '&csproj=' + encodeURIComponent(csproj);
     }
     return this.httpClient.get<PackageDto[]>(request).pipe(
       map(data => data.map(d => PackageDto.CreateFromData(d)))
@@ -41,8 +41,8 @@ export class PackagesService {
    * version of the package to search
    */
   public GetParentPackage(packageId: string, packageVersion: string): Observable<PackageWithProjectDto> {
-    let request = this.packagesApiEndpoint + 'filter?packageId=' + packageId;
-    request = request + '&packageVersion=' + packageVersion;
+    let request = this.packagesApiEndpoint + 'filter?packageId=' + encodeURIComponent(packageId);
+    request = request + '&packageVersion=' + encodeURIComponent(packageVersion);
     return this.httpClient.get<PackageWithProjectDto>(request);
   }
 
@@ -50,14 +50,14 @@ export class PackagesService {
    * Return the url that permit to download csv file of the project
    * */
   GetCsvUrlFromProject(projectId: string): string {
-    return this.packagesApiEndpoint + 'exporttocsvfromproject/' + projectId;
+    return this.packagesApiEndpoint + 'exporttocsvfromproject/' + encodeURIComponent(projectId);
   }
 
   /**
    * Return the url that permit to download csv file of the project
    * */
   GetCsvUrlFromId(packageId: string): string {
-    return this.packagesApiEndpoint + 'exporttocsvfromid/' + packageId;
+    return this.packagesApiEndpoint + 'exporttocsvfromid/' + encodeURIComponent(packageId);
   }
 
   /**
@@ -68,5 +68,21 @@ export class PackagesService {
   SearchPackage(packageId: string): Observable<PackageWithProjectDto[]> {
     let request = this.packagesApiEndpoint + "searchpackage/" + packageId;
     return this.httpClient.get<PackageWithProjectDto[]>(request);
+  }
+
+  /**
+   * Return the url that permit to view the content license file
+   * @param packageId
+   */
+  GetContentLicenseUrl(packageId: number) {
+    return this.packagesApiEndpoint + "licensefile/" + packageId;
+  }
+
+  /**
+   * 
+   * @param packag
+   */
+  GetExpressionLicenseUrl(licenseExpression : string): string {
+    return 'https://licenses.nuget.org/' + encodeURIComponent(licenseExpression); 
   }
 }

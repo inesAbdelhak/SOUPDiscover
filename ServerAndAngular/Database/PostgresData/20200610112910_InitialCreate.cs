@@ -28,7 +28,7 @@ namespace SoupDiscover.Database.PostgresData
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     PackageId = table.Column<string>(nullable: true),
                     Version = table.Column<string>(nullable: true),
-                    Licence = table.Column<string>(nullable: true),
+                    License = table.Column<string>(nullable: true),
                     PackageType = table.Column<int>(nullable: false),
                     Description = table.Column<string>(nullable: true)
                 },

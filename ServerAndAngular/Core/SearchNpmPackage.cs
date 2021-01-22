@@ -34,6 +34,41 @@ namespace SoupDiscover.Common
 
         public PackageType PackageType => PackageType.Npm;
 
+        public static (string License, LicenseType LicenseType) GetLicense(JsonElement packageElement, string packageInstallDir)
+        {
+            var licenseExpression = packageElement.TryGetValueAsString("license", "type");
+            if (licenseExpression != null)
+            {
+                return (licenseExpression, LicenseType.Expression);
+            }
+            var licenseUrl = packageElement.TryGetValueAsString("license", "url");
+            if (licenseUrl != null)
+            {
+                return (licenseUrl, LicenseType.Url);
+            }
+            var license = packageElement.TryGetValueAsString("license");
+            if (license != null)
+            {
+                if(license == "UNLICENSED")
+                {
+                    return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
+                }
+                if (license.StartsWith("SEE LICENSE IN "))
+                {
+                    var licenseFile = license.Substring("SEE LICENSE IN ".Length).Trim();
+                    licenseFile = Path.Combine(packageInstallDir, licenseFile.Replace('/', Path.DirectorySeparatorChar));
+                    // Read the license file content
+                    if (!File.Exists(licenseFile))
+                    {
+                        return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
+                    }
+                    return (File.ReadAllText(licenseFile), LicenseType.File);
+                }
+                return (license, LicenseType.Expression);
+            }
+            return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
+        }
+
         /// <summary>
         /// Search a nuget package MetaData
         /// </summary>
@@ -59,12 +94,12 @@ namespace SoupDiscover.Common
             {
                 token.ThrowIfCancellationRequested();
                 var nodeModuleDir = Path.Combine(Path.GetDirectoryName(packageLockJson), NodeModulesDirName);
-                var packageMetadataFile = nodeModuleDir;
+                var packageMetadataDir = nodeModuleDir;
                 foreach (var packageElementName in packageId.Split('/'))
                 {
-                    packageMetadataFile = Path.Combine(packageMetadataFile, packageElementName);
+                    packageMetadataDir = Path.Combine(packageMetadataDir, packageElementName);
                 }
-                packageMetadataFile = Path.Combine(packageMetadataFile, "package.json");
+                var packageMetadataFile = Path.Combine(packageMetadataDir, "package.json");
 
                 if (File.Exists(packageMetadataFile))
                 {
@@ -76,11 +111,13 @@ namespace SoupDiscover.Common
                     }
                     json.RootElement.TryGetProperty("repository", out var repository);
                     var nullableRepository = new JsonElement?(repository);
+                    var license = GetLicense(json.RootElement, packageMetadataDir);
                     return new Package()
                     {
                         PackageId = packageId,
                         Version = version,
-                        Licence = json.RootElement.TryGetValueAsString("license", "type"),
+                        License = license.License,
+                        LicenseType = license.LicenseType,
                         PackageType = PackageType.Npm,
                         Description = json.RootElement.TryGetValueAsString("description"),
                         ProjectUrl = json.RootElement.TryGetValueAsString("homepage"),

@@ -31,10 +31,18 @@
       <td mat-cell *matCellDef="let element"> {{element.packageDto.version}} </td>
     </ng-container>
 
-    <!-- Package licence -->
-    <ng-container matColumnDef="licence">
-      <th mat-header-cell *matHeaderCellDef> Licence </th>
-      <td mat-cell *matCellDef="let element"> {{element.packageDto.licence}} </td>
+    <!-- Package license -->
+    <ng-container matColumnDef="license">
+      <th mat-header-cell *matHeaderCellDef> License </th>
+      <td *matCellDef="let element" mat-cell>
+        <div [ngSwitch]="element.licenseType">
+          <p *ngSwitchCase="'None'" [href]="element.license">Aucune</p>
+          <a *ngSwitchCase="'File'" [href]="GetContentLicenseUrl(element)">License.txt</a>
+          <a *ngSwitchCase="'Expression'" [href]="GetExpressionLicenseUrl(element)" target="_blank" rel="noopener noreferrer">{{element.license}}</a>
+          <a *ngSwitchCase="'Url'" [href]="element.license" target="_blank" rel="noopener noreferrer">{{element.license}}</a>
+          <p *ngSwitchDefault>Error</p>
+        </div>
+      </td>
     </ng-container>
 
     <!-- Package description -->

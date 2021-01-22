@@ -4,6 +4,12 @@ export enum PackageType {
   npm,
 }
 
+export enum LicenseType {
+  file,
+  url,
+  expression,
+}
+
 export class PackageDto {
 
   static CreateFromData(pa): PackageDto {
@@ -11,13 +17,14 @@ export class PackageDto {
     newPackage.id = pa.id;
     newPackage.packageId = pa.packageId;
     newPackage.version = pa.version;
-    newPackage.licence = pa.licence;
+    newPackage.license = pa.license;
     newPackage.description = pa.description;
     newPackage.packageType = pa.packageType;
     newPackage.projectUrl = pa.projectUrl;
     newPackage.repositoryUrl = pa.repositoryUrl;
     newPackage.repositoryType = pa.repositoryType;
     newPackage.repositoryCommit = pa.repositoryCommit;
+    newPackage.licenseType = pa.licenseType;
     return newPackage;
   }
 
@@ -37,10 +44,14 @@ export class PackageDto {
   version: string;
 
   /**
-   * The package licence.
+   * The package license.
    * */
-  licence: string;
+  license: string;
 
+  /*
+   * The type of license in field license.
+   */
+  licenseType: LicenseType;
   /**
    * Description of the package
    */
@@ -73,8 +84,4 @@ export class PackageDto {
    * For git, a sha1.
    */
   repositoryCommit: string;
-
-  get isLicenceUrl() {
-    return this.licence?.startsWith('http') === true;
-  }
 }

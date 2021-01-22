@@ -12,13 +12,13 @@ import { PackagesService } from '../service/packages.service';
 })
 export class SearchPackageComponent implements OnInit {
 
-  constructor(private packagesService: PackagesService,
+  constructor(private packageService: PackagesService,
     private toastr: ToastrService) { }
 
   /*
    * The columns to display
    * */
-  displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'licence', 'projects'];
+  displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'license', 'projects'];
 
   /*
    * The package id to search in database
@@ -40,7 +40,7 @@ export class SearchPackageComponent implements OnInit {
       return;
     }
     this.idToSearch = inputValue;
-    this.packagesService.SearchPackage(inputValue)
+    this.packageService.SearchPackage(inputValue)
       .subscribe(
         result => this.packages = result,
         error => this.HandleError(error)
@@ -51,7 +51,23 @@ export class SearchPackageComponent implements OnInit {
    * Return the url of the csv file that contains all package in all projects where package id contains this.idToSearch.
    * */
   GetCsvUrlFromId() {
-    return this.packagesService.GetCsvUrlFromId(this.idToSearch);
+    return this.packageService.GetCsvUrlFromId(this.idToSearch);
+  }
+
+  /**
+   * Return the url, that permit to read or download the license content
+   * @param packageElement The package
+   */
+  GetContentLicenseUrl(packageElement: PackageDto): string {
+    return this.packageService.GetContentLicenseUrl(packageElement.id);
+  }
+
+  /**
+   * Return the url, that contains information about this type of license
+   * @param packageElement The package
+   */
+  GetExpressionLicenseUrl(packageElement: PackageDto): string {
+    return this.packageService.GetExpressionLicenseUrl(packageElement.license);
   }
 
   ngOnInit(): void {
@@ -64,5 +80,4 @@ export class SearchPackageComponent implements OnInit {
   HandleError(error: HttpErrorResponse): void {
     this.toastr.error(error.error.detail, 'Dépot');
   }
-
 }

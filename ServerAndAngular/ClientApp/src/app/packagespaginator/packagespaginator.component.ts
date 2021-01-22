@@ -43,7 +43,7 @@ export class PackagespaginatorComponent implements OnInit {
   packages: PackageDto[];
 
   // the columns to display
-  displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'licence'];
+  displayedColumns: string[] = ['packageId', 'version', 'packageType', 'description', 'license'];
 
   // Element contains at least one element
   positivefilter: string[] = [];
@@ -84,6 +84,22 @@ export class PackagespaginatorComponent implements OnInit {
       startWith(''),
       map(value => this.filterPackageConsumer(value))
     );
+  }
+
+  /**
+   * Return the url, that permit to read or download the license content
+   * @param packageElement The package
+   */
+  GetContentLicenseUrl(packageElement: PackageDto): string {
+    return this.packageService.GetContentLicenseUrl(packageElement.id);
+  }
+
+  /**
+   * Return the url, that contains information about this type of license
+   * @param packageElement The package
+   */
+  GetExpressionLicenseUrl(packageElement: PackageDto): string {
+    return this.packageService.GetExpressionLicenseUrl(packageElement.license);
   }
 
   // Update fields positivefilter and negativefilter form current filter
