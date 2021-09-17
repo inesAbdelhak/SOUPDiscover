@@ -24,6 +24,11 @@ namespace SoupDiscover.Dto
         /// </summary>
         public string Password { get; set; }
 
+        /// <summary>
+        /// The token to use to clone the repository
+        /// </summary>
+        public string Token { get; set; }
+
         public CredentialType CredentialType { get; set; }
     }
 }

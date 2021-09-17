@@ -37,7 +37,7 @@ namespace SoupDiscover.Common
             {
                 if (_searchPackages.ContainsKey(s.PackageType))
                 {
-                    throw new ApplicationException($"It is not possible to defined two {nameof(ISearchPackage)} in injection dependencies, that process the same type of package.");
+                    throw new SoupDiscoverException($"It is not possible to defined two {nameof(ISearchPackage)} in injection dependencies, that process the same type of package.");
                 }
                 _searchPackages.Add(s.PackageType, s);
             }
@@ -84,10 +84,7 @@ namespace SoupDiscover.Common
         /// <param name="token">The token to stop the processing</param>
         public async Task<ProjectJob> ExecuteAsync(CancellationToken token)
         {
-            if (ProjectDto?.Repository == null)
-            {
-                throw new ApplicationException("The project to process must be defined");
-            }
+            SoupDiscoverException.ThrowIfNull(ProjectDto?.Repository, "The project to process must be defined");
             try
             {
                 return await ProcessProject(token);
@@ -111,16 +108,13 @@ namespace SoupDiscover.Common
                     context.Projects.Update(project);
                     context.SaveChanges();
                 }
-                throw e;
+                throw;
             }
         }
 
         private async Task<ProjectJob> ProcessProject(CancellationToken token)
         {
-            if (ProjectDto == null)
-            {
-                throw new ApplicationException($"The property {nameof(ProjectDto)} must be not null!");
-            }
+            SoupDiscoverException.ThrowIfNull(ProjectDto, $"The property {nameof(ProjectDto)} must be not null!");            
             _logger.LogInformation($"Start processing Project {ProjectDto.Name}");
 
             // Copy content files of the repository to a temporary directory
@@ -186,7 +180,7 @@ namespace SoupDiscover.Common
         /// Save in the project, all package consumers found
         /// And search Metadata of all unkonwn packages
         /// </summary>
-        private void SavePackageConsumers(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, SOUPSearchProject project, CancellationToken token)
+        private void SavePackageConsumers(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, ProjectEntity project, CancellationToken token)
         {
             var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
             // Add new packages found

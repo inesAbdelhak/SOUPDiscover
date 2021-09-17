@@ -1,4 +1,3 @@
-﻿export enum RepositoryType {
-    None,
+export enum RepositoryType {
     Git
 }

@@ -2,7 +2,6 @@
 {
     public enum RepositoryType
     {
-        None,
         Git,
     }
 }

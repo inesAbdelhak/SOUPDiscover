@@ -128,10 +128,7 @@ namespace SoupDiscover.Controllers
 
         public IEnumerable<PackageWithProjectDto> SearchPackage(string packageId)
         {
-            if (string.IsNullOrEmpty(packageId))
-            {
-                throw new ApplicationException($"You must set at least 3 char for the parameter {nameof(packageId)}.");
-            }
+            SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"You must set at least 3 char for the parameter {nameof(packageId)}.");
             var packagesFound = from packageConsumer in _context.PackageConsumer
                                 join p2 in _context.PackageConsumerPackages on packageConsumer.PackageConsumerId equals p2.PackageConsumerId
                                 where p2.Package.PackageId.Contains(packageId)

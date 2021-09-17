@@ -8,6 +8,8 @@ import { RepositoriesService } from '../service/repositories.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { ProcessStatus } from '../model/processStatus';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { CommonErrorStateMatcher } from '../common/common.errorStateMatcher';
 
 @Component({
   selector: 'create-project-dialog',
@@ -22,9 +24,38 @@ export class CreateProjectDialog implements OnInit {
     private toastr: ToastrService,
     @Inject(MAT_DIALOG_DATA) public data: ProjectDto) { }
 
+  /* The FormControl to typing the name of the repository */
+  name: AbstractControl;
+  repositoryId: AbstractControl;
+  commandLinesBeforeParse: AbstractControl;
+  nugetServerUrl: AbstractControl;
+  private allFieldsForm: FormGroup;
+  /* The object that define how manage errors */
+  matcher = new CommonErrorStateMatcher();
+
   ngOnInit(): void {
     this.repositoriesService.GetRepositories().
       subscribe(result => this.repositories = result);
+
+    this.name = new FormControl(this.data.name, [
+      Validators.required]);
+    this.name.valueChanges.subscribe(res => this.data.repositoryId = res);
+    this.repositoryId = new FormControl(this.data.repositoryId, [
+      Validators.required]);
+    this.repositoryId.valueChanges.subscribe(res => this.data.repositoryId = res);
+    this.commandLinesBeforeParse = new FormControl(this.data.commandLinesBeforeParse, [
+      Validators.required]);
+    this.commandLinesBeforeParse.valueChanges.subscribe(res => this.data.commandLinesBeforeParse = res);
+    this.nugetServerUrl = new FormControl(this.data.nugetServerUrl, [
+      Validators.required]);
+    this.nugetServerUrl.valueChanges.subscribe(res => this.data.nugetServerUrl = res);
+    this.allFieldsForm = new FormGroup({
+      name: this.name,
+      repositoryId: this.repositoryId,
+      commandLinesBeforeParse: this.commandLinesBeforeParse,
+      nugetServerUrl: this.nugetServerUrl,
+    });
+    this.markAsTouched();
   }
 
   /**
@@ -52,6 +83,26 @@ export class CreateProjectDialog implements OnInit {
   */
   HandleError(error: HttpErrorResponse) {
     this.toastr.error(error.error.detail, 'Projet');
+  }
+
+  markAsTouched(formGroupToUpdate?: FormGroup): void {
+    if (!formGroupToUpdate) {
+      formGroupToUpdate = this.allFieldsForm;
+    }
+    Object.keys(formGroupToUpdate.controls).forEach(field => {
+      const control = formGroupToUpdate.get(field);
+      control.markAsTouched({ onlySelf: true });
+    });
+  }
+
+  /*
+ * Indicate, if all FormControl of the selected FormGroup are valid.
+ */
+  public get selectedvalid(): boolean {
+    return Object.keys(this.allFieldsForm.controls).every(field => {
+      const control = this.allFieldsForm.get(field);
+      return control.valid;
+    });
   }
 }
 

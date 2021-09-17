@@ -6,12 +6,6 @@ using System.IO;
 
 namespace SoupDiscover.ORM
 {
-    public enum CredentialType
-    {
-        Password,
-        SSH,
-    }
-
     /// <summary>
     /// A token used to authenticate from an api
     /// </summary>
@@ -31,13 +25,13 @@ namespace SoupDiscover.ORM
         public string Login { get; set; }
 
         public string Password { get; set; }
+        public string Token { get; set; }
 
         public CredentialType CredentialType { get; set; }
 
         /// <summary>
         /// Update the ssh config file to define the key to used to clone the repository
         /// </summary>
-        /// <returns></returns>
         private bool AddSshKey(string hostname)
         {
             // https://medium.com/@xiaolishen/use-multiple-ssh-keys-for-different-github-accounts-on-the-same-computer-7d7103ca8693
@@ -66,7 +60,8 @@ namespace SoupDiscover.ORM
         private string SSHKeyFilename => $"sshgitkey{Name}";
 
         /// <summary>
-        /// Create the ssh key to %Home%/.ssh
+        /// Create the ssh key file to %Home%/.ssh
+        /// and update permission to the file.
         /// </summary>
         private string CreateSshKeyFile()
         {
@@ -87,10 +82,7 @@ namespace SoupDiscover.ORM
         private static string CreateSShDirectory()
         {
             var sshDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            if (sshDir == null)
-            {
-                throw new ApplicationException("Unable to find the UserProfile directory!");
-            }
+            SoupDiscoverException.ThrowIfNull(sshDir, "Unable to find the UserProfile directory!");            
             sshDir = Path.Combine(sshDir, ".ssh");
             if (!Directory.Exists(sshDir))
             {
@@ -99,7 +91,12 @@ namespace SoupDiscover.ORM
             return sshDir;
         }
 
-        public string InstallSSHKey(string hostname)
+        /// <summary>
+        /// Create the ssh key to the machine
+        /// and return the substitute hostname that corresponding with the ssh private key file.
+        /// </summary>
+        /// <param name="hostname">The real hostname of the repository</param>
+        public string PrepareAndGetSubstituteHostname(string hostname)
         {
             CreateSshKeyFile();
             AddSshKey(hostname);

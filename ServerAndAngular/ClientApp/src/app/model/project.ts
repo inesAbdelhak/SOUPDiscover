@@ -22,17 +22,17 @@ export class ProjectDto {
   }
 
   /**
-   * The primary  key of the project
+   * The primary  key of the project.
    * */
   name: string;
 
   /**
-   * The repository where search files
+   * The command to launch before searching packages reference.
    * */
   commandLinesBeforeParse: string;
 
   /**
-   * The foreign key to the repository definition
+   * The foreign key to the repository definition.
    */
   repositoryId: string;
 

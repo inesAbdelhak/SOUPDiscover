@@ -9,7 +9,7 @@ namespace SoupDiscover.ORM
     /// <summary>
     /// A repository to process or processed
     /// </summary>
-    public class SOUPSearchProject
+    public class ProjectEntity
     {
         /// <summary>
         /// The primary  key of the project

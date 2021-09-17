@@ -8,7 +8,7 @@ namespace SoupDiscover.ORM
         [Key]
         public int PackageConsumerId { get; set; }
 
-        public virtual SOUPSearchProject Project { get; set; }
+        public virtual ProjectEntity Project { get; set; }
 
         /// <summary>
         /// The name of the project associated

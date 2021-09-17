@@ -42,7 +42,7 @@ namespace SoupDiscover
                     services.AddDbContext<DataContext, PostgresDataContext>();
                     break;
                 default:
-                    throw new ApplicationException($"The databaseType {databaseType} is not supported!");
+                    throw new SoupDiscoverException($"The databaseType {databaseType} is not supported!");
             }
             services.AddSingleton<IProjectJobManager, ProjectJobManager>();
             services.AddTransient<IProjectJob, ProjectJob>();

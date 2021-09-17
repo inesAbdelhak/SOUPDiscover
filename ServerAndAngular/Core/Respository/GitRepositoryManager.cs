@@ -25,6 +25,11 @@ namespace SoupDiscover.Core.Respository
         private readonly string _urlRepository;
         private readonly string _branch;
         private readonly Credential _credential;
+        
+        /// <summary>
+        /// The password to use, to clone repository when using a token credential
+        /// </summary>
+        private const string PasswordTokenGitHub = "x-oauth-basic";
 
         static GitRepositoryManager()
         {
@@ -54,10 +59,7 @@ namespace SoupDiscover.Core.Respository
         private (string Protocol, string Hostname, string Organisation, string Repository) ParseRepositoryUrl()
         {
             var match = _gitUrlRegex.Select(x => x.Match(_urlRepository)).FirstOrDefault(match => match.Success);
-            if (match == null)
-            {
-                throw new ApplicationException($"Unable to parse git url \"{_urlRepository}\"!");
-            }
+            SoupDiscoverException.ThrowIfNull(match, $"Unable to parse git url \"{_urlRepository}\"! The path must respect the regex {_gitUrlStringRegex.Aggregate((next, cumul) => cumul = cumul + " or " + next)}");
             return new(match.Groups["protocol"].Value, match.Groups["hostname"].Value, match.Groups["organization"].Value, match.Groups["repository"].Value);
         }
 
@@ -72,36 +74,74 @@ namespace SoupDiscover.Core.Respository
         }
 
         /// <summary>
+        /// throw an exception, if the path and the credential type are not compatible
+        /// </summary>
+        /// <param name="path"></param>
+        private void ValideCompatibility(string path)
+        {
+            var giturl = ParseRepositoryUrl();
+            string errorMessage = $"Credential type {_credential.CredentialType} is not compatible with the path protocol {giturl.Protocol}. Update the path to git repository, by using protocol http(s) or use a no SSH credential type.";
+            if (_credential.CredentialType == CredentialType.SSH && giturl.Protocol != "git")
+            {
+                throw new SoupDiscoverException(errorMessage);
+            }
+            if (_credential.CredentialType == CredentialType.Password && giturl.Protocol == "git")
+            {
+                throw new SoupDiscoverException(errorMessage);
+            }
+
+            if (_credential.CredentialType == CredentialType.Token && giturl.Protocol == "git")
+            {
+                throw new SoupDiscoverException(errorMessage);
+            }
+        }
+
+        /// <summary>
         /// Execute the clone command, and checkout the defined branch.
         /// Clone with depth 1. Don't clone all history.
         /// </summary>
         /// <param name="path">The directory where clone the repository</param>
         private void CloneRepository(string path, CancellationToken token = default)
         {
+            ValideCompatibility(path);
+            if (!CheckGitInstalled())
+            {
+                throw new SoupDiscoverException($"Unable to find command {_gitCommand}");
+            }
+
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
-            string repositoryToClone = null;
+            string repositoryToClone;
             var giturl = ParseRepositoryUrl();
-            if (giturl.Protocol == "git")
+            switch (_credential.CredentialType)
             {
-                var substituteHostname = _credential.InstallSSHKey(giturl.Hostname);
-                repositoryToClone = $@"git@{substituteHostname}:{giturl.Organisation}/{giturl.Repository}.git";
+                case CredentialType.SSH:
+                    var substituteHostname = _credential.PrepareAndGetSubstituteHostname(giturl.Hostname);
+                    repositoryToClone = $@"git@{substituteHostname}:{giturl.Organisation}/{giturl.Repository}.git";
+                    break;
+                case CredentialType.Password:
+                    repositoryToClone = $@"{giturl.Protocol}://{_credential.Login}:{_credential.Password}@{giturl.Hostname}/{giturl.Organisation}/{giturl.Repository}.git";
+                    break;
+                case CredentialType.Token:
+                    if (string.IsNullOrEmpty(PasswordTokenGitHub))
+                    {
+                        repositoryToClone = $@"{giturl.Protocol}://{_credential.Token}@{giturl.Hostname}/{giturl.Organisation}/{giturl.Repository}.git";
+                    }
+                    else
+                    {
+                        repositoryToClone = $@"{giturl.Protocol}://{_credential.Token}:{PasswordTokenGitHub}@{giturl.Hostname}/{giturl.Organisation}/{giturl.Repository}.git";
+                    }
+                    break;
+                default:
+                    throw new SoupDiscoverException($"The credential type {_credential.CredentialType} is not supported!");
             }
-            else
-            {
-                repositoryToClone = $@"{giturl.Protocol}://{_credential.Login}:{_credential.Password}@{giturl.Hostname}/{giturl.Organisation}/{giturl.Repository}.git";
-            }
-            if (!CheckGitInstalled())
-            {
-                throw new ApplicationException($"Unable to find command {_gitCommand}");
-            }
-
+            // Clone the repository
             var result = ProcessHelper.ExecuteAndLog(_gitCommand, $"clone -b {_branch} --depth 1 {repositoryToClone} \"{path}\"", path, _logger, token);
             if (result.ExitCode != 0)
             {
-                throw new ApplicationException($"Error on cloning the Git repository {_urlRepository} in path {path}. Error :\r\n {result.ErrorMessage}");
+                throw new SoupDiscoverException($"Error on cloning the Git repository {_urlRepository} in path {path}. Error :\r\n {result.ErrorMessage}");
             }
         }
     }

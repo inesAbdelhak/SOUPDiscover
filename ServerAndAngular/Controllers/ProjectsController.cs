@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SoupDiscover.Common;
 using SoupDiscover.Dto;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
@@ -25,6 +26,41 @@ namespace SoupDiscover.Controllers
             _context = context;
             _projectJobManager = projectJobManager;
             _serviceProvider = serviceProvider;
+        }
+
+        private string CheckProject(ProjectDto project, DataContext context)
+        {
+            var errors = string.Empty;
+            if (project == null)
+            {
+                return "Not project fields. ";
+            }
+            if (string.IsNullOrEmpty(project.Name))
+            {
+                return $"The {nameof(project.Name)} of project is not defined. ";
+            }
+            if (string.IsNullOrEmpty(project.NugetServerUrl))
+            {
+                return $"The {nameof(project.NugetServerUrl)} of project is not defined. ";
+            }            
+            if (string.IsNullOrEmpty(project.RepositoryId))
+            {
+                return $"The {nameof(project.RepositoryId)} of project is not defined. ";
+            }
+            else
+            {
+                // Check if repository id given exists
+                var repository = context.Repositories.Find(project.RepositoryId);
+                if (repository == null)
+                {
+                    errors += $"The repositoryid {project.RepositoryId} not found in database. ";
+                }
+            }
+            if (errors == string.Empty)
+            {
+                return null;
+            }
+            return errors;
         }
 
         // GET: api/Projects
@@ -66,6 +102,11 @@ namespace SoupDiscover.Controllers
             {
                 return BadRequest();
             }
+            var errors = CheckProject(project, _context);
+            if (errors != null)
+            {
+                return Problem(errors);
+            }
 
             if (_projectJobManager.IsRunning(projectId))
             {
@@ -101,7 +142,7 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<SOUPSearchProject>> PostProject(SOUPSearchProject project)
+        public async Task<ActionResult<ProjectEntity>> PostProject(ProjectEntity project)
         {
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
@@ -122,13 +163,17 @@ namespace SoupDiscover.Controllers
         {
             // Retrieve the project to start
             var project = _context.Projects.Find(projectId);
+            if (project == null )
+            {
+                return Problem($"The project id {projectId} is not found.");
+            }
             _context.Entry(project).Reference(r => r.Repository).Load();
             switch (project.Repository)
             {
                 case GitRepository git:
                     _context.Entry((GitRepository)project.Repository).Reference(r => r.Credential).Load();
                     break;
-                default: throw new ApplicationException($"The repository Type {project.Repository?.GetType()} is not supported!");
+                default: throw new SoupDiscoverException($"The repository Type {project.Repository?.GetType()} is not supported!");
             }
             // Create the job to process the project
             var projectJob = _serviceProvider.GetRequiredService<IProjectJob>();
@@ -157,7 +202,7 @@ namespace SoupDiscover.Controllers
 
         // DELETE: api/Projects/5
         [HttpDelete("{projectId}")]
-        public async Task<ActionResult<SOUPSearchProject>> DeleteProject(string projectId)
+        public async Task<ActionResult<ProjectEntity>> DeleteProject(string projectId)
         {
             var project = await _context.Projects.FindAsync(projectId);
             if (project == null)
@@ -174,14 +219,13 @@ namespace SoupDiscover.Controllers
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
-            project.PackageConsumers = null;// Fix json cyle serialisation
+            project.PackageConsumers = null; // Fix json cycle serialization
             return project;
         }
 
         /// <summary>
         /// Get all project consumer of a project (all csproj of a project)
         /// </summary>
-        /// <returns></returns>
         [HttpGet("projectConsumers/{projectName}")]
         public async Task<ActionResult<string[]>> GetProjectConsumers(string projectName)
         {

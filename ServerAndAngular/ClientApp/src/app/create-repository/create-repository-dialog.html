@@ -1,47 +1,53 @@
 <h1 mat-dialog-title>Création d'un nouveau dépot</h1>
 <div mat-dialog-content>
-  <div class="editconfig">
+  <form class="editconfig">
 
     <!-- Select the repository type -->
     <mat-form-field>
       <mat-label>Type de dépot</mat-label>
-      <mat-select [(value)]="selected">
+      <mat-select [formControl]="selectedForm" [errorStateMatcher]="matcher">
         <mat-option>--selectionner--</mat-option>
         <mat-option *ngFor="let opt of repositoryTypes" [value]="opt">{{opt.name}}</mat-option>
       </mat-select>
+      <mat-error *ngIf="selectedForm.hasError('required')">Le type de dépot doit être définis</mat-error>
     </mat-form-field>
 
     <!-- The name of the repository -->
     <mat-form-field>
       <mat-label>Nom du dépot (pour affichage)</mat-label>
-      <input matInput [(ngModel)]="data.name">
+      <input matInput [formControl]="name" [errorStateMatcher]="matcher">
+      <mat-error *ngIf="name.hasError('required')">Doit être non vide</mat-error>
     </mat-form-field>
 
     <!-- for git repositories -->
     <!-- the git url in ssh format -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
       <mat-label>Url</mat-label>
-      <input matInput [(ngModel)]="data.url">
+      <input matInput [formControl]="url" [errorStateMatcher]="matcher">
+      <mat-error *ngIf="url.hasError('required')">Doit être non vide</mat-error>
+      <mat-error *ngIf="url.hasError('pattern')">url mal formée</mat-error>
     </mat-form-field>
 
     <!-- The git branch name -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
       <mat-label>Branch</mat-label>
-      <input matInput [(ngModel)]="data.branch">
+      <input matInput [formControl]="branch" [errorStateMatcher]="matcher">
+      <mat-error *ngIf="branch.hasError('required')">Doit être non vide</mat-error>
     </mat-form-field>
 
     <!-- The ssh key to clone the repository -->
     <mat-form-field *ngIf="selected?.name === 'Git'">
       <mat-label>Authentification</mat-label>
-      <mat-select [(ngModel)]="data.credentialId">
+      <mat-select [formControl]="credentialId" [errorStateMatcher]="matcher">
         <mat-option>--selectionner--</mat-option>
         <mat-option *ngFor="let cred of availableCredentials" [value]="cred.name">{{cred.name + '(' + cred.credentialTypeName + ')'}}</mat-option>
       </mat-select>
+      <mat-error *ngIf="credentialId.hasError('required')">Doit être non vide</mat-error>
     </mat-form-field>
 
-  </div>
+  </form>
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Annuler</button>
-  <button mat-button (click)="onOkClick()" cdkFocusInitial>Créer</button>
+  <button mat-button (click)="onOkClick()" cdkFocusInitial [disabled]="!selectedvalid">Créer</button>
 </div>

@@ -1,6 +1,7 @@
 export enum CredentialType {
   ssh,
   password,
+  token,
 }
 
 export class CredentialDto {
@@ -10,7 +11,7 @@ export class CredentialDto {
   name: string;
 
   /**
-   * The credential key (not downloaded, but only uploaded)
+   * The credential key (not downloaded, but only uploaded), the SSH key
    */
   key: string;
 
@@ -23,6 +24,11 @@ export class CredentialDto {
    * The password to use to clone the repository
    */
   password: string;
+
+  /**
+   * The GitHub Token to use, to clone the repository
+   */
+  token: string;
 
   credentialType: CredentialType;
 
@@ -43,6 +49,7 @@ export class CredentialDto {
     newobject.name = data.name;
     newobject.password = data.password;
     newobject.credentialType = data.credentialType;
+    newobject.token = data.token;
     return newobject;
   }
 }

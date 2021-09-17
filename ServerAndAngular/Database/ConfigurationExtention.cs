@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using SoupDiscover.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -34,7 +35,7 @@ namespace SoupDiscover.Database
                     break;
 
                 default:
-                    throw new ApplicationException("Unable to configure the database type");
+                    throw new SoupDiscoverException("Unable to configure the database type");
             }
 
             return optionsBuilder;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SoupDiscover.Common;
 using SoupDiscover.ICore;
 using System;
 using System.Collections.Generic;
@@ -85,15 +86,12 @@ namespace SoupDiscover.Core
         /// <param name="job">The object, that manage the processing of the project</param>
         private TJob EndProcessingJob<TJob>(TJob job) where TJob : IJob
         {
-            if (job == null)
-            {
-                throw new ApplicationException($"The parameter {nameof(job)} must be not null!");
-            }
+            SoupDiscoverException.ThrowIfNull(job, $"The parameter {nameof(job)} must be not null!");
             lock (_syncObject)
             {
                 if (!_processingJobs.ContainsKey(job.IdJob))
                 {
-                    throw new ApplicationException($"Unable to find the Task for the project Id {job.IdJob}");
+                    throw new SoupDiscoverException($"Unable to find the Task for the project Id {job.IdJob}");
                 }
                 // Remove the task from processing tasks
                 _processingJobs.Remove(job.IdJob);

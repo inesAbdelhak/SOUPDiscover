@@ -5,16 +5,16 @@ namespace SoupDiscover.Dto
 {
 
     /// <summary>
-    /// Mapping between <see cref="SOUPSearchProject"/> and <see cref="ProjectDto"/>
+    /// Mapping between <see cref="ProjectEntity"/> and <see cref="ProjectDto"/>
     /// </summary>
     public static class ProjectMapper
     {
         /// <summary>
-        /// Convert a <see cref="SOUPSearchProject"/> to a <see cref="ProjectDto"/> 
+        /// Convert a <see cref="ProjectEntity"/> to a <see cref="ProjectDto"/> 
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        public static ProjectDto ToDto(this SOUPSearchProject project)
+        public static ProjectDto ToDto(this ProjectEntity project)
         {
             if (project == null)
             {
@@ -34,11 +34,11 @@ namespace SoupDiscover.Dto
         }
 
         /// <summary>
-        /// Convert a <see cref="SOUPSearchProject"/> to a <see cref="ProjectDto"/> 
+        /// Convert a <see cref="ProjectEntity"/> to a <see cref="ProjectDto"/> 
         /// </summary>
         /// <param name="project"></param>
         /// <returns></returns>
-        public static IEnumerable<ProjectDto> ToDto(this IEnumerable<SOUPSearchProject> project)
+        public static IEnumerable<ProjectDto> ToDto(this IEnumerable<ProjectEntity> project)
         {
             if (project == null)
             {
@@ -51,15 +51,15 @@ namespace SoupDiscover.Dto
         }
 
         /// <summary>
-        /// Convert a <see cref="ProjectDto"/> to a <see cref="SOUPSearchProject"/>
+        /// Convert a <see cref="ProjectDto"/> to a <see cref="ProjectEntity"/>
         /// </summary>
-        public static SOUPSearchProject ToModel(this ProjectDto projectDto)
+        public static ProjectEntity ToModel(this ProjectDto projectDto)
         {
             if (projectDto == null)
             {
                 return null;
             }
-            return new SOUPSearchProject()
+            return new ProjectEntity()
             {
                 CommandLinesBeforeParse = projectDto.CommandLinesBeforeParse,
                 Name = projectDto.Name,

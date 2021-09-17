@@ -40,7 +40,7 @@ namespace SoupDiscover.ORM
 
         public DbSet<Package> Packages { get; set; }
 
-        public DbSet<SOUPSearchProject> Projects { get; set; }
+        public DbSet<ProjectEntity> Projects { get; set; }
 
         public DbSet<PackageConsumer> PackageConsumer { get; set; }
 

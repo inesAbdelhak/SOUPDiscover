@@ -52,6 +52,12 @@ namespace SoupDiscover.Controllers
                 return BadRequest();
             }
 
+            var error = CheckCredential(credential);
+            if (error != null)
+            {
+                return Problem(error);
+            }
+
             _context.Entry(credential).State = EntityState.Modified;
 
             try
@@ -73,12 +79,49 @@ namespace SoupDiscover.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Check the validity of credential to add or update.
+        /// Return a string that contains the error to send to user.
+        /// </summary>
+        /// <param name="credential">The credential to check</param>
+        /// <returns>null : No errors, a string : The error message to send</returns>
+        private string CheckCredential(Credential credential)
+        {
+            switch (credential.CredentialType)
+            {
+                case CredentialType.SSH:
+                    if (string .IsNullOrEmpty(credential.Key))
+                    {
+                        return $"A credential of type {credential.CredentialType} must contains a key";
+                    }
+                    break;
+                case CredentialType.Token:
+                    if (string.IsNullOrEmpty(credential.Token))
+                    {
+                        return $"A credential of type {credential.CredentialType} must contains a token";
+                    }
+                    break;
+                case CredentialType.Password:
+                    if (string.IsNullOrEmpty(credential.Login))
+                    {
+                        return $"A credential of type {credential.CredentialType} must contains a login";
+                    }
+                    break;
+            }
+            return null;
+        }
+
         // POST: api/Credentials
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         public async Task<ActionResult<Credential>> PostCredential(Credential credential)
         {
+            var error = CheckCredential(credential);
+            if (error != null)
+            {
+                return Problem(error);
+            }
             _context.Credentials.Add(credential);
             try
             {
