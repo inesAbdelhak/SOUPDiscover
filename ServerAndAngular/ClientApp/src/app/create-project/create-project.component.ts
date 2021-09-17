@@ -39,7 +39,7 @@ export class CreateProjectDialog implements OnInit {
 
     this.name = new FormControl(this.data.name, [
       Validators.required]);
-    this.name.valueChanges.subscribe(res => this.data.repositoryId = res);
+    this.name.valueChanges.subscribe(res => this.data.name = res);
     this.repositoryId = new FormControl(this.data.repositoryId, [
       Validators.required]);
     this.repositoryId.valueChanges.subscribe(res => this.data.repositoryId = res);

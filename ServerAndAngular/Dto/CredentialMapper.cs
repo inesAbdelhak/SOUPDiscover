@@ -18,6 +18,7 @@ namespace SoupDiscover.Dto
                 Login = dto.Login,
                 Password = dto.Password,
                 CredentialType = dto.CredentialType,
+                Token = dto.Token,
             };
         }
 
@@ -34,6 +35,7 @@ namespace SoupDiscover.Dto
                 Login = model.Login,
                 Password = securised ? "*****" : model.Password,
                 CredentialType = model.CredentialType,
+                Token = securised ? "*****" : model.Token,
             };
         }
 

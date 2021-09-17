@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SoupDiscover.ORM
 {
-    public class PackageConsumer
+    public class PackageConsumer : EntityObject
     {
         [Key]
         public int PackageConsumerId { get; set; }

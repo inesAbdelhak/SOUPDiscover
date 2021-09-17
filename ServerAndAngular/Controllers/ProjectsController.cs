@@ -142,9 +142,15 @@ namespace SoupDiscover.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<ProjectEntity>> PostProject(ProjectEntity project)
+        public async Task<ActionResult<ProjectEntity>> PostProject(ProjectDto project)
         {
-            _context.Projects.Add(project);
+            var errors = CheckProject(project, _context);
+            if (errors != null)
+            {
+                return Problem(errors);
+            }
+            var projectEntity = project.ToModel();
+            _context.Projects.Add(projectEntity);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProject", new { id = project.Name }, project);

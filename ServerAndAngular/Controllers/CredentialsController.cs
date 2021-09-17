@@ -38,7 +38,7 @@ namespace SoupDiscover.Controllers
                 return NotFound();
             }
 
-            return credential.ToDto();
+            return credential.ToDto(true);
         }
 
         // PUT: api/Credentials/5

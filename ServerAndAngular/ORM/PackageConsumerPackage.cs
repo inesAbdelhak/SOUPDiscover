@@ -5,7 +5,7 @@ namespace SoupDiscover.ORM
     /// <summary>
     /// The many to many relation between PackageConsumer and Package
     /// </summary>
-    public class PackageConsumerPackage
+    public class PackageConsumerPackage : EntityObject
     {
         [Key]
         public int Id { get; set; }

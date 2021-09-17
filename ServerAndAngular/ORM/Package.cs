@@ -7,7 +7,7 @@ namespace SoupDiscover.ORM
     /// <summary>
     /// A nuget package or an npm package
     /// </summary>
-    public class Package
+    public class Package : EntityObject
     {
         /// <summary>
         /// Id of the package
