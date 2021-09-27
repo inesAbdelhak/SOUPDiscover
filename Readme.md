@@ -7,7 +7,8 @@ It searches for Nuget and NPM packages.
 # Build and execute
 
 ## With Docker
-```
+
+```bash
 # Build project
 docker build . -t soupdiscover:latest
 
@@ -19,7 +20,8 @@ docker run -d -P -e DatabaseType=Postgres -e "ConnectionString=Server=FRSPRSQL10
 ```
 
 ## Locally
-```
+
+```bash
 # Compil
 dotnet build SoupDiscover.csproj
 
