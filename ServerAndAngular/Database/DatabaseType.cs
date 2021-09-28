@@ -1,6 +1,6 @@
 ﻿namespace SoupDiscover.Database
 {
-    public enum SupportedDatabase
+    public enum DatabaseType
     {
         SQLite,
         Postgres,

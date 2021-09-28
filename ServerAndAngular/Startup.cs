@@ -35,10 +35,10 @@ namespace SoupDiscover
             var databaseType = Configuration.GetDatabaseType();
             switch (databaseType)
             {
-                case SupportedDatabase.SQLite:
+                case DatabaseType.SQLite:
                     services.AddDbContext<DataContext, SqliteDataContext>();
                     break;
-                case SupportedDatabase.Postgres:
+                case DatabaseType.Postgres:
                     services.AddDbContext<DataContext, PostgresDataContext>();
                     break;
                 default:

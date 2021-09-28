@@ -20,17 +20,17 @@ namespace SoupDiscover.Database
             var dbType = configuration.GetDatabaseType(logger);
 
             // Search configuration in environment and in appsettings
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString") ?? configuration.GetConnectionString("Default") ?? "Data Source=CustomerDB.db;";
+            var connectionString = GetConnectionString(dbType, configuration);
 
             logger.LogInformation($"Use database type {dbType} with connectionString {connectionString}.");
             // Configure database
             switch (dbType)
             {
-                case SupportedDatabase.SQLite:
+                case DatabaseType.SQLite:
                     optionsBuilder.UseSqlite(connectionString);
                     break;
 
-                case SupportedDatabase.Postgres:
+                case DatabaseType.Postgres:
                     optionsBuilder.UseNpgsql(connectionString);
                     break;
 
@@ -41,24 +41,54 @@ namespace SoupDiscover.Database
             return optionsBuilder;
         }
 
+        private static string GetConnectionString(DatabaseType dbType, IConfiguration configuration)
+        {
+            var databaseServer = Environment.GetEnvironmentVariable("DatabaseServer");
+            var databaseUser = Environment.GetEnvironmentVariable("DatabaseUser");
+            var databasePassword = Environment.GetEnvironmentVariable("DatabasePassword");
+            var databasePort = Environment.GetEnvironmentVariable("DatabasePort");
+            var databaseName = Environment.GetEnvironmentVariable("DatabaseName");
+
+            switch (dbType)
+            {
+                case DatabaseType.Postgres:
+                    if (!string.IsNullOrEmpty(databaseServer) &&
+                        !string.IsNullOrEmpty(databaseUser) &&
+                        !string.IsNullOrEmpty(databasePassword) &&
+                        !string.IsNullOrEmpty(databasePort) &&
+                        !string.IsNullOrEmpty(databaseName))
+                    {
+                        return $"Server={databaseServer}; Port={databasePort}; Database={databaseName}; User Id={databaseUser}; Password={databasePassword};";
+                    }
+                    break;
+
+                case DatabaseType.SQLite:
+                    if (!string.IsNullOrEmpty(databaseName))
+                    {
+                        return $"Data Source={databaseName}";
+                    }
+                    break;
+            }
+            return Environment.GetEnvironmentVariable("ConnectionString") ?? configuration.GetConnectionString("Default") ?? "Data Source=CustomerDB.db;";
+        }
+
         /// <summary>
         /// Return the database type configured
         /// Search on EnvironmentVariable and in appsetting.json file
         /// else return SQLite, the default database type
         /// </summary>
-        /// <returns></returns>
-        public static SupportedDatabase GetDatabaseType(this IConfiguration configuration, ILogger logger = null)
+        public static DatabaseType GetDatabaseType(this IConfiguration configuration, ILogger logger = null)
         {
             logger = logger ?? NullLogger.Instance;
             var databaseType = Environment.GetEnvironmentVariable("DatabaseType");
             if (string.IsNullOrEmpty(databaseType))
             {
                 // Search configuration in appsettings.json
-                databaseType = configuration.GetValue("DatabaseType", SupportedDatabase.SQLite.ToString());
+                databaseType = configuration.GetValue("DatabaseType", DatabaseType.SQLite.ToString());
             }
-            if (!Enum.TryParse<SupportedDatabase>(databaseType, true, out var dbType))
+            if (!Enum.TryParse<DatabaseType>(databaseType, true, out var dbType))
             {
-                dbType = SupportedDatabase.SQLite;
+                dbType = DatabaseType.SQLite;
                 logger.LogInformation($"The database type {databaseType} is not recognized. Use database type {dbType} instead.");
             }
             return dbType;
