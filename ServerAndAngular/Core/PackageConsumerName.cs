@@ -1,4 +1,4 @@
-﻿namespace SoupDiscover.Common
+﻿namespace SoupDiscover.Core
 {
     public class PackageConsumerName
     {

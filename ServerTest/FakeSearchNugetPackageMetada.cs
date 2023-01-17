@@ -1,8 +1,8 @@
-﻿using SoupDiscover.Common;
-using SoupDiscover.ICore;
+﻿using SoupDiscover.ICore;
 using SoupDiscover.ORM;
 using System.Threading;
 using System.Threading.Tasks;
+using SoupDiscover.Core;
 
 internal class FakeSearchNugetPackageMetada : ISearchPackage
 {

@@ -1,8 +1,8 @@
-﻿using SoupDiscover.ORM;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using SoupDiscover.ORM;
 
-namespace SoupDiscover.Common
+namespace SoupDiscover.Core
 {
     /// <summary>
     /// Parameters to use, to search package metadata

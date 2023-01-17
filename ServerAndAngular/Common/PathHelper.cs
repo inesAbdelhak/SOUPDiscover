@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 
-namespace SoupDiscover.Core
+namespace SoupDiscover.Common
 {
     public static class PathHelper
     {

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
-using SoupDiscover.Common;
 using SoupDiscover.Core.Respository;
 using SoupDiscover.ORM;
 using System.Collections.Generic;
 using System.IO;
+using SoupDiscover.Core;
 
 namespace ServerTest
 {

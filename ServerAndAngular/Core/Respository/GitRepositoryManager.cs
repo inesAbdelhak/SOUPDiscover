@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
 using SoupDiscover.ORM;
-using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;

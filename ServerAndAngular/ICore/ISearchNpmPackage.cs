@@ -1,7 +1,7 @@
-﻿using SoupDiscover.Common;
-using SoupDiscover.ORM;
+﻿using SoupDiscover.ORM;
 using System.Threading;
 using System.Threading.Tasks;
+using SoupDiscover.Core;
 
 namespace SoupDiscover.ICore
 {

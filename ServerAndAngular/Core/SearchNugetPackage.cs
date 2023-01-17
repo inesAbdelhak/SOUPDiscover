@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SoupDiscover.ICore;
-using SoupDiscover.ORM;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,8 +8,12 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
+using SoupDiscover.Common;
+using SoupDiscover.ICore;
+using SoupDiscover.ORM;
 
-namespace SoupDiscover.Common
+namespace SoupDiscover.Core
 {
     /// <summary>
     /// Search nuget package 
