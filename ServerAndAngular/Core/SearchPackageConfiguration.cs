@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Core
@@ -9,19 +8,12 @@ namespace SoupDiscover.Core
     /// </summary>
     public class SearchPackageConfiguration
     {
-        private readonly IDictionary<PackageType, string[]> _sources;
+        private readonly IDictionary<PackageType, HashSet<string>> _sources;
 
-        public SearchPackageConfiguration(string checkoutDirectory, IDictionary<PackageType, string[]> sources = null)
+        public SearchPackageConfiguration(string checkoutDirectory, IDictionary<PackageType, HashSet<string>> sources = null)
         {
             CheckoutDirectory = checkoutDirectory;
-            if (sources == null)
-            {
-                _sources = new Dictionary<PackageType, string[]>();
-            }
-            else
-            {
-                _sources = sources;
-            }
+            _sources = sources ?? new Dictionary<PackageType, HashSet<string>>();
         }
 
         /// <summary>
@@ -38,12 +30,16 @@ namespace SoupDiscover.Core
             {
                 return;
             }
-            if (_sources.ContainsKey(packageType))
+
+            if (!_sources.ContainsKey(packageType))
             {
-                _sources[packageType] = _sources[packageType].Concat(sources).Distinct().ToArray();
-                return;
+                _sources.Add(packageType, new HashSet<string>());
             }
-            _sources.Add(packageType, sources.Distinct().ToArray());
+
+            foreach (var source in sources)
+            {
+                _sources[packageType].Add(source);
+            }
         }
 
         /// <summary>
@@ -51,13 +47,9 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="packageType"></param>
         /// <returns></returns>
-        public string[] GetSources(PackageType packageType)
+        public HashSet<string> GetSources(PackageType packageType)
         {
-            if (_sources.TryGetValue(packageType, out var sources))
-            {
-                return sources;
-            }
-            return null;
+            return _sources.TryGetValue(packageType, out var sources) ? sources : null;
         }
     }
 }

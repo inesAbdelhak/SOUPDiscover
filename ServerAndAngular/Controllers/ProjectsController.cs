@@ -112,7 +112,7 @@ namespace SoupDiscover.Controllers
                 return Problem($"The project {projectId} is running. Stop the project before update it.");
             }
 
-            var projectModel = _context.Projects.Find(project.Name);
+            var projectModel = await _context.Projects.FindAsync(project.Name);
             _context.Projects.Update(projectModel);
             projectModel.NugetServerUrl = project.NugetServerUrl;
             projectModel.RepositoryId = project.RepositoryId;
@@ -219,7 +219,7 @@ namespace SoupDiscover.Controllers
                 return Problem($"The project {projectId} is running. Stop it before remove it.");
             }
 
-            _context.Entry(project).Collection(p => p.PackageConsumers).Load();
+            await _context.Entry(project).Collection(p => p.PackageConsumers).LoadAsync();
             _context.PackageConsumer.RemoveRange(project.PackageConsumers);
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();

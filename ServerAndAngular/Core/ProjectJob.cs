@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoupDiscover.Common;
-using SoupDiscover.Core.Respository;
+using SoupDiscover.Core.Repository;
 using SoupDiscover.Dto;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
+using static System.Threading.Tasks.Task;
 
 namespace SoupDiscover.Core
 {
@@ -26,11 +27,9 @@ namespace SoupDiscover.Core
         private readonly IDictionary<PackageType, ISearchPackage> _searchPackages;
         private RepositoryManager _repositoryManager;
 
-        protected SearchPackageConfiguration SearchPackageConfiguraton { get; private set; }
+        protected SearchPackageConfiguration SearchPackageConfiguration { get; private set; }
 
-        public ProjectJob(ILogger<ProjectJob> logger,
-            IServiceScopeFactory scopeFactory,
-            IEnumerable<ISearchPackage> searchPackages)
+        public ProjectJob(ILogger<ProjectJob> logger, IServiceScopeFactory scopeFactory, IEnumerable<ISearchPackage> searchPackages)
         {
             _searchPackages = new Dictionary<PackageType, ISearchPackage>();
             foreach (var s in searchPackages)
@@ -54,10 +53,10 @@ namespace SoupDiscover.Core
         {
             ProjectDto = project;
             _repositoryManager = ProjectDto.Repository.GetRepositoryManager(provider);
-            SearchPackageConfiguraton = CreateSearchConfiguraton();
+            SearchPackageConfiguration = CreateSearchConfiguration();
         }
 
-        private SearchPackageConfiguration CreateSearchConfiguraton()
+        private SearchPackageConfiguration CreateSearchConfiguration()
         {
             var newConfiguration = new SearchPackageConfiguration(GetWorkDirectory());
             if (!string.IsNullOrEmpty(ProjectDto.NugetServerUrl))
@@ -84,30 +83,22 @@ namespace SoupDiscover.Core
         /// <param name="token">The token to stop the processing</param>
         public async Task<ProjectJob> ExecuteAsync(CancellationToken token)
         {
-            SoupDiscoverException.ThrowIfNull(ProjectDto?.Repository, "The project to process must be defined");
+            SoupDiscoverException.ThrowIfNull(ProjectDto, "The project to process must be defined");
+            SoupDiscoverException.ThrowIfNull(ProjectDto.Repository, "The project to process must be defined");
             try
             {
                 return await ProcessProject(token);
             }
             catch (Exception e) // Catch the first exception, not all parallel exceptions
             {
-                using (var serviceScope = _scopeFactory.CreateScope())
-                {
-                    // Save error on database
-                    var context = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
-                    var project = context.Projects.Find(ProjectDto.Name);
-                    if (token.IsCancellationRequested)
-                    {
-                        project.LastAnalysisError = "Dernière analyse annulée.";
-                    }
-                    else
-                    {
-                        project.LastAnalysisError = e.Message;
-                    }
-                    project.LastAnalysisDate = DateTime.Now;
-                    context.Projects.Update(project);
-                    context.SaveChanges();
-                }
+                using var serviceScope = _scopeFactory.CreateScope();
+                // Save error on database
+                var context = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+                var project = await context.Projects.FindAsync(ProjectDto.Name);
+                project.LastAnalysisError = token.IsCancellationRequested ? "Dernière analyse annulée." : e.Message;
+                project.LastAnalysisDate = DateTime.Now;
+                context.Projects.Update(project);
+                await context.SaveChangesAsync(token);
                 throw;
             }
         }
@@ -125,17 +116,16 @@ namespace SoupDiscover.Core
             var tasks = new List<Task<PackageConsumerName[]>>();
             foreach (var searcher in _searchPackages.Values)
             {
-                tasks.Add(searcher.SearchPackages(directory, token));
+                tasks.Add(searcher.SearchPackagesAsync(directory, token));
             }
             var list = new List<PackageConsumerName>();
-            Task.WaitAll(tasks.ToArray());
+            WaitAll(tasks.ToArray());
 
             foreach (var t in tasks)
             {
-                var resultat = t.Result;
-                if (resultat != null)
+                if (t.Result != null)
                 {
-                    list.AddRange(resultat);
+                    list.AddRange(t.Result);
                 }
             }
             // Save all packages in database and search metadata for all unknown found packages
@@ -148,39 +138,36 @@ namespace SoupDiscover.Core
         /// </summary>
         private async Task CreateScopeAndSave(ICollection<PackageConsumerName> packageConsumerNames, string checkoutDirectory, CancellationToken token)
         {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                await SaveSearchResult(packageConsumerNames, context, token);
-            }
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+            await SaveSearchResult(packageConsumerNames, context, token);
         }
 
         /// <summary>
         /// Save result to database
         /// </summary>
-        /// <param name="projectJob">The job that finished</param>
         private async Task SaveSearchResult(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, CancellationToken token)
         {
-            var project = context.Projects.Find(ProjectDto.Name);
+            var project = await context.Projects.FindAsync(ProjectDto.Name);
             // Remove last search
-            context.Entry(project).Collection(p => p.PackageConsumers).Load();
+            await context.Entry(project).Collection(p => p.PackageConsumers).LoadAsync(token);
             context.PackageConsumer.RemoveRange(project.PackageConsumers);
 
             if (packageConsumerNames != null)
             {
-                SavePackageConsumers(packageConsumerNames, context, project, token);
+                await SavePackageConsumersAsync(packageConsumerNames, context, project, token);
             }
             project.LastAnalysisError = "";
             project.LastAnalysisDate = DateTime.Now;
             context.Projects.Update(project);
-            context.SaveChanges();
+            await context.SaveChangesAsync(token);
         }
 
         /// <summary>
         /// Save in the project, all package consumers found
         /// And search Metadata of all unkonwn packages
         /// </summary>
-        private void SavePackageConsumers(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, ProjectEntity project, CancellationToken token)
+        private async Task SavePackageConsumersAsync(ICollection<PackageConsumerName> packageConsumerNames, DataContext context, ProjectEntity project, CancellationToken token)
         {
             var packageCache = new Dictionary<string, Package>(StringComparer.OrdinalIgnoreCase);
             // Add new packages found
@@ -194,7 +181,7 @@ namespace SoupDiscover.Core
                     Name = packageConsumerName.Name
                 };
                 consumers.Add(packageConsummer);
-                SavePackageInPackageConsumer(context, packageConsummer, packageConsumerName.Packages, packageCache, token);
+                await SavePackageInPackageConsumerAsync(context, packageConsummer, packageConsumerName.Packages, packageCache, token);
             }
         }
 
@@ -206,7 +193,7 @@ namespace SoupDiscover.Core
         /// <param name="packagesName">All packagename to add to packageConsumer</param>
         /// <param name="packageCache">All packages already find in database or just created. The key is {PackageId}/{Version}</param>
         /// <param name="token">The token, to cancel the processing</param>
-        private void SavePackageInPackageConsumer(DataContext context, PackageConsumer packageConsummer, IEnumerable<PackageName> packagesName, IDictionary<string, Package> packageCache, CancellationToken token = default)
+        private async Task SavePackageInPackageConsumerAsync(DataContext context, PackageConsumer packageConsummer, IEnumerable<PackageName> packagesName, IDictionary<string, Package> packageCache, CancellationToken token = default)
         {
             foreach (var packageName in packagesName)
             {
@@ -214,11 +201,11 @@ namespace SoupDiscover.Core
                 // Search package in cache
                 packageCache.TryGetValue(packageName.GetSerialized(), out var packageInDatabase);
                 // Search package in database
-                packageInDatabase = packageInDatabase ?? context.Packages.Where(p => p.PackageId == packageName.PackageId && p.Version == packageName.Version).FirstOrDefault();
+                packageInDatabase = packageInDatabase ?? context.Packages.FirstOrDefault(p => p.PackageId == packageName.PackageId && p.Version == packageName.Version);
                 if (packageInDatabase == null)
                 {
                     // Create a package
-                    packageInDatabase = GetPackageWithMetadata(packageName, token);
+                    packageInDatabase = await GetPackageWithMetadataAsync(packageName, token);
                     context.Packages.Add(packageInDatabase);
                 }
                 // Add package in cache
@@ -236,9 +223,9 @@ namespace SoupDiscover.Core
         /// <param name="packageName">The package to search</param>
         /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
         /// <returns></returns>
-        private Package GetPackageWithMetadata(PackageName packageName, CancellationToken token = default)
+        private Task<Package> GetPackageWithMetadataAsync(PackageName packageName, CancellationToken token = default)
         {
-            return _searchPackages[packageName.PackageType].SearchMetadata(packageName.PackageId, packageName.Version, SearchPackageConfiguraton, token);
+            return _searchPackages[packageName.PackageType].SearchMetadataAsync(packageName.PackageId, packageName.Version, SearchPackageConfiguration, token);
         }
 
         /// <summary>
@@ -275,7 +262,7 @@ namespace SoupDiscover.Core
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update ACL to be executable
-                Process.Start("chmod", $"+x {filename}").WaitForExit();
+                Process.Start("chmod", $"+x {filename}")?.WaitForExit();
             }
             // Execute the script
             ProcessHelper.ExecuteAndLog(filename, null, checkoutDirectory, _logger, token);
@@ -310,7 +297,7 @@ namespace SoupDiscover.Core
 
         Task<IJob> IJob.ExecuteAsync(CancellationToken token)
         {
-            return ExecuteAsync(token).ContinueWith<IJob>(t => t.Result);
+            return ExecuteAsync(token).ContinueWith<IJob>(t => t.Result, token);
         }
     }
 }

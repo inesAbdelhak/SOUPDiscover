@@ -1,8 +1,8 @@
-﻿using SoupDiscover.Core.Respository;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SoupDiscover.Core.Repository;
 
 namespace SoupDiscover.ORM
 {

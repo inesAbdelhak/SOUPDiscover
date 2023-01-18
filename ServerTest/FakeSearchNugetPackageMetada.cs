@@ -8,19 +8,19 @@ internal class FakeSearchNugetPackageMetada : ISearchPackage
 {
     public PackageType PackageType => PackageType.Nuget;
 
-    public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token)
+    public Task<Package> SearchMetadataAsync(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token)
     {
-        return new Package() { PackageId = packageId, Version = version, PackageType = PackageType.Npm, Description = $"{packageId}@{version}" };
+        return Task.FromResult(new Package { PackageId = packageId, Version = version, PackageType = PackageType.Npm, Description = $"{packageId}@{version}" });
     }
 
-    public async Task<PackageConsumerName[]> SearchPackages(string checkoutDirectory, CancellationToken token = default)
+    public Task<PackageConsumerName[]> SearchPackagesAsync(string checkoutDirectory, CancellationToken token = default)
     {
-        return new PackageConsumerName[]
+        return Task.FromResult(new[]
         {
             new PackageConsumerName("monCsproj", new []
             {
                 new PackageName("log4Net", "2.0.8", PackageType.Nuget),
             }),
-         };
+        });
     }
 }

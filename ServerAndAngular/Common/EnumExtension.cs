@@ -15,7 +15,7 @@ namespace SoupDiscover.Common
                 yield break;
             }
             var result = new List<T>();
-            foreach (T de in serializedEnum.Split(delimiter).Select(e => Enum.Parse<T>(e)))
+            foreach (T de in serializedEnum.Split(delimiter).Select(Enum.Parse<T>))
             {
                 yield return de;
             }
@@ -23,11 +23,7 @@ namespace SoupDiscover.Common
 
         public static string Serialize<T>(this T[] enumToSerialize) where T : Enum
         {
-            if (enumToSerialize == null)
-            {
-                return null;
-            }
-            return string.Join($"{delimiter}", enumToSerialize);
+            return enumToSerialize == null ? null : string.Join($"{delimiter}", enumToSerialize);
         }
     }
 

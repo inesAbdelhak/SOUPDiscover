@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using SoupDiscover.Core.Respository;
+using SoupDiscover.Core.Repository;
 using SoupDiscover.Database;
 
 namespace SoupDiscover.ORM

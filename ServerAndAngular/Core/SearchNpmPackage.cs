@@ -76,7 +76,7 @@ namespace SoupDiscover.Core
         /// <param name="packageId">The package id to search</param>
         /// <param name="version">The version of the package to search</param>
         /// <param name="checkoutDirectory">The directory where the sources files are checkout</param>
-        public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
+        public async Task<Package> SearchMetadataAsync(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
             string[] packageLockJsonFiles;
             if (_lastSearch.CheckoutDirectory == configuration.CheckoutDirectory)
@@ -104,7 +104,7 @@ namespace SoupDiscover.Core
 
                 if (File.Exists(packageMetadataFile))
                 {
-                    var json = JsonDocument.Parse(File.ReadAllText(packageMetadataFile, Encoding.UTF8));
+                    var json = JsonDocument.Parse(await File.ReadAllTextAsync(packageMetadataFile, Encoding.UTF8, token));
                     var foundVersion = json.RootElement.GetProperty("version").GetString();
                     if (foundVersion != version)
                     {
@@ -142,7 +142,7 @@ namespace SoupDiscover.Core
         /// </summary>
         /// <param name="checkoutDirectory">The directory where the repository is checkout</param>
         /// <returns>The package with metadata</returns>
-        public async Task<PackageConsumerName[]> SearchPackages(string checkoutDirectory, CancellationToken token = default)
+        public async Task<PackageConsumerName[]> SearchPackagesAsync(string checkoutDirectory, CancellationToken token = default)
         {
             var packageConsumers = new List<PackageConsumerName>();
             // Search all lock files
@@ -151,7 +151,7 @@ namespace SoupDiscover.Core
                 token.ThrowIfCancellationRequested();
                 var packages = new HashSet<PackageName>();
                 var alreadyParsed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var fileContent = File.ReadAllText(lockFile, Encoding.UTF8);
+                var fileContent = await File.ReadAllTextAsync(lockFile, Encoding.UTF8, token);
                 var json = JsonDocument.Parse(fileContent);
                 foreach (var dep in json.RootElement.GetProperty("dependencies").EnumerateObject())
                 {
