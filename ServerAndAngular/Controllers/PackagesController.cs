@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SoupDiscover.Common;
 using SoupDiscover.Dto;
 using SoupDiscover.ORM;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -86,7 +85,7 @@ namespace SoupDiscover.Controllers
             {
                 return Problem($"Package Id not defined!");
             }
-            var csvStream = ExportPackagesFromId(packageId);
+            var csvStream = await ExportPackagesFromIdAsync(packageId);
             if (csvStream == null)
             {
                 return Problem($"Unable to find the project {packageId}");
@@ -122,19 +121,20 @@ namespace SoupDiscover.Controllers
             {
                 return Problem($"Package Id not defined!");
             }
-            var package = SearchPackage(packageId).ToList();
-            return package;
+            var package = await SearchPackageAsync(packageId);
+            return package.ToList();
         }
 
-        public IEnumerable<PackageWithProjectDto> SearchPackage(string packageId)
+        public async Task<IEnumerable<PackageWithProjectDto>> SearchPackageAsync(string packageId)
         {
             SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"You must set at least 3 char for the parameter {nameof(packageId)}.");
-            var packagesFound = from packageConsumer in _context.PackageConsumer
-                                join p2 in _context.PackageConsumerPackages on packageConsumer.PackageConsumerId equals p2.PackageConsumerId
-                                where p2.Package.PackageId.Contains(packageId)
-                                select new { packageConsumer, p2.Package };
+            var packagesFound = _context.PackageConsumer
+                .Join(_context.PackageConsumerPackages, packageConsumer => packageConsumer.PackageConsumerId,
+                    p2 => p2.PackageConsumerId, (packageConsumer, p2) => new { packageConsumer, p2 })
+                .Where(@t => @t.p2.Package.PackageId.Contains(packageId))
+                .Select(@t => new { @t.packageConsumer, @t.p2.Package }).AsAsyncEnumerable();
             var packageDico = new Dictionary<Package, List<PackageConsumer>>();
-            foreach (var package in packagesFound)
+            await foreach (var package in packagesFound)
             {
                 List<PackageConsumer> list;
                 if (!packageDico.ContainsKey(package.Package))
@@ -157,9 +157,9 @@ namespace SoupDiscover.Controllers
         /// <param name="packageId">The package id must contains</param>
         /// <param name="delimiter">Delimiter to apply between elements of a line</param>
         /// <returns>The stream of CSV data</returns>
-        private Stream ExportPackagesFromId(string packageId, char delimiter = ';')
+        private async Task<Stream> ExportPackagesFromIdAsync(string packageId, char delimiter = ';')
         {
-            var packages = SearchPackage(packageId);
+            var packages = await SearchPackageAsync(packageId);
             var baseStream = new MemoryStream();
             using var stream = new StreamWriter(baseStream, System.Text.Encoding.UTF8, -1, true)
             {

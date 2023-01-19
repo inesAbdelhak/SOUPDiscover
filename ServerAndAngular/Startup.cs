@@ -10,7 +10,6 @@ using SoupDiscover.Core;
 using SoupDiscover.Database;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
-using System;
 
 namespace SoupDiscover
 {

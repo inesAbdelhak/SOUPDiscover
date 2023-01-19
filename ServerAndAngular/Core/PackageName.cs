@@ -1,8 +1,8 @@
-﻿using SoupDiscover.ORM;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using SoupDiscover.ORM;
 
-namespace SoupDiscover.Common
+namespace SoupDiscover.Core
 {
     public class PackageName : IEquatable<PackageName>
     {

@@ -1,4 +1,4 @@
-﻿using SoupDiscover.Core.Respository;
+﻿using SoupDiscover.Core.Repository;
 using SoupDiscover.ORM;
 
 namespace SoupDiscover.Dto
@@ -39,21 +39,20 @@ namespace SoupDiscover.Dto
             {
                 return null;
             }
-            Repository repository = null;
+
             // Create repository from repository dto
-            switch (repositoryDto.repositoryType)
+            Repository repository = repositoryDto.repositoryType switch
             {
-                case RepositoryType.Git:
-                    repository = new GitRepository()
-                    {
-                        Branch = repositoryDto.branch,
-                        Url = repositoryDto.url,
-                        Name = repositoryDto.name,
-                        CredentialId = repositoryDto.credentialId,
-                        Credential = repositoryDto.credential.ToModel(),
-                    };
-                    break;
-            }
+                RepositoryType.Git => new GitRepository()
+                {
+                    Branch = repositoryDto.branch,
+                    Url = repositoryDto.url,
+                    Name = repositoryDto.name,
+                    CredentialId = repositoryDto.credentialId,
+                    Credential = repositoryDto.credential.ToModel(),
+                },
+                _ => null
+            };
             return repository;
         }
     }

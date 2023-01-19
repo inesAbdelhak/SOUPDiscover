@@ -1,18 +1,26 @@
-﻿using Microsoft.Extensions.Logging;
-using SoupDiscover.ICore;
-using SoupDiscover.ORM;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
+using NuGet.Common;
+using NuGet.Packaging.Core;
+using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
+using SoupDiscover.Common;
+using SoupDiscover.ICore;
+using SoupDiscover.ORM;
 
-namespace SoupDiscover.Common
+namespace SoupDiscover.Core
 {
     /// <summary>
     /// Search nuget package 
@@ -21,10 +29,13 @@ namespace SoupDiscover.Common
     /// </summary>
     public class SearchNugetPackage : ISearchPackage
     {
-        private readonly Lazy<WebClient> _webClient = new Lazy<WebClient>(() => new WebClient());
+        private static readonly HttpClientHandler ClientHandler = new() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+        private readonly Lazy<HttpClient> _httpClient = new(() => new HttpClient(ClientHandler));
         private readonly ILogger<SearchNugetPackage> _logger;
+        private static readonly SourceCacheContext Cache = new SourceCacheContext();
+        private static readonly SourceRepository RepositoryV3 = NuGet.Protocol.Core.Types.Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
 
-        public PackageType PackageType => PackageType.Nuget;
+        public SoupDiscover.ORM.PackageType PackageType => ORM.PackageType.Nuget;
 
         public SearchNugetPackage(ILogger<SearchNugetPackage> logger)
         {
@@ -35,12 +46,10 @@ namespace SoupDiscover.Common
         /// Retrieve metadata of the package, in cache, in directory %userprofile%/.nuget/packages
         /// </summary>
         /// <returns>The Xml node of the nuspec file of the package</returns>
-        private static XElement GetPackageMetadataOnLocalCache(string packageId, string version)
+        private static XElement GetPackageMetadataOnLocalCache(string packageId, string version, string packageDirectory)
         {
             SoupDiscoverException.ThrowIfNullOrEmpty(packageId, $"{nameof(packageId)} must be not null or empty!");
             SoupDiscoverException.ThrowIfNullOrEmpty(version, $"{nameof(version)} must be not null or empty!");
-            var packageDirectory = GetNugetCacheDirectory(packageId, version);
-
             if (!File.Exists(packageDirectory))
             {
                 return null; // package not found in cache
@@ -93,11 +102,39 @@ namespace SoupDiscover.Common
             return (ISearchPackage.NoneLicenseExpression, LicenseType.None);
         }
 
-        public Package SearchMetadata(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
+        public async Task<Package> SearchPackageMetaDataAsync(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
         {
+            var pkgMetadataResource = await RepositoryV3.GetResourceAsync<PackageMetadataResource>(token);
+            var package = await pkgMetadataResource.GetMetadataAsync(new PackageIdentity(packageId, new NuGetVersion(version)), Cache, NullLogger.Instance, token);
+            if (package != null)
+            {
+                return new Package
+                {
+                    PackageId = packageId,
+                    Version = version,
+                    License = package.LicenseMetadata?.License,
+                    LicenseType = (package.LicenseMetadata?.Type).ConvertLicenseType(),
+                    PackageType = ORM.PackageType.Nuget,
+                    Description = package.Description,
+                    ProjectUrl = package.ProjectUrl?.ToString(),
+                    RepositoryUrl = package.PackageDetailsUrl?.ToString(),
+                    RepositoryType = "git"
+                };
+            }
+
+            return null;
+        }
+
+        public async Task<Package> SearchMetadataAsync(string packageId, string version, SearchPackageConfiguration configuration, CancellationToken token = default)
+        {
+            var result = await SearchPackageMetaDataAsync(packageId, version, configuration, token);
+            if (result != null)
+            {
+                return result;
+            }
             // Try to retrieve package metadata, by reading nuspec file in nuget cache directory
-            var nuspecMetadata = GetPackageMetadataOnLocalCache(packageId, version);
             var packageDirectory = GetNugetCacheDirectory(packageId, version);
+            var nuspecMetadata = GetPackageMetadataOnLocalCache(packageId, version, packageDirectory);
             if (nuspecMetadata != null)
             {
                 var license = GetLicense(nuspecMetadata, packageDirectory);
@@ -107,7 +144,7 @@ namespace SoupDiscover.Common
                     Version = version,
                     License = license.License,
                     LicenseType = license.LicenseType,
-                    PackageType = PackageType.Nuget,
+                    PackageType = ORM.PackageType.Nuget,
                     Description = nuspecMetadata.Element(XName.Get("description", nuspecMetadata.Name.NamespaceName))?.Value,
                     ProjectUrl = nuspecMetadata.Element(XName.Get("projectUrl", nuspecMetadata.Name.NamespaceName))?.Value,
                     RepositoryUrl = nuspecMetadata.Element(XName.Get("repository", nuspecMetadata.Name.NamespaceName))?.Attribute(XName.Get("url"))?.Value,
@@ -115,14 +152,14 @@ namespace SoupDiscover.Common
                 };
             }
             var sources = configuration.GetSources(PackageType);
-            if (sources == null || sources.Length == 0)
+            if (sources == null || sources.Count == 0)
             {
-                return new Package()
+                return new Package
                 {
                     PackageId = packageId, 
                     Version = version, 
                     License = ISearchPackage.NoneLicenseExpression, 
-                    PackageType = PackageType.Nuget
+                    PackageType = ORM.PackageType.Nuget
                 };
             }
             // Retrieve package metadata by calling REST nuget api server
@@ -131,7 +168,10 @@ namespace SoupDiscover.Common
             {
                 try
                 {
-                    metadataAsXml = _webClient.Value.DownloadString($"{source}/Packages(Id='{packageId}',Version='{version}')");
+                    var client = _httpClient.Value;
+                    using var response = await client.GetAsync($"{source}/Packages(Id='{packageId}',Version='{version}')", token);
+                    using var content = response.Content;
+                    metadataAsXml = await content.ReadAsStringAsync(token);
                 }
                 catch (WebException)
                 {
@@ -147,11 +187,18 @@ namespace SoupDiscover.Common
             string projectUrl = null;
             if (metadataAsXml != null)
             {
-                var document = XDocument.Parse(metadataAsXml);
-                var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
-                licenseUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl")?.Value;
-                description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
-                projectUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "ProjectUrl")?.Value;
+                try
+                {
+                    var document = XDocument.Parse(metadataAsXml);
+                    var properties = document.Root.Elements().FirstOrDefault(e => e.Name.LocalName == "properties");
+                    licenseUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "LicenseUrl")?.Value;
+                    description = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "Description").Value;
+                    projectUrl = properties?.Elements().FirstOrDefault(e => e.Name.LocalName == "ProjectUrl")?.Value;
+                }
+                catch (XmlException e)
+                {
+                    _logger.LogError(e, "Can't get package meta data");
+                }
             }
             else
             {
@@ -163,7 +210,7 @@ namespace SoupDiscover.Common
                 Version = version,
                 License = licenseUrl,
                 LicenseType = LicenseType.Url,
-                PackageType = PackageType.Nuget,
+                PackageType = ORM.PackageType.Nuget,
                 Description = description,
                 ProjectUrl = projectUrl,
             };
@@ -173,14 +220,14 @@ namespace SoupDiscover.Common
         /// Search all nuget packages in a directory,
         /// by searching in "project.assets.json" and "packages.config" files
         /// </summary>
-        public async Task<PackageConsumerName[]> SearchPackages(string path, CancellationToken token)
+        public async Task<PackageConsumerName[]> SearchPackagesAsync(string path, CancellationToken token)
         {
             var allPackagesConsumers = new List<PackageConsumerName>();
             var alreadyParsed = new Dictionary<string, PackageName>();
             var packagesWithoutConsumer = new HashSet<PackageName>();
 
             // Search in project.assets.json
-            allPackagesConsumers.AddRange(SearchPackagesFromAssetJson(path, alreadyParsed, token));
+            allPackagesConsumers.AddRange(await SearchPackagesFromAssetJson(path, alreadyParsed, token));
 
             // Search packages.config
             SearchPackagesFromPackageConfig(path, alreadyParsed, packagesWithoutConsumer, token);
@@ -228,7 +275,7 @@ namespace SoupDiscover.Common
                     }
                     else
                     {
-                        var packageName = new PackageName(id, version, PackageType.Nuget);
+                        var packageName = new PackageName(id, version, ORM.PackageType.Nuget);
                         alreadyParsed.Add($"{id}/{version}", packageName);
                         packagesWithoutConsumer.Add(packageName);
                     }
@@ -264,7 +311,7 @@ namespace SoupDiscover.Common
                     }
                     else
                     {
-                        var packageName = new PackageName(id, version, PackageType.Nuget);
+                        var packageName = new PackageName(id, version, ORM.PackageType.Nuget);
                         alreadyParsed.Add($"{id}/{version}", packageName);
                         packagesWithoutConsumer.Add(packageName);
                     }
@@ -279,7 +326,7 @@ namespace SoupDiscover.Common
         /// <param name="alreadyParsed"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        private IEnumerable<PackageConsumerName> SearchPackagesFromAssetJson(string checkoutDirectory, Dictionary<string, PackageName> alreadyParsed, CancellationToken token)
+        private async Task<IEnumerable<PackageConsumerName>> SearchPackagesFromAssetJson(string checkoutDirectory, Dictionary<string, PackageName> alreadyParsed, CancellationToken token)
         {
             var result = new List<PackageConsumerName>();
             foreach (var jsonFile in Directory.GetFiles(checkoutDirectory, "project.assets.json", SearchOption.AllDirectories))
@@ -290,7 +337,7 @@ namespace SoupDiscover.Common
                 try
                 {
                     // Parse project.assets.json, to extract all packages
-                    var jsonString = File.ReadAllTextAsync(jsonFile, token).Result;
+                    var jsonString = await File.ReadAllTextAsync(jsonFile, token);
                     using (var json = JsonDocument.Parse(jsonString))
                     {
                         csproj = json.RootElement.GetProperty("project").GetProperty("restore").GetProperty("projectPath").GetString();
@@ -307,7 +354,7 @@ namespace SoupDiscover.Common
                             else
                             {
                                 var splited = idAndVersion.Split('/');
-                                var packageName = new PackageName(splited[0], splited[1], PackageType.Nuget);
+                                var packageName = new PackageName(splited[0], splited[1], ORM.PackageType.Nuget);
                                 packagesOfCurrentProject.Add(packageName);
                                 alreadyParsed.Add(idAndVersion, packageName);
                             }
