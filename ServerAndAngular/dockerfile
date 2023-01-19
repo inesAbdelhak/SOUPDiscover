@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:5.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/sdk:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
@@ -27,7 +27,7 @@ RUN [[ ${skip_client_build} = true ]] && echo "Skipping npm install" || npm inst
 RUN [[ ${skip_client_build} = true ]] && mkdir dist || npm run-script build
 
 # Container to compile dotnet part
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG nuget_registry
 ENV http_proxy=$http_proxy
 ENV https_proxy=$https_proxy

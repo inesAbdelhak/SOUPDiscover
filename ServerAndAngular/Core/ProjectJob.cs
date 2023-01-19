@@ -237,6 +237,7 @@ namespace SoupDiscover.Core
         {
             if (string.IsNullOrEmpty(ProjectDto.CommandLinesBeforeParse))
             {
+                _logger.LogDebug("No command line before parse is defined");
                 return; // No command line before parse is defined
             }
             string filename;
@@ -262,10 +263,14 @@ namespace SoupDiscover.Core
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 // Update ACL to be executable
-                Process.Start("chmod", $"+x {filename}")?.WaitForExit();
+                _logger.LogDebug($"Update ACL to execute {filename}.");
+                Process.Start("chmod", $"+x {filename}").WaitForExit();
             }
             // Execute the script
-            ProcessHelper.ExecuteAndLog(filename, null, checkoutDirectory, _logger, token);
+            _logger.LogDebug($"Executing the script {filename}.");
+            var result = ProcessHelper.ExecuteAndLog(filename, null, checkoutDirectory, _logger, token);
+
+            _logger.LogDebug($"Executing the script {filename} finished : ExitCode -> {result.ExitCode}, {result.ErrorMessage}.");
         }
 
         /// <summary>

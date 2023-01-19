@@ -41,7 +41,7 @@ namespace SoupDiscover.Common
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
-            process.OutputDataReceived += (o, e) => logger.LogDebug(e.Data);
+            process.OutputDataReceived += (o, e) => logger.LogInformation(e.Data);
             process.ErrorDataReceived += (o, e) => { logs.AppendLine(e.Data); logger.LogWarning(e.Data); };
 
             process.Start();
@@ -67,7 +67,7 @@ namespace SoupDiscover.Common
             {
                 messageError = $"Error on executing file {filename}";
             }
-            return (ExitCode: process.ExitCode, ErrorMessage: messageError);
+            return (ExitCode: process.ExitCode, ErrorMessage: messageError ?? string.Empty);
         }
     }
 }
