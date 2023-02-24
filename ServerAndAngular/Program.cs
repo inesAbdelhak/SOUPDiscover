@@ -5,6 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SoupDiscover.ORM;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 
 namespace SoupDiscover
 {
@@ -15,6 +18,11 @@ namespace SoupDiscover
             var host = CreateHostBuilder(args).Build();
             CreateDbIfNotExists(host);
             host.Run();
+            var clientGithub = new ClientGithub();
+            clientGithub.Do();
+
+           // Class test= new Class ();
+           //test.RequestSecurityMetaData(new string[] { "log4net", "newtonsoft.json" });
         }
 
         private static void CreateDbIfNotExists(IHost host)
@@ -54,5 +62,7 @@ namespace SoupDiscover
                     logging.AddConsole();
                 });
         }
+
+
     }
 }

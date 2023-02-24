@@ -70,5 +70,13 @@ namespace SoupDiscover.ORM
         public string RepositoryUrl { get; set; }
 
         public string RepositoryCommit { get; set; }
+
+        /// <summary>
+        /// Package vulnerabilities meta data.
+        /// </summary>
+        public IList<VulnerabilityMetaData> Vulnerabilities { get; set; }
+
+
+
     }
 }

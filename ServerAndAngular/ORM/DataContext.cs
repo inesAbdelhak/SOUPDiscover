@@ -18,7 +18,7 @@ namespace SoupDiscover.ORM
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
+        { 
             base.OnConfiguring(optionsBuilder);
             // The configuration of database must be in this class, otherwise migration generation with ef tool doesn't works
             optionsBuilder.UseDatabaseConfig(_configuration);
@@ -34,6 +34,9 @@ namespace SoupDiscover.ORM
                 .HasDiscriminator()
                 .HasValue<GitRepository>("git");
         }
+
+
+
         public DbSet<Repository> Repositories { get; set; }
 
         public DbSet<Credential> Credentials { get; set; }
@@ -45,5 +48,13 @@ namespace SoupDiscover.ORM
         public DbSet<PackageConsumer> PackageConsumer { get; set; }
 
         public DbSet<PackageConsumerPackage> PackageConsumerPackages { get; set; }
+
+         // Code pour configurer la connexion à la base de données
+         public DbSet<Vulnerability> Vulnerabilities { get; set; }
+
+            
+        }
+
+
     }
-}
+

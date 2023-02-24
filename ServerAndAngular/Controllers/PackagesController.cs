@@ -179,7 +179,8 @@ namespace SoupDiscover.Controllers
                 "License",
                 "LicenseType",
                 "sous-projet",
-                "Projets" },
+                "Projets" ,
+                "Vulnerabilities"},
                 delimiter));
             foreach (var p in packages)
             {

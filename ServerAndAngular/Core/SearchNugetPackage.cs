@@ -19,6 +19,9 @@ using NuGet.Versioning;
 using SoupDiscover.Common;
 using SoupDiscover.ICore;
 using SoupDiscover.ORM;
+using SoupDiscover.GraphQL;
+using SoupDiscover.Controllers;
+using Newtonsoft.Json;
 
 namespace SoupDiscover.Core
 {
@@ -106,8 +109,17 @@ namespace SoupDiscover.Core
         {
             var pkgMetadataResource = await RepositoryV3.GetResourceAsync<PackageMetadataResource>(token);
             var package = await pkgMetadataResource.GetMetadataAsync(new PackageIdentity(packageId, new NuGetVersion(version)), Cache, NullLogger.Instance, token);
+   
             if (package != null)
             {
+                var vulnerabilitiesMetaData = new List<VulnerabilityMetaData>();
+                if (package.Vulnerabilities.Any())
+                {
+                    foreach(var v in package.Vulnerabilities)
+                    {
+                        vulnerabilitiesMetaData.Add(new VulnerabilityMetaData(v.AdvisoryUrl, v.Severity, v.AdvisoryUrl.Segments.Last()));
+                    }
+                }
                 return new Package
                 {
                     PackageId = packageId,
@@ -118,7 +130,8 @@ namespace SoupDiscover.Core
                     Description = package.Description,
                     ProjectUrl = package.ProjectUrl?.ToString(),
                     RepositoryUrl = package.PackageDetailsUrl?.ToString(),
-                    RepositoryType = "git"
+                    RepositoryType = "git",
+                    Vulnerabilities = vulnerabilitiesMetaData
                 };
             }
 

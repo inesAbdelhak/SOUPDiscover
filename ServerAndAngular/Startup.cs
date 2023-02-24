@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,6 +27,8 @@ namespace SoupDiscover
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            
             services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -47,6 +51,9 @@ namespace SoupDiscover
             services.AddTransient<IProjectJob, ProjectJob>();
             services.AddTransient<ISearchPackage, SearchNpmPackage>();
             services.AddTransient<ISearchPackage, SearchNugetPackage>();
+            services.AddDbContext<DataContext>(options =>
+    options.UseSqlite(Configuration.GetConnectionString("CustomerDB.db")));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
